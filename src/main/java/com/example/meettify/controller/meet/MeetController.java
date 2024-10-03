@@ -108,12 +108,32 @@ public class MeetController {
         try {
             //해당 모임의 관리자가 아니라면 잘못된 요청임
             if( !(meetService.getMeetRole(meetId,userDetails.getUsername()) == MeetRole.ADMIN)){
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 모임 리스트 조회입니다.");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("잘못된 모임 리스트 조회입니다.");
             }
             List<ResponseMeetMemberDTO> meetMemberList = meetService.getMeetMemberList(meetId);
             return ResponseEntity.status(HttpStatus.OK).body(meetMemberList);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 모임 리스트 조회입니다.");
+        }
+    }
+
+    //모임 회원 Role변경하기
+    @PatchMapping("{meetId}/{meetMemberId}")
+    @Operation(summary = "모임 회원 Role 변경하기", description = "모임 회원 Role 변경 구현")
+    public ResponseEntity<?> updateMeetMemberRole(@PathVariable Long meetId,
+                                                  @PathVariable Long meetMemberId,
+                                                  @RequestBody MeetRole newRole,
+                                                  @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            // TODO: 현재 로그인된 사용자가 관리자 권한이 있는지 확인하는 로직 추가 (userDetails를 이용하여 권한 확인)
+            if( !(meetService.getMeetRole(meetId,userDetails.getUsername()) == MeetRole.ADMIN)){
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(" 모임 회원에 대한 조회입니다.");
+            }
+            // TODO: 해당 meetId와 memberId를 통해 모임 회원을 찾아서 Role을 변경하는 로직 추가
+            MeetRole updatedRole = meetService.updateRole(meetMemberId, newRole);
+            return ResponseEntity.status(HttpStatus.OK).body(updatedRole);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 모임 회원에 대한 접근입니다.");
         }
     }
 
