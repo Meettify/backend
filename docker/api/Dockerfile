@@ -2,7 +2,7 @@
 FROM gradle:8.0-jdk17 AS builder
 WORKDIR /app
 COPY . .
-RUN ggradle clean build --no-build-cache
+RUN gradle clean build --no-build-cache
 
 # JDK stage
 FROM openjdk:17-jdk-slim
