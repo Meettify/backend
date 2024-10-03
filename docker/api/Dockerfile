@@ -2,7 +2,7 @@
 FROM gradle:8.0-jdk17 AS builder
 WORKDIR /app
 COPY . .
-RUN gradle clean build
+RUN gradle clean build --refresh-dependencies
 
 # JDK stage
 FROM openjdk:17-jdk-slim
