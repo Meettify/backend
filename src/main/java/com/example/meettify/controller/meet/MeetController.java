@@ -13,6 +13,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -89,13 +90,30 @@ public class MeetController {
     public ResponseEntity<?> getMeetRole(@PathVariable Long meetId, @AuthenticationPrincipal UserDetails userDetails) {
         try {
             if (Objects.isNull(userDetails) ||"".equals(userDetails.getUsername())|| userDetails.getUsername() == null ) {
-                ResponseEntity.status(HttpStatus.OK).body(MeetRole.EXPEL);
+                ResponseEntity.status(HttpStatus.OK).body(MeetRole.OUTSIDER);
             }
 
             MeetRole response = meetService.getMeetRole(meetId, userDetails.getUsername());
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 모임 권한 조회입니다.");
+        }
+    }
+
+    //모임 가입 회원 리스트 보기
+    @GetMapping("/{meetId}/members")
+    @Tag(name = "meet")
+    @Operation(summary = "모임 가입 회원 리스트 보기", description = "모임 가입 회원 리스트 구현")
+    public ResponseEntity<?> getMeetMemberList(@PathVariable Long meetId, @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            //해당 모임의 관리자가 아니라면 잘못된 요청임
+            if( !(meetService.getMeetRole(meetId,userDetails.getUsername()) == MeetRole.ADMIN)){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 모임 리스트 조회입니다.");
+            }
+            List<ResponseMeetMemberDTO> meetMemberList = meetService.getMeetMemberList(meetId);
+            return ResponseEntity.status(HttpStatus.OK).body(meetMemberList);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 모임 리스트 조회입니다.");
         }
     }
 

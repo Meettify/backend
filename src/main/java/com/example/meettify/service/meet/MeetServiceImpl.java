@@ -247,4 +247,12 @@ public class MeetServiceImpl implements MeetService {
 
     }
 
+    @Override
+    public List<ResponseMeetMemberDTO> getMeetMemberList(Long meetId) {
+
+        List<MeetMemberEntity> meetMemberList = meetMemberRepository.findMeetMembersWithMeetAndMember(meetId);
+
+        return meetMemberList.stream().map(ResponseMeetMemberDTO::changeDTO).collect(Collectors.toList());
+    }
+
 }

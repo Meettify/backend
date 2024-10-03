@@ -32,4 +32,6 @@ public interface MeetService {
     MeetRole getMeetRole(Long meetId, String email);
 
     List<MeetBoardSummaryDTO>  getMeetSummaryList(Long meetId);
+
+    List<ResponseMeetMemberDTO> getMeetMemberList(Long meetId);
 }
