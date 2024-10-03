@@ -14,6 +14,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.nio.channels.AcceptPendingException;
 import java.nio.file.AccessDeniedException;
+import java.util.Arrays;
+import java.util.List;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -21,6 +23,7 @@ import java.nio.file.AccessDeniedException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public static final String HEADER_AUTHORIZATION = "Authorization";
     private final JwtProvider jwtProvider;
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
