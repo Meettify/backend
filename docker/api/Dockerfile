@@ -1,19 +1,12 @@
-# Base image for building the application
-FROM gradle:8.0.2-jdk17 AS builder
-WORKDIR /app
-
-# 소스 코드 복사 (Git 클론 대신 GitHub Actions에서 클론한 코드를 사용)
-COPY . .
-
-# Gradle 빌드 수행
-RUN chmod +x gradlew && ./gradlew build --no-daemon
-
-# Base image for running the application
+# JDK 이미지를 사용하여 애플리케이션 실행
 FROM openjdk:17-jdk-slim
 
+# 빌드된 JAR 파일의 경로
 ARG JAR_FILE=build/libs/meettify-0.0.1-SNAPSHOT.jar
 EXPOSE 8080
 
-COPY --from=builder /app/${JAR_FILE} app.jar
+# JAR 파일을 컨테이너에 복사
+COPY ${JAR_FILE} app.jar
 
+# 애플리케이션 실행
 ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=prod", "/app.jar"]
