@@ -91,6 +91,7 @@ jobs:
           target: /home/ubuntu # EC2의 대상 경로
 
       # 10. Gradle 빌드 후 생성된 JAR 파일을 EC2로 복사
+      # 10. Gradle 빌드 후 생성된 JAR 파일을 EC2로 복사
       - name: Copy JAR file to EC2
         uses: appleboy/scp-action@master
         with:
@@ -98,8 +99,8 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
-          source: build/libs/*.jar # 빌드 후 생성된 JAR 파일 경로
-          target: /home/ubuntu/build/libs/ # EC2의 대상 경로
+          source: build/libs/*.jar  # 빌드 후 생성된 JAR 파일 경로
+          target: /home/ubuntu/build/libs/  # EC2의 대상 경로
 
 
       # 11. EC2에 SSH 접속해서 배포
