@@ -34,4 +34,6 @@ public interface MeetService {
     List<MeetBoardSummaryDTO>  getMeetSummaryList(Long meetId);
 
     List<ResponseMeetMemberDTO> getMeetMemberList(Long meetId);
+
+    MeetRole updateRole(Long meetMemberId, MeetRole meetRole);
 }
