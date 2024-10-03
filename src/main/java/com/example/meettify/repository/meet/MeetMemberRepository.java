@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface MeetMemberRepository extends JpaRepository<MeetMemberEntity, Long> {
@@ -27,4 +28,11 @@ public interface MeetMemberRepository extends JpaRepository<MeetMemberEntity, Lo
                                                                 @Param("meetBoardId") Long meetBoardId);
 
     boolean existsByMeetEntityAndMemberEntity(MeetEntity meetEntity, MemberEntity memberEntity);
+
+   // MeetID기준으로 현재 멤버를 가져옴
+    @Query("SELECT mm FROM meetMembers mm " +
+            "JOIN FETCH mm.memberEntity m " +
+            "JOIN FETCH mm.meetEntity me " +
+            "WHERE me.meetId = :meetId")
+    List<MeetMemberEntity> findMeetMembersWithMeetAndMember(@Param("meetId") Long meetId);
 }
