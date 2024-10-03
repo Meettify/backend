@@ -99,7 +99,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           source: build/libs/*.jar  # 빌드 후 생성된 JAR 파일 경로
-          target: /home/ubuntu/build/libs/  # EC2의 대상 경로
+          target: /home/ubuntu/  # EC2의 대상 경로
 
 
       # 11. EC2에 SSH 접속해서 배포
