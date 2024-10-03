@@ -40,4 +40,8 @@ public class MeetMemberEntity extends BaseEntity {
 
     @Column(name = "meetMember_joinDate")
     private LocalDateTime joinDate;
+
+    public void updateRole(MeetRole meetRole) {
+        this.meetRole = meetRole == null ? this.meetRole :  meetRole;
+    }
 }

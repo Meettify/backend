@@ -167,7 +167,7 @@ public class MeetServiceImpl implements MeetService {
         MeetMemberEntity meetMember = MeetMemberEntity.builder()
                 .meetEntity(meet)
                 .memberEntity(member)
-                .meetRole(MeetRole.MEMBER) // 일반 회원으로 가입
+                .meetRole(MeetRole.WAITING) // 일반 회원으로 가입
                 .build();
 
         meetMemberRepository.save(meetMember);
@@ -245,6 +245,28 @@ public class MeetServiceImpl implements MeetService {
             throw new MeetBoardException("알 수 없는 오류가 발생했습니다.");
         }
 
+    }
+
+    @Override
+    public List<ResponseMeetMemberDTO> getMeetMemberList(Long meetId) {
+
+        List<MeetMemberEntity> meetMemberList = meetMemberRepository.findMeetMembersWithMeetAndMember(meetId);
+        return meetMemberList.stream().map(ResponseMeetMemberDTO::changeDTO).collect(Collectors.toList());
+    }
+
+    @Override
+    public MeetRole updateRole(Long meetMemberId, MeetRole meetRole) {
+
+        try {
+            MeetMemberEntity findMeetMember = meetMemberRepository.findById(meetMemberId).orElseThrow(EntityNotFoundException::new);
+            findMeetMember.updateRole(meetRole);
+            MeetRole updatedMeetRole = findMeetMember.getMeetRole();
+            return updatedMeetRole;
+        } catch (EntityNotFoundException e) {
+            throw new MeetException("해당 회원이 존재하지 않습니다.");
+        } catch (Exception e) {
+            throw new MeetException("Role 변경 중 오류가 발생했습니다.");
+        }
     }
 
 }
