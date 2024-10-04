@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/meetBoards")
 @Tag(name = "meetBoard", description = "모임 게시판 API")
 @RequiredArgsConstructor
-public class MeetBoardController {
+public class MeetBoardController implements MeetBoardControllerDocs{
     private final MeetBoardService meetBoardService;
 
     //모임의 모임 게시판 리스트 조회

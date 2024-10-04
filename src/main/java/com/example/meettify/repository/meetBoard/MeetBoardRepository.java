@@ -12,13 +12,11 @@ import java.util.Optional;
 
 public interface MeetBoardRepository extends JpaRepository<MeetBoardEntity, Long> {
 
-    @Query("SELECT mb FROM meetBoards mb JOIN FETCH mb.meetBoardImages WHERE mb.meetBoardId = :meetBoardId")
-    Optional<MeetBoardEntity> findByIdWithImages(@Param("meetBoardId") Long meetBoardId);
 
 
 
-    //누가 작성했는지 까지 알아야한다.
-    @Query("SELECT mb FROM meetBoards mb JOIN FETCH mb.memberEntity WHERE mb.meetEntity = :meetId ORDER BY mb.postDate DESC")
+    //Todo : join fetch 다시 확인
+    @Query("SELECT mb FROM meetBoards mb WHERE mb.meetEntity.meetId = :meetId ORDER BY mb.postDate DESC")
     List<MeetBoardEntity> findTop3MeetBoardEntitiesByMeetId(@Param("meetId") Long meetId, Pageable pageable);
 
     @Query("SELECT mb FROM meetBoards mb JOIN FETCH mb.memberEntity m WHERE mb.meetEntity.meetId = :meetId")
