@@ -18,4 +18,6 @@ public interface MemberService {
     ResponseMemberDTO update(UpdateMemberServiceDTO updateServiceDTO, String email);
     // 회원삭제
     String removeUser(Long memberId, String email);
+    // 화원 조회
+    ResponseMemberDTO getMember(Long memberId);
 }
