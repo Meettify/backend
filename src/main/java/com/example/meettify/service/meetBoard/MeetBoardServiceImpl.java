@@ -22,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,18 +53,31 @@ public class MeetBoardServiceImpl implements MeetBoardService {
     @Override
     public ResponseMeetBoardDetailsDTO getDetails(Long meetBoardId) {
         try {
-            MeetBoardEntity meetBoardEntity = meetBoardRepository.findByIdWithImages(meetBoardId).orElseThrow(()
-                    -> new EntityNotFoundException("잘못된 게시글 상세 요청입니다."));
+            // 게시글과 이미지를 조인하여 가져옴
+            MeetBoardEntity meetBoardEntity = meetBoardRepository.findById(meetBoardId)
+                    .orElseThrow(() -> new EntityNotFoundException("해당 게시글을 찾을 수 없습니다. 게시글 ID: " + meetBoardId));
+
+            // ModelMapper를 사용하여 Entity -> DTO로 매핑
             ResponseMeetBoardDetailsDTO meetBoardDetailsResponseDTO = modelMapper.map(meetBoardEntity, ResponseMeetBoardDetailsDTO.class);
-            meetBoardDetailsResponseDTO.setImages(
-                    meetBoardEntity.getMeetBoardImages()
-                            .stream()  // 스트림으로 변환
-                            .map(MeetBoardImageEntity::getUploadFileUrl)  // MeetBoardImageEntity 에 이미지 URL 추출
-                            .collect(Collectors.toList())  // List<String>으로 변환
-            );
+
+            // 이미지 리스트를 DTO에 설정
+            List<String> imageUrls = meetBoardEntity.getMeetBoardImages() != null ?  meetBoardEntity.getMeetBoardImages().stream()
+                    .map(MeetBoardImageEntity::getUploadFileUrl)
+                    .collect(Collectors.toList()) : new ArrayList<String>();
+            meetBoardDetailsResponseDTO.setImages(imageUrls);
+
+            // 코멘트 리스트를 DTO에 설정
+            List<ResponseMeetBoardCommentDTO> commentDTOs = meetBoardEntity.getComments() != null ? meetBoardEntity.getComments().stream()
+                    .map(ResponseMeetBoardCommentDTO::changeDTO)
+                    .collect(Collectors.toList()) : new ArrayList<ResponseMeetBoardCommentDTO>();
+            meetBoardDetailsResponseDTO.setComments(commentDTOs);
+
             return meetBoardDetailsResponseDTO;
-        } catch (Exception e){
-            throw new MeetBoardException(e.getMessage());
+
+        } catch (EntityNotFoundException e) {
+            throw new MeetBoardException("게시글을 찾을 수 없습니다: ");
+        } catch (Exception e) {
+            throw new MeetBoardException("게시글 상세 정보를 불러오는 중 오류가 발생했습니다."+ e.getMessage());
         }
     }
 
@@ -141,9 +155,19 @@ public class MeetBoardServiceImpl implements MeetBoardService {
     @Override
     public ResponseMeetBoardDTO updateBoardService(UpdateMeetBoardServiceDTO updateMeetBoardServiceDTO, String username) throws Exception {
         try {
-            MeetBoardEntity meetBoardEntity = meetBoardRepository.findById(updateMeetBoardServiceDTO.getMeetBoardId()).orElseThrow(() -> new EntityNotFoundException("변경 대상 엔티티가 존재하지 않습니다."));
-            meetBoardEntity.updateMeet(updateMeetBoardServiceDTO);
-            meetBoardRepository.save(meetBoardEntity);
+            // updateMeetBoardServiceDTO 자체가 Null일 수 있으므로 먼저 검사
+            if (updateMeetBoardServiceDTO == null) {
+                throw new IllegalArgumentException("업데이트 데이터가 null입니다.");
+            }
+
+            // MeetBoardEntity를 조회하며, 없으면 예외 처리
+            MeetBoardEntity meetBoardEntity = meetBoardRepository.findById(updateMeetBoardServiceDTO.getMeetBoardId())
+                    .orElseThrow(() -> new EntityNotFoundException("변경 대상 엔티티가 존재하지 않습니다."));
+
+            // 엔티티 업데이트
+            meetBoardEntity.updateMeetBoard(updateMeetBoardServiceDTO);
+
+            // 이미지를 업데이트하는 로직
             if (updateMeetBoardServiceDTO.getImages() != null && !updateMeetBoardServiceDTO.getImages().isEmpty()) {
                 List<MeetBoardImageEntity> imageEntities = s3ImageUploadService.upload(
                         "meetImages",
@@ -157,14 +181,27 @@ public class MeetBoardServiceImpl implements MeetBoardService {
                                 .build()
                 );
 
-                // 기존 이미지 중에 updateMeetBoardServiceDTO에 전달 안 된건 삭제해달라는 거다. 확인하고 삭제하는 절차를 거치지자
+                // 기존 이미지 중에서 업데이트되지 않은 이미지를 삭제하는 로직 추가
+                // 예: meetBoardEntity에 있는 기존 이미지 목록과 updateMeetBoardServiceDTO.getImages()를 비교해서 삭제
+                // 이 부분은 사용자에 맞게 추가적으로 구현해야 함
             }
 
+            // 업데이트된 엔티티를 DTO로 변환해서 반환
+            meetBoardRepository.save(meetBoardEntity);
+            ResponseMeetBoardDTO responseMeetBoardDTO =   ResponseMeetBoardDTO.changeDTO(meetBoardEntity);
+            log.info("response : {}", responseMeetBoardDTO);
             return ResponseMeetBoardDTO.changeDTO(meetBoardEntity);
+
+        } catch (EntityNotFoundException e) {
+            throw new Exception("엔티티가 존재하지 않음: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            throw new Exception("잘못된 인자: " + e.getMessage());
         } catch (Exception e) {
-            throw new Exception(e.getMessage());
+            // 기타 모든 예외에 대한 처리
+            throw new Exception("업데이트 도중 예외 발생: " + e.getMessage());
         }
     }
+
 
 
 }

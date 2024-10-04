@@ -9,6 +9,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -33,11 +34,13 @@ public class MeetBoardEntity extends BaseEntity {
     @Column(name="meetBoard_content")
     private String meetBoardContent;
 
+    // 이미지를 빈 리스트로 초기화
     @OneToMany(mappedBy = "meetBoardEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MeetBoardImageEntity> meetBoardImages;
+    @Builder.Default
+    private List<MeetBoardImageEntity> meetBoardImages = new ArrayList<>();
 
     @JoinColumn(name = "member_id")
-    @ManyToOne( fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     private MemberEntity memberEntity;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -47,16 +50,42 @@ public class MeetBoardEntity extends BaseEntity {
     @Column(name="meetBoard_postDate")
     private LocalDateTime postDate;
 
+    // 코멘트도 빈 리스트로 초기화
+    @OneToMany(mappedBy = "meetBoardEntity", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<CommentEntity> comments = new ArrayList<>();
+
+    // 게시글 작성 시간 설정
     @PrePersist
     public void prePersist() {
         this.postDate = (this.postDate == null) ? LocalDateTime.now() : this.postDate;
     }
 
+    // 이미지를 추가하는 메서드
     public void addMeetBoardImage(MeetBoardImageEntity imageEntity) {
         this.meetBoardImages.add(imageEntity);
-        imageEntity.setMeetBoardEntity(this);  // Bidirectional link
+        imageEntity.linkToMeetBoard(this);  // 양방향 연관관계 설정
     }
 
+    // 이미지를 삭제하는 메서드
+    public void removeMeetBoardImage(MeetBoardImageEntity imageEntity) {
+        this.meetBoardImages.remove(imageEntity);
+        imageEntity.unlinkFromMeetBoard();  // 양방향 연관관계 해제
+    }
+
+    // 게시글 내용을 업데이트하는 메서드
+// 게시글 내용을 업데이트하는 메서드 (DTO 값으로 필드 값 변경)
+    public void updateMeetBoard(UpdateMeetBoardServiceDTO updateMeetBoardServiceDTO) {
+        // meetBoardTitle과 meetBoardContent는 엔티티 필드로 정의되어 있어야 합니다
+        if (updateMeetBoardServiceDTO.getMeetBoardTitle() != null && !updateMeetBoardServiceDTO.getMeetBoardTitle().isEmpty()) {
+            this.meetBoardTitle = updateMeetBoardServiceDTO.getMeetBoardTitle();
+        }
+        if (updateMeetBoardServiceDTO.getMeetBoardContent() != null && !updateMeetBoardServiceDTO.getMeetBoardContent().isEmpty()) {
+            this.meetBoardContent = updateMeetBoardServiceDTO.getMeetBoardContent();
+        }
+    }
+
+    // 게시글을 생성하는 정적 메서드 (빌더 패턴 사용)
     public static MeetBoardEntity postMeetBoard(MeetBoardServiceDTO meetBoardServiceDTO, MemberEntity member, MeetEntity meetEntity){
         return MeetBoardEntity.builder()
                 .meetBoardTitle(meetBoardServiceDTO.getMeetBoardTitle())
@@ -66,10 +95,5 @@ public class MeetBoardEntity extends BaseEntity {
                 .build();
     }
 
-    public void updateMeet(UpdateMeetBoardServiceDTO updateMeetBoardServiceDTO) {
-        // 변경 요구사항을 가지고 해당 메소드 실행
-        this.meetBoardTitle = updateMeetBoardServiceDTO.getMeetBoardTitle() == null ? this.getMeetBoardTitle() : updateMeetBoardServiceDTO.getMeetBoardTitle();
-        this.meetBoardContent = updateMeetBoardServiceDTO.getMeetBoardContent() == null ? this.getMeetBoardContent() : updateMeetBoardServiceDTO.getMeetBoardContent();
 
-    }
 }
