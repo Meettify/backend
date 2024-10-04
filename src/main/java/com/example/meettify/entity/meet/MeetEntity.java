@@ -38,7 +38,10 @@ public class MeetEntity extends BaseEntity {
     @Column(name = "meet_location", nullable = false)
     private String meetLocation;
 
-    @OneToMany(mappedBy = "meetEntity", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "meetEntity", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<MeetMemberEntity> meetMember;
+
+    @OneToMany(mappedBy = "meetEntity", fetch = FetchType.LAZY, orphanRemoval = true)
     private List<com.example.meettify.entity.meet.MeetImageEntity> meetImages;
 
     @Column(name = "meet_category", nullable = false)

@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -84,13 +85,14 @@ public class MeetServiceImpl implements MeetService {
                 .meetEntity(savedMeet)
                 .memberEntity(creator)
                 .meetRole(MeetRole.ADMIN)
+                .joinDate(LocalDateTime.now())
                 .build();
 
         // MeetMemberEntity 저장
         meetMemberRepository.save(meetMemberEntity);
 
         // 5. 응답 DTO 생성 및 반환
-        ResponseMeetDTO  responseMeetDTO = modelMapper.map(savedMeet, ResponseMeetDTO.class);
+        ResponseMeetDTO  responseMeetDTO = ResponseMeetDTO.changeDTO(savedMeet);
 
         return responseMeetDTO;
     }
@@ -168,6 +170,7 @@ public class MeetServiceImpl implements MeetService {
                 .meetEntity(meet)
                 .memberEntity(member)
                 .meetRole(MeetRole.WAITING) // 일반 회원으로 가입
+                .joinDate(LocalDateTime.now())
                 .build();
 
         meetMemberRepository.save(meetMember);
@@ -220,6 +223,7 @@ public class MeetServiceImpl implements MeetService {
         }
     }
 
+    // ToDO: fetch JOIN 다시 손 보기
     @Override
     public List<MeetBoardSummaryDTO>  getMeetSummaryList(Long meetId) {
         try {
@@ -244,7 +248,6 @@ public class MeetServiceImpl implements MeetService {
         } catch (Exception e) {
             throw new MeetBoardException("알 수 없는 오류가 발생했습니다.");
         }
-
     }
 
     @Override
