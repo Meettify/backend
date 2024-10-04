@@ -30,4 +30,7 @@ public interface MemberControllerDocs {
 
     @Operation(summary = "탈퇴 API", description = "회원 탈퇴 API")
     ResponseEntity<?> delete(Long memberId, UserDetails userDetails);
+
+    @Operation(summary = "회원 조회 API", description = "회원 조회하는 API")
+    ResponseEntity<?> getMember(Long memberId);
 }

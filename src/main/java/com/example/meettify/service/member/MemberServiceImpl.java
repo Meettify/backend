@@ -171,4 +171,16 @@ public class MemberServiceImpl implements MemberService {
             throw new MemberException(e.getMessage());
         }
     }
+
+    @Override
+    public ResponseMemberDTO getMember(Long memberId) {
+        try {
+            MemberEntity findMember = memberRepository.findById(memberId)
+                    .orElseThrow(() -> new MemberException("해당 유저가 없습니다."));
+            log.info("member : {}", findMember);
+            return ResponseMemberDTO.changeDTO(findMember);
+        } catch (Exception e) {
+            throw new MemberException(e.getMessage());
+        }
+    }
 }
