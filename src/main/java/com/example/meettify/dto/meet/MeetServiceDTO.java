@@ -31,7 +31,7 @@ public class MeetServiceDTO {
     private Long meetMaximum;
     private String meetLocation;
     private List<MultipartFile> imagesFile;
-    private Category category;
+    private Category meetCategory;
 
     public static MeetServiceDTO makeServiceDTO(RequestMeetDTO request) {
         return MeetServiceDTO.builder()
@@ -40,7 +40,7 @@ public class MeetServiceDTO {
                 .meetMaximum(request.getMeetMaximum())
                 .meetLocation(request.getMeetLocation())
                 .imagesFile(request.getImages())
-                .category(request.getCategory())
+                .meetCategory(request.getCategory())
                 .build();
     }
 

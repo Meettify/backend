@@ -7,6 +7,7 @@ import com.example.meettify.entity.meet.MeetImageEntity;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,7 +37,7 @@ public class ResponseMeetDTO {
                 .meetDescription(meetEntity.getMeetDescription())
                 .meetMaximum(meetEntity.getMeetMaximum())
                 .meetLocation(meetEntity.getMeetLocation())
-                .images(meetEntity.getMeetImages().stream().map(MeetImageEntity::getUploadFileUrl).collect(Collectors.toList()))
+                .images(meetEntity.getMeetImages() !=null ? meetEntity.getMeetImages().stream().map(MeetImageEntity::getUploadFileUrl).collect(Collectors.toList()):new ArrayList<>())
                 .category(meetEntity.getMeetCategory())
                 .build();
     }

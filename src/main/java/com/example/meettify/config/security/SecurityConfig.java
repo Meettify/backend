@@ -76,8 +76,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/cart/{cartId}").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/v1/cart/").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/cart/{cartId}").hasAnyRole("USER", "ADMIN")
+                                .requestMatchers("/api/v1/meets/**").permitAll()
+                                .requestMatchers("/api/v1/meetBoards/**").permitAll()
 
-                        // Swagger 리소스에 대한 접근 허용
+
+                                // Swagger 리소스에 대한 접근 허용
                         .requestMatchers("/swagger-resources/**").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
