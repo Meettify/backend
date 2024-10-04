@@ -26,9 +26,9 @@ public class UpdateMeetBoardServiceDTO {
     private List<String> imagesUrl;
 
 
-    public static UpdateMeetBoardServiceDTO makeServiceDTO(UpdateRequestMeetBoardDTO updateRequestMeetBoardDTO){
+    public static UpdateMeetBoardServiceDTO makeServiceDTO(Long meetBoardId,UpdateRequestMeetBoardDTO updateRequestMeetBoardDTO){
         return UpdateMeetBoardServiceDTO.builder()
-                .meetBoardId(updateRequestMeetBoardDTO.getMeetBoardId())
+                .meetBoardId(meetBoardId)
                 .meetBoardTitle(updateRequestMeetBoardDTO.getMeetBoardTitle())
                 .meetBoardContent(updateRequestMeetBoardDTO.getMeetBoardContent())
                 .images(updateRequestMeetBoardDTO.getImages())

@@ -24,5 +24,7 @@ public class ResponseMeetBoardDetailsDTO {
     private LocalDateTime postDate;
     @Setter
     private List<String> images;
+    @Setter
+    private List<ResponseMeetBoardCommentDTO> comments;
 
 }
