@@ -4,6 +4,12 @@ import com.example.meettify.dto.meetBoard.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+/*
+ *   worker : 조영흔
+ *   work   : 모임 게시판 서비스 인터페이스 구현
+ *   date   : 2024/09/26
+ * */
+
 public interface MeetBoardService {
 
     ResponseMeetBoardDetailsDTO getDetails(Long meetBoardId);
