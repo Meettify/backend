@@ -23,25 +23,21 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/meetBoards")
 @Tag(name = "meetBoard", description = "모임 게시판 API")
 @RequiredArgsConstructor
-public class MeetBoardController {
+public class MeetBoardController implements MeetBoardControllerDocs {
     private final MeetBoardService meetBoardService;
 
-
-    @GetMapping
-    @Tag(name = "meetBoard")
-    @Operation(summary = "모임 게시판 리스트", description = "모임 게시판 List를 페이징 처리와 함께 제공해주기 위한 API")
+    //모임의 모임 게시판 리스트 조회
+    @GetMapping("list/{meetId}")
     public ResponseEntity<?> getList(
-            @RequestParam Long meetId,
+            @PathVariable Long meetId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
         try {
             // Pageable 객체 생성
             Pageable pageable = PageRequest.of(page, size);
-
             // 서비스에서 페이징된 게시글 리스트를 조회
             Page<MeetBoardSummaryDTO> meetBoardPage = meetBoardService.getPagedList(meetId, pageable);
-
             return ResponseEntity.status(HttpStatus.OK).body(meetBoardPage);
         } catch (Exception e) {
             log.error("게시글 리스트 조회 오류: " + e.getMessage());
@@ -49,16 +45,13 @@ public class MeetBoardController {
         }
     }
 
+    //모임 게시판 상세 조회
     @GetMapping("{meetBoardId}")
-    @Tag(name = "meetBoard")
-    @Operation(summary = "모임 게시물 Detail", description = "모임 게시물 상세 조회 ")
     public ResponseEntity<?> getDetail(@PathVariable Long meetBoardId, @AuthenticationPrincipal UserDetails userDetails) {
-
         try {
             String email = userDetails.getUsername();
             log.info("email : " + email);
             ResponseMeetBoardDetailsDTO meetBoardDetailsResponseDTO = meetBoardService.getDetails(meetBoardId);
-
             return ResponseEntity.status(HttpStatus.OK).body(meetBoardDetailsResponseDTO);
         } catch (Exception e) {
             log.error("예외 : " + e.getMessage());
@@ -66,22 +59,17 @@ public class MeetBoardController {
         }
     }
 
-    //
-    @PostMapping("")
-    @Tag(name = "meetBoard")
-    @Operation(summary = "모임 게시물 등록", description = "모임 게시글 등록하기")
+    //모임 게시물 등록
+    @PostMapping
     public ResponseEntity<?> postBoard(@Validated @RequestBody RequestMeetBoardDTO meetBoard, BindingResult bindingResult, @AuthenticationPrincipal UserDetails userDetails) {
-
         try {
-
             if (bindingResult.hasErrors()) {
                 log.error("binding error : {}", bindingResult.getAllErrors());
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(bindingResult.getAllErrors());
             }
-
             MeetBoardServiceDTO meetBoardServiceDTO = MeetBoardServiceDTO.makeServiceDTO(meetBoard);
             ResponseMeetBoardDTO response = meetBoardService.postBoard(meetBoardServiceDTO, userDetails.getUsername());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             log.error("예외 : " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -89,8 +77,6 @@ public class MeetBoardController {
     }
 
     @DeleteMapping("{meetId}/{meetBoardId}")
-    @Tag(name = "meetBoard")
-    @Operation(summary = "모임 게시물 삭제", description = "모임 게시글 삭제하기 ")
     public ResponseEntity<?> deleteBoard(@PathVariable Long meetId, @PathVariable Long meetBoardId, @AuthenticationPrincipal UserDetails userDetails) {
         try {
             String response = meetBoardService.deleteBoard(meetId, meetBoardId, userDetails.getUsername());
@@ -104,10 +90,9 @@ public class MeetBoardController {
     @PatchMapping("{meetBoardId}")
     @Tag(name = "meetBoard")
     @Operation(summary = "모임 게시판 수정", description = "모임 게시글 수정하기 ")
-    public ResponseEntity<?> updateBoard(@PathVariable Long meetBoardId, UpdateRequestMeetBoardDTO requestMeetBoardDTO, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<?> updateBoard(@Validated @RequestBody UpdateRequestMeetBoardDTO requestMeetBoardDTO, BindingResult bindingResult,@PathVariable Long meetBoardId, @AuthenticationPrincipal UserDetails userDetails) {
         try {
-
-            UpdateMeetBoardServiceDTO updateMeetBoardServiceDTO = UpdateMeetBoardServiceDTO.makeServiceDTO(requestMeetBoardDTO);
+            UpdateMeetBoardServiceDTO updateMeetBoardServiceDTO = UpdateMeetBoardServiceDTO.makeServiceDTO(meetBoardId,requestMeetBoardDTO);
             ResponseMeetBoardDTO response = meetBoardService.updateBoardService(updateMeetBoardServiceDTO, userDetails.getUsername());
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {

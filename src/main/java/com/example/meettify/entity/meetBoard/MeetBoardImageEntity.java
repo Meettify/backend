@@ -26,12 +26,18 @@ public class MeetBoardImageEntity extends BaseEntity {
     private MeetBoardEntity meetBoardEntity;
 
     @Column(name="meetBoardImage_oriFileName")
-    String oriFileName;
+    private String oriFileName;
     @Column(name="meetBoardImage_uploadFileName")
-    String uploadFileName;
+    private String uploadFileName;
     @Column(name="meetBoardImage_uploadFilePath")
-    String uploadFilePath;
+    private String uploadFilePath;
     @Column(name="meetBoardImage_uploadFileUrl")
-    String uploadFileUrl;
+    private String uploadFileUrl;
 
+    public void linkToMeetBoard(MeetBoardEntity meetBoardEntity) {
+        this.meetBoardEntity = meetBoardEntity;
+    }
+    public void unlinkFromMeetBoard() {
+        this.meetBoardEntity = null;
+    }
 }
