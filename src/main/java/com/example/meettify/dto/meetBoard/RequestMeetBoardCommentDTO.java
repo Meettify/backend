@@ -20,9 +20,13 @@ import java.time.LocalDateTime;
 @Builder
 public class RequestMeetBoardCommentDTO {
 
+    @Schema(description = "모임 번호", example = "1")
+    @NotNull(message = "모임 번호는 필수 입니다.")
+    private Long meetId;
+
     @Schema(description = "게시판 번호", example = "1")
     @NotNull(message = "작성할 게시판 번호는 필수입니다.")
-    private Long MeetBoardId;
+    private Long meetBoardId;
 
     @Schema(description = "대댓글의 경우 부모를 보내줘야함", example = "1")
     @Null(message = "대댓글일때만 값이 있음")
