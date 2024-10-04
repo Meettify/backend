@@ -29,7 +29,6 @@ public class RequestMeetBoardCommentDTO {
     private Long meetBoardId;
 
     @Schema(description = "대댓글의 경우 부모를 보내줘야함", example = "1")
-    @Null(message = "대댓글일때만 값이 있음")
     private Long parentComment;
 
     @Schema(description = "댓글 내용", example = "정말 즐거운 댓글")
@@ -37,7 +36,6 @@ public class RequestMeetBoardCommentDTO {
     private String content;
 
     @Schema(description = "댓글 작성 시간")
-    @Null
     private LocalDateTime postDate;
 
 

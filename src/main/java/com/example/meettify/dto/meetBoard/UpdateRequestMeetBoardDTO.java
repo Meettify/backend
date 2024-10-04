@@ -27,20 +27,16 @@ public class UpdateRequestMeetBoardDTO {
 
     @Schema(description = "게시판 제목 ", example = "운동 모임 후기 수장 제목")
     @Length(min = 1, max = 80)
-    @Null
     String meetBoardTitle;
 
     @Schema(description = "게시판 수정 내용", example = "우리는 어쩌구 저쩌구 수정본")
     @Pattern(regexp = "^[\\S\\s]{1,2500}$", message = "컨텐츠은 1자 이상 2500자 이하이어야 합니다.")
-    @Null
     String meetBoardContent;
 
     @Schema(description = "모임 게시판 수정 이미지 리스트", example = "main.jpg")
-    @Null
     private List<MultipartFile> images;
 
     @Schema(description = "기존 이미지", example = "main.jpg")
-    @Null
     private List<String> imagesUrl;
 
 }
