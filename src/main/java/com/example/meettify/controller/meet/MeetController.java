@@ -22,11 +22,8 @@ import java.util.List;
 import java.util.Objects;
 
 
-/*
- *   worker : 조영흔
- *   work   : 서비스 로직 구현
- *   date   : 2024/09/26
- * */
+
+
 @RestController
 @Log4j2
 @RequestMapping("/api/v1/meets")
@@ -137,7 +134,6 @@ public class MeetController implements  MeetControllerDocs{
     public ResponseEntity<?> makeMeet(@Valid @RequestBody RequestMeetDTO meet, BindingResult bindingResult, @AuthenticationPrincipal UserDetails userDetails) {
 
         try {
-
             // 입력값 검증 예외가 발생하면 예외 메세지를 출력
             if (bindingResult.hasErrors()) {
                 log.error("binding error: {}", bindingResult.getAllErrors());

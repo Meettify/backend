@@ -53,7 +53,7 @@ public class MeetBoardEntity extends BaseEntity {
     // 코멘트도 빈 리스트로 초기화
     @OneToMany(mappedBy = "meetBoardEntity", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
-    private List<CommentEntity> comments = new ArrayList<>();
+    private List<MeetBoardCommentEntity> comments = new ArrayList<>();
 
     // 게시글 작성 시간 설정
     @PrePersist
