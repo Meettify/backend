@@ -39,6 +39,8 @@ public class UpdateRequestMeetBoardDTO {
     @Null
     private List<MultipartFile> images;
 
+    @Schema(description = "기존 이미지", example = "main.jpg")
+    @Null
     private List<String> imagesUrl;
 
 }

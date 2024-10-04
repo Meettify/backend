@@ -25,6 +25,7 @@ public class ResponseMeetBoardDTO {
     public static ResponseMeetBoardDTO changeDTO(MeetBoardEntity meetBoard) {
         return ResponseMeetBoardDTO.builder()
                 .meetBoardId(meetBoard.getMeetBoardId())
+                .meetBoardTitle(meetBoard.getMeetBoardTitle())
                 .meetBoardContent(meetBoard.getMeetBoardContent())
                 .images(Optional.ofNullable(meetBoard.getMeetBoardImages())
                         .orElse(List.of())  // Return an empty list if meetBoardImages is null
