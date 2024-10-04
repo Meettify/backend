@@ -26,6 +26,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/*
+ *   worker : 조영흔
+ *   work   : 모임 게시판 서비스 기능 구현
+ *   date   : 2024/09/26
+ * */
 @Log4j2
 @Service
 @Transactional
