@@ -1,6 +1,7 @@
 package com.example.meettify.dto.jwt;
 
 import com.example.meettify.entity.jwt.TokenEntity;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 /*
 *   writer  : 유요한
@@ -13,10 +14,15 @@ import lombok.*;
 @ToString
 @Builder
 public class TokenDTO {
+    @Schema(description = "토큰 타입")
     private String grantType;
+    @Schema(description = "accessToken")
     private String accessToken;
+    @Schema(description = "refreshToken")
     private String refreshToken;
+    @Schema(description = "유저 이메일")
     private String memberEmail;
+    @Schema(description = "유저 번호")
     private Long memberId;
 
 
