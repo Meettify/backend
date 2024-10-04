@@ -61,7 +61,7 @@ public class SecurityConfig {
                 .logout(logout -> logout.disable())
                 .authorizeHttpRequests(auth -> auth
                         // API 권한 설정
-//                        .requestMatchers("/","/**").permitAll()
+                        .requestMatchers("/", "/**").permitAll()
                         .requestMatchers("/api/v1/members/**").permitAll() // 모든 멤버 관련 요청 허용
                         .requestMatchers(HttpMethod.PUT, "/api/v1/members/").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/members/{memberId}").hasAnyRole("USER", "ADMIN")
