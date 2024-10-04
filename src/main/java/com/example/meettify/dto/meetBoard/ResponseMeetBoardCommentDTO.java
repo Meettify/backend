@@ -2,7 +2,7 @@ package com.example.meettify.dto.meetBoard;
 
 
 
-import com.example.meettify.entity.meetBoard.CommentEntity;
+import com.example.meettify.entity.meetBoard.MeetBoardCommentEntity;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -24,13 +24,13 @@ public class ResponseMeetBoardCommentDTO {
     private String content;
     private LocalDateTime postDate;
 
-    public static ResponseMeetBoardCommentDTO changeDTO(CommentEntity commentEntity) {
+    public static ResponseMeetBoardCommentDTO changeDTO(MeetBoardCommentEntity meetBoardCommentEntity) {
         return ResponseMeetBoardCommentDTO.builder()
-                .commentId(commentEntity.getCommentId())
-                .parentComment(commentEntity.getParentComment() !=null ? commentEntity.getParentComment().getCommentId() : null)
-                .commentNickName(commentEntity.getMemberEntity().getNickName())
-                .content(commentEntity.getContent())
-                .postDate(commentEntity.getPostDate())
+                .commentId(meetBoardCommentEntity.getCommentId())
+                .parentComment(meetBoardCommentEntity.getParentComment() !=null ? meetBoardCommentEntity.getParentComment().getCommentId() : null)
+                .commentNickName(meetBoardCommentEntity.getMemberEntity().getNickName())
+                .content(meetBoardCommentEntity.getContent())
+                .postDate(meetBoardCommentEntity.getPostDate())
                 .build();
     }
 
