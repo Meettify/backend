@@ -13,13 +13,11 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -32,15 +30,12 @@ import java.util.Objects;
 @RestController
 @Log4j2
 @RequestMapping("/api/v1/meets")
-@Tag(name = "meet", description = "모임 API")
 @RequiredArgsConstructor
-public class MeetController {
+public class MeetController implements  MeetControllerDocs{
     private final MeetService meetService;
 
-    //모임 리스트
+    //모임 리스트 보기
     @GetMapping
-    @Tag(name = "meet")
-    @Operation(summary = "모임 리스트", description = "모임 데이터 List를 페이징 처리와 함께 제공해주는 기능")
     public ResponseEntity<?> getList(@RequestParam(defaultValue = "0") Long lastId,
                                         @RequestParam(defaultValue = "9") int size
                                         ,@RequestParam(required = false) Category category) {
@@ -54,8 +49,6 @@ public class MeetController {
 
     //모임 상세 정보
     @GetMapping("{meetId}")
-    @Tag(name = "meet")
-    @Operation(summary = "모임 디테일 정보", description = "모임 디테일 정보와 현재 모임에서 권한 관련 정보를 전달해줘야 한다.")
     public ResponseEntity<?> getDetail(@PathVariable Long meetId, @AuthenticationPrincipal UserDetails userDetails) {
         try {
             String email = (userDetails != null) ? userDetails.getUsername() : null;
@@ -64,13 +57,14 @@ public class MeetController {
             // 모임 디테일 정보를 가져온다.
             MeetDetailDTO meetDetailDTO = meetService.getMeetDetail(meetId);
 
-            List<MeetBoardSummaryDTO> meetBoardSummaryDTO;
-            if(meetRole == MeetRole.EXPEL) {
-                //회원일 경우에만 게시글 관련 정보를 볼 수 있따.  최근 게시글 3개를 가져온다.
-                meetBoardSummaryDTO = new ArrayList<MeetBoardSummaryDTO>();
-            }else{
-                meetBoardSummaryDTO = meetService.getMeetSummaryList(meetId);
-            }
+
+            //Todo :  비회원 게시판 노출 유무에 따라서 달라짐
+            //            if(meetRole == MeetRole.EXPEL ) {
+            //                //회원일 경우에만 게시글 관련 정보를 볼 수 있따.  최근 게시글 3개를 가져온다.
+            //                meetBoardSummaryDTO = new ArrayList<MeetBoardSummaryDTO>();
+            //            }else{
+            List<MeetBoardSummaryDTO> meetBoardSummaryDTO = meetService.getMeetSummaryList(meetId);
+            //}
 
             return ResponseEntity.status(HttpStatus.OK).body(MeetDetailInfoResponseDTO.builder()
                     .meetDetailDTO(meetDetailDTO)
@@ -85,8 +79,6 @@ public class MeetController {
 
     //모임 권한 정보 가져오기
     @GetMapping("/{meetId}/role")
-    @Tag(name = "meet")
-    @Operation(summary = "모임 내에서 접속 유저의 권한", description = "모임 내의 권한 정보 전달하기 ")
     public ResponseEntity<?> getMeetRole(@PathVariable Long meetId, @AuthenticationPrincipal UserDetails userDetails) {
         try {
             if (Objects.isNull(userDetails) ||"".equals(userDetails.getUsername())|| userDetails.getUsername() == null ) {
@@ -102,8 +94,6 @@ public class MeetController {
 
     //모임 가입 회원 리스트 보기
     @GetMapping("/{meetId}/members")
-    @Tag(name = "meet")
-    @Operation(summary = "모임 가입 회원 리스트 보기", description = "모임 가입 회원 리스트 구현")
     public ResponseEntity<?> getMeetMemberList(@PathVariable Long meetId, @AuthenticationPrincipal UserDetails userDetails) {
         try {
             //해당 모임의 관리자가 아니라면 잘못된 요청임
@@ -118,29 +108,31 @@ public class MeetController {
     }
 
     //모임 회원 Role변경하기
-    @PatchMapping("{meetId}/{meetMemberId}")
+    @PatchMapping("/{meetId}/{meetMemberId}")
+    @Tag(name = "meet")
     @Operation(summary = "모임 회원 Role 변경하기", description = "모임 회원 Role 변경 구현")
     public ResponseEntity<?> updateMeetMemberRole(@PathVariable Long meetId,
                                                   @PathVariable Long meetMemberId,
-                                                  @RequestBody MeetRole newRole,
+                                                  @RequestBody @Valid UpdateRoleRequestDTO request, // DTO 사용
                                                   @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            // TODO: 현재 로그인된 사용자가 관리자 권한이 있는지 확인하는 로직 추가 (userDetails를 이용하여 권한 확인)
-            if( !(meetService.getMeetRole(meetId,userDetails.getUsername()) == MeetRole.ADMIN)){
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(" 모임 회원에 대한 조회입니다.");
+            // 관리자 권한 확인 로직 추가
+            if (!(meetService.getMeetRole(meetId, userDetails.getUsername()) == MeetRole.ADMIN)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("모임 권한 변경 불가 조회입니다.");
             }
-            // TODO: 해당 meetId와 memberId를 통해 모임 회원을 찾아서 Role을 변경하는 로직 추가
-            MeetRole updatedRole = meetService.updateRole(meetMemberId, newRole);
-            return ResponseEntity.status(HttpStatus.OK).body(updatedRole);
+            // 회원 Role 업데이트
+            MeetRole updatedRole = meetService.updateRole(meetMemberId, request.getNewRole());
+            return ResponseEntity.status(HttpStatus.OK).body(updatedRole.name());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 Role 값입니다.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 모임 회원에 대한 접근입니다.");
         }
     }
 
 
-    @PostMapping("")
-    @Tag(name = "meet")
-    @Operation(summary = "모임 만들기", description = "모임 만들어 주는 API, 신규 모임정보와 이미지, 회원 정보가 필요하다.")
+
+    @PostMapping
     // BindingResult 타입의 매개변수를 지정하면 BindingResult 매개 변수가 입력값 검증 예외를 처리한다.
     public ResponseEntity<?> makeMeet(@Valid @RequestBody RequestMeetDTO meet, BindingResult bindingResult, @AuthenticationPrincipal UserDetails userDetails) {
 
@@ -163,8 +155,6 @@ public class MeetController {
 
 
     @DeleteMapping("/{meetId}")
-    @Tag(name = "meet")
-    @Operation(summary = "삭제 API", description = "소모임 삭제 API")
     public ResponseEntity<?> delete(@PathVariable Long meetId, @AuthenticationPrincipal UserDetails userDetails) {
 
         try {
@@ -177,9 +167,8 @@ public class MeetController {
         }
     }
 
+    //모임 권한 여부 확인
     @GetMapping("/{meetId}/members/edit-permission")
-    @Tag(name = "meet")
-    @Operation(summary = "수정 권한 체크 API", description = "모임 수정 권한을 체크하는 API")
     public ResponseEntity<?> checkEditPermission(@PathVariable Long meetId, @AuthenticationPrincipal UserDetails userDetails) {
         try {
             String email = userDetails.getUsername();
@@ -195,9 +184,8 @@ public class MeetController {
         }
     }
 
+    //모임 변경하기
     @PatchMapping("/{meetId}")
-    @Tag(name = "meet")
-    @Operation(summary = "수정 API", description = "모임에 대한 수정을 진행하는 API")
     public ResponseEntity<?> updateMeet(@PathVariable Long meetId,
                                         @Validated @RequestBody UpdateMeetDTO updateMeetDTO,
                                         @AuthenticationPrincipal UserDetails userDetails) {
@@ -221,7 +209,6 @@ public class MeetController {
 
 
     @PostMapping("/{meetId}/members")
-    @Operation(summary = "모임 가입 신청", description = "회원이 특정 모임에 가입 신청하는 API")
     public ResponseEntity<?> applyToJoinMeet(@PathVariable Long meetId, @AuthenticationPrincipal UserDetails userDetails) {
         try {
             // 1. 로그인된 유저인지 확인 (AuthenticationPrincipal로 로그인된 유저 정보 가져옴)

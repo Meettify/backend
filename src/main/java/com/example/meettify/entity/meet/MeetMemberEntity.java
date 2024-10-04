@@ -42,6 +42,6 @@ public class MeetMemberEntity extends BaseEntity {
     private LocalDateTime joinDate;
 
     public void updateRole(MeetRole meetRole) {
-        this.meetRole = meetRole == null ? this.meetRole :  meetRole;
+        this.meetRole = (meetRole == null ? this.meetRole :  meetRole);
     }
 }

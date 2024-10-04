@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface MeetRepository extends JpaRepository<MeetEntity, Long> {
 
     //모임정보와 이미지 정보를 가져옴
-    @Query("SELECT  m FROM meets m JOIN FETCH m.meetImages WHERE m.meetId = :meetId")
+    @Query("SELECT  m FROM meets m LEFT JOIN FETCH m.meetImages WHERE m.meetId = :meetId")
     Optional<MeetEntity> findByIdWithImages(@Param("meetId") Long meetId);
 
 
