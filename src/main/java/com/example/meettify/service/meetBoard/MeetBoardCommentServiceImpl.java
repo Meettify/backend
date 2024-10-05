@@ -1,8 +1,10 @@
 package com.example.meettify.service.meetBoard;
 
 
+import com.example.meettify.dto.meet.MeetRole;
 import com.example.meettify.dto.meetBoard.MeetBoardCommentServiceDTO;
 import com.example.meettify.dto.meetBoard.ResponseMeetBoardCommentDTO;
+import com.example.meettify.entity.meet.MeetEntity;
 import com.example.meettify.entity.meet.MeetMemberEntity;
 import com.example.meettify.entity.meetBoard.MeetBoardCommentEntity;
 import com.example.meettify.entity.meetBoard.MeetBoardEntity;
@@ -69,4 +71,40 @@ public class MeetBoardCommentServiceImpl implements MeetBoardCommentService {
     }
 
 }
+
+    @Override
+    public String deleteComment(Long meetBoardCommentId) {
+        try {
+            MeetBoardCommentEntity findComment = meetBoardCommentRepository.findById(meetBoardCommentId).orElseThrow(() -> new EntityNotFoundException("잘못된 삭제 요청입니다."));
+            meetBoardCommentRepository.delete(findComment);
+            return "모임 게시판 댓글을 삭제했습니다.";
+        } catch (Exception e) {
+            throw new MeetException(e.getMessage());
+        }
+    }
+
+    @Override
+    public boolean isEditable(String email, Long meetBoardCommentId) {
+        try {
+            // 1. 댓글을 찾아서 작성자 확인
+            MeetBoardCommentEntity comment = meetBoardCommentRepository.findById(meetBoardCommentId)
+                    .orElseThrow(() -> new MeetException("댓글이 없습니다."));
+
+            // 2. 작성자 정보 확인 (email과 MemberEntity의 email을 비교)
+            boolean isAuthor = comment.getMemberEntity().getMemberEmail().equals(email);
+
+            // 3. MeetMemberEntity에서 관리자인지 확인 (MeetBoardEntity -> MeetEntity -> MeetMemberEntity)
+            MeetEntity meet = comment.getMeetBoardEntity().getMeetEntity();
+            MeetMemberEntity meetMember = meetMemberRepository.findByEmailAndMeetId(email, meet.getMeetId())
+                    .orElseThrow(() -> new MeetException("삭제 요청한 회원은 멤버가 아닙니다."));
+
+            boolean isAdmin = meetMember.getMeetRole().equals(MeetRole.ADMIN);
+
+            // 4. 작성자이거나 관리자인 경우 true 반환
+            return isAuthor || isAdmin;
+
+        } catch (Exception e) {
+            throw new MeetException(e.getMessage());
+        }
+    }
 }

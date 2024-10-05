@@ -12,4 +12,8 @@ import com.example.meettify.dto.meetBoard.ResponseMeetBoardCommentDTO;
 public interface MeetBoardCommentService {
 
     ResponseMeetBoardCommentDTO postComment(String email, MeetBoardCommentServiceDTO meetBoardCommentServiceDTO);
+
+    String deleteComment(Long meetBoardCommentId);
+
+    boolean isEditable(String username, Long meetBoardCommentId);
 }
