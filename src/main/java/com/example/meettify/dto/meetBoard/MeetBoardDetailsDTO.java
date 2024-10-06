@@ -31,17 +31,11 @@ public class MeetBoardDetailsDTO {
     private List<ResponseMeetBoardCommentDTO> comments;
 
 
-    public static MeetBoardDetailsDTO fromEntity(MeetBoardEntity meetBoardEntity) {
+    public static MeetBoardDetailsDTO changeDTO(MeetBoardEntity meetBoardEntity,List<ResponseMeetBoardCommentDTO> comments ) {
         // 이미지 URL 리스트 변환
         List<String> imageUrls = meetBoardEntity.getMeetBoardImages() != null ?
                 meetBoardEntity.getMeetBoardImages().stream()
                         .map(MeetBoardImageEntity::getUploadFileUrl)
-                        .collect(Collectors.toList()) : new ArrayList<>();
-
-        // 댓글 리스트 변환
-        List<ResponseMeetBoardCommentDTO> commentDTOs = meetBoardEntity.getComments() != null ?
-                meetBoardEntity.getComments().stream()
-                        .map(ResponseMeetBoardCommentDTO::changeDTO)
                         .collect(Collectors.toList()) : new ArrayList<>();
 
         // 빌더 패턴을 사용하여 DTO 생성
@@ -51,7 +45,7 @@ public class MeetBoardDetailsDTO {
                 .meetBoardContent(meetBoardEntity.getMeetBoardContent())
                 .postDate(meetBoardEntity.getPostDate())
                 .images(imageUrls)
-                .comments(commentDTOs)
+                .comments(comments)
                 .build();
     }
 }

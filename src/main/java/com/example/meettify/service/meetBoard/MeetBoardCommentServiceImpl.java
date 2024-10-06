@@ -2,14 +2,18 @@ package com.example.meettify.service.meetBoard;
 
 
 import com.example.meettify.dto.meet.MeetRole;
+import com.example.meettify.dto.meetBoard.MeetBoardCommentPermissionDTO;
 import com.example.meettify.dto.meetBoard.MeetBoardCommentServiceDTO;
+import com.example.meettify.dto.meetBoard.MeetBoardPermissionDTO;
 import com.example.meettify.dto.meetBoard.ResponseMeetBoardCommentDTO;
+import com.example.meettify.dto.member.role.UserRole;
 import com.example.meettify.entity.meet.MeetEntity;
 import com.example.meettify.entity.meet.MeetMemberEntity;
 import com.example.meettify.entity.meetBoard.MeetBoardCommentEntity;
 import com.example.meettify.entity.meetBoard.MeetBoardEntity;
 import com.example.meettify.entity.member.MemberEntity;
 import com.example.meettify.exception.meet.MeetException;
+import com.example.meettify.exception.meetBoard.MeetBoardException;
 import com.example.meettify.exception.meetBoardComment.MeetBoardCommentException;
 import com.example.meettify.repository.meet.MeetMemberRepository;
 import com.example.meettify.repository.meet.MeetRepository;
@@ -106,6 +110,38 @@ public class MeetBoardCommentServiceImpl implements MeetBoardCommentService {
 
         } catch (Exception e) {
             throw new MeetBoardCommentException(e.getMessage());
+        }
+    }
+
+    @Override
+    public MeetBoardCommentPermissionDTO getPermission(String email, Long meetBoardCommentId) {
+        try {
+            // 이메일로 회원 정보 가져옴
+            MemberEntity member = memberRepository.findByMemberEmail(email);
+
+            // 댓글 정보가 없으면 예외 처리
+            MeetBoardCommentEntity meetBoardComment = meetBoardCommentRepository.findByIdWithJoin(meetBoardCommentId)
+                    .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 모임 게시글에 대한 조회입니다."));
+
+            // 모임 회원 정보 가져오기
+            Long meetId = meetBoardComment.getMeetBoardEntity().getMeetEntity().getMeetId();
+            MeetMemberEntity meetMember = meetMemberRepository.findByEmailAndMeetId(email, meetId)
+                    .orElse(null);
+
+            // 게시글 작성자 인지 확인해서 맞으면  삭제 및 수정 권한 부여
+            if (meetBoardComment.getMemberEntity().equals(member)) {
+                return MeetBoardCommentPermissionDTO.of(true, true); // 삭제만 가능
+            }
+
+            // 모임 관리자 혹은 싸이트 관리자라면 삭제 권한으 부여
+            if (meetMember !=null?  MeetRole.ADMIN == meetMember.getMeetRole()
+                    : UserRole.ADMIN == member.getMemberRole()) {
+                return MeetBoardCommentPermissionDTO.of(false, true); // 삭제만 가능
+            }
+
+            return MeetBoardCommentPermissionDTO.of(false, false); // 삭제만 가능
+        } catch (Exception e) {
+            throw new MeetBoardException(e.getMessage());
         }
     }
 }
