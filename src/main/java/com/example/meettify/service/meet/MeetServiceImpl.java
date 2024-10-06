@@ -4,6 +4,7 @@ import com.example.meettify.config.s3.S3ImageUploadService;
 import com.example.meettify.dto.meet.*;
 import com.example.meettify.dto.meet.category.Category;
 import com.example.meettify.dto.meetBoard.MeetBoardSummaryDTO;
+import com.example.meettify.dto.member.role.UserRole;
 import com.example.meettify.entity.meet.MeetEntity;
 import com.example.meettify.entity.meet.MeetImageEntity;
 import com.example.meettify.entity.meet.MeetMemberEntity;
@@ -32,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -278,6 +280,32 @@ public class MeetServiceImpl implements MeetService {
             throw new MeetException("해당 회원이 존재하지 않습니다.");
         } catch (Exception e) {
             throw new MeetException("Role 변경 중 오류가 발생했습니다.");
+        }
+    }
+
+    @Override
+    public MeetPermissionDTO getPermission(String email, Long meetId) {
+        try {
+            // 이메일로 회원 정보 가져옴
+            MemberEntity member = memberRepository.findByMemberEmail(email);
+
+            // 모임에 속하지 않을 수도 있으므로 meetMember는 null일 수 있음
+            MeetMemberEntity meetMember = meetMemberRepository.findByEmailAndMeetId(email, meetId).orElse(null);
+
+            // 모임 관리자 권한 확인
+            if (meetMember != null && MeetRole.ADMIN == meetMember.getMeetRole()) {
+                return MeetPermissionDTO.of(true, true); // 수정 및 삭제 가능
+            }
+
+            // 전체 사이트 ADMIN 권한 확인
+            if (member != null && UserRole.ADMIN == member.getMemberRole()) {
+                return MeetPermissionDTO.of(false, true); // 삭제만 가능
+            }
+
+            // 권한이 없는 경우
+            return MeetPermissionDTO.of(false, false); // 수정 및 삭제 불가
+        } catch (Exception e) {
+            throw new MeetException("권한 관련 조회 중 에러 발생: " + e.getMessage());
         }
     }
 
