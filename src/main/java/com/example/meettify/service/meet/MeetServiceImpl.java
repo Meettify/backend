@@ -32,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /*
@@ -193,10 +194,17 @@ public class MeetServiceImpl implements MeetService {
     }
 
     @Override
-    public List<MeetSummaryDTO> getMeetList(Long lastId, int size, Category category) {
+    public List<MeetSummaryDTO> getMeetList(String email, Long lastId, int size, Category category) {
         Pageable pageable = PageRequest.of(0, size, Sort.by("meetId").ascending());
+
+        // meetId > lastId 조건으로 데이터를 가져옴
         List<MeetEntity> meets = meetRepository.findByMeetIdGreaterThanAndCategory(lastId, category, pageable);
 
+        // 현재 멤버가 가입 중인 모임 정보 가져오기
+        MemberEntity member = memberRepository.findByMemberEmail(email);
+        Set<Long> memberMeetIds = (member != null) ? meetMemberRepository.findByEmail(email) : Collections.emptySet();
+
+        // MeetSummaryDTO로 변환
         return meets.stream()
                 .map(meet -> MeetSummaryDTO.builder()
                         .meetId(meet.getMeetId())
@@ -204,9 +212,10 @@ public class MeetServiceImpl implements MeetService {
                         .location(meet.getMeetLocation())
                         .category(meet.getMeetCategory())
                         .maximum(meet.getMeetMaximum())
-                        .imageUrls(meet.getMeetImages().stream() // List<MeetImageEntity>를 List<String>으로 변환
-                                .map(MeetImageEntity::getUploadFileUrl) // MeetImageEntity의 getImageUrl() 메서드를 호출하여 URL 가져오기
-                                .collect(Collectors.toList())) // List<String>으로 수집
+                        .imageUrls(meet.getMeetImages().stream()
+                                .map(MeetImageEntity::getUploadFileUrl)
+                                .collect(Collectors.toList()))
+                        .isMember(memberMeetIds.contains(meet.getMeetId())) // 빠른 비교를 위한 Set 사용
                         .build())
                 .collect(Collectors.toList());
     }

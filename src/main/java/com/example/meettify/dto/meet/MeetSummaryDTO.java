@@ -17,5 +17,6 @@ public class MeetSummaryDTO {
     private Category category;
     private Long maximum;
     private List<String> imageUrls;
+    private boolean isMember;
 }
 
