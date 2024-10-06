@@ -3,6 +3,7 @@ package com.example.meettify.service.meetBoard;
 import com.example.meettify.config.s3.S3ImageUploadService;
 import com.example.meettify.dto.meet.MeetRole;
 import com.example.meettify.dto.meetBoard.*;
+import com.example.meettify.dto.member.role.UserRole;
 import com.example.meettify.entity.meet.MeetMemberEntity;
 import com.example.meettify.entity.meetBoard.MeetBoardEntity;
 import com.example.meettify.entity.meetBoard.MeetBoardImageEntity;
@@ -53,38 +54,63 @@ public class MeetBoardServiceImpl implements MeetBoardService {
         return meetBoardPage.map(MeetBoardSummaryDTO::changeDTO);
     }
 
-
-
     @Override
-    public ResponseMeetBoardDetailsDTO getDetails(Long meetBoardId) {
+    public MeetBoardPermissionDTO getPermission(String email, Long meetBoardId) {
         try {
-            // 게시글과 이미지를 조인하여 가져옴
-            MeetBoardEntity meetBoardEntity = meetBoardRepository.findById(meetBoardId)
-                    .orElseThrow(() -> new EntityNotFoundException("해당 게시글을 찾을 수 없습니다. 게시글 ID: " + meetBoardId));
+            // 이메일로 회원 정보 가져옴
+            MemberEntity member = memberRepository.findByMemberEmail(email);
 
-            // ModelMapper를 사용하여 Entity -> DTO로 매핑
-            ResponseMeetBoardDetailsDTO meetBoardDetailsResponseDTO = modelMapper.map(meetBoardEntity, ResponseMeetBoardDetailsDTO.class);
+            //모임 게시글이 없을 경우에는 예외 처리
+            MeetBoardEntity meetBoard = meetBoardRepository.findById(meetBoardId).orElseThrow(()->new EntityNotFoundException("존재 하지 않는 모임 게시글에 대한 조회입니다."));
 
-            // 이미지 리스트를 DTO에 설정
-            List<String> imageUrls = meetBoardEntity.getMeetBoardImages() != null ?  meetBoardEntity.getMeetBoardImages().stream()
-                    .map(MeetBoardImageEntity::getUploadFileUrl)
-                    .collect(Collectors.toList()) : new ArrayList<String>();
-            meetBoardDetailsResponseDTO.setImages(imageUrls);
+            MeetMemberEntity meetMember = meetMemberRepository.findByEmailAndMeetId(email, meetBoard.getMeetEntity().getMeetId())
+                    .orElseGet(null);
 
-            // 코멘트 리스트를 DTO에 설정
-            List<ResponseMeetBoardCommentDTO> commentDTOs = meetBoardEntity.getComments() != null ? meetBoardEntity.getComments().stream()
-                    .map(ResponseMeetBoardCommentDTO::changeDTO)
-                    .collect(Collectors.toList()) : new ArrayList<ResponseMeetBoardCommentDTO>();
-            meetBoardDetailsResponseDTO.setComments(commentDTOs);
+            // 게시글 작성자 인지 확인해서 맞으면  삭제 및 수정 권한 부여
+            if (meetBoard.getMemberEntity().equals(member)) {
+                return MeetBoardPermissionDTO.of(true, true); // 삭제만 가능
+            }
 
-            return meetBoardDetailsResponseDTO;
+            // 모임 관리자 혹은 싸이트 관리자라면 삭제 권한으 부여
+            if (meetMember !=null?  MeetRole.ADMIN == meetMember.getMeetRole()
+                    : UserRole.ADMIN == member.getMemberRole()) {
+                return MeetBoardPermissionDTO.of(false, true); // 삭제만 가능
+            }
 
-        } catch (EntityNotFoundException e) {
-            throw new MeetBoardException("게시글을 찾을 수 없습니다: ");
+            return MeetBoardPermissionDTO.of(false, false); // 삭제만 가능
         } catch (Exception e) {
-            throw new MeetBoardException("게시글 상세 정보를 불러오는 중 오류가 발생했습니다."+ e.getMessage());
+            throw new MeetBoardException(e.getMessage());
         }
     }
+
+
+@Override
+public MeetBoardDetailsDTO getDetails(Long meetBoardId) {
+    try {
+        // 게시글과 이미지를 조인하여 가져옴
+        MeetBoardEntity meetBoardEntity = meetBoardRepository.findById(meetBoardId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 게시글을 찾을 수 없습니다. 게시글 ID: " + meetBoardId));
+
+        // 빌더 패턴을 사용한 정적 메서드로 DTO 생성
+        MeetBoardDetailsDTO meetBoardDetailsDTO = MeetBoardDetailsDTO.fromEntity(meetBoardEntity);
+
+        return meetBoardDetailsDTO;
+
+    } catch (EntityNotFoundException e) {
+        throw new MeetBoardException("게시글을 찾을 수 없습니다: " + meetBoardId);
+    } catch (Exception e) {
+        // 오류 원인 출력
+        System.out.println("오류 메시지: " + e.getMessage());
+        System.out.println("오류 원인: " + e.getCause());
+        for (StackTraceElement element : e.getStackTrace()) {
+            System.out.println(element.toString());
+        }
+        throw new MeetBoardException("게시글 상세 정보를 불러오는 중 오류가 발생했습니다: " + e.getMessage());
+    }
+}
+
+
+
 
     @Override
     public ResponseMeetBoardDTO postBoard(MeetBoardServiceDTO meetBoardServiceDTO, String email) throws Exception {

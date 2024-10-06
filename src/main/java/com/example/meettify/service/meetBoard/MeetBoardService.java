@@ -12,7 +12,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface MeetBoardService {
 
-    ResponseMeetBoardDetailsDTO getDetails(Long meetBoardId);
+    MeetBoardDetailsDTO getDetails(Long meetBoardId);
 
     ResponseMeetBoardDTO postBoard(MeetBoardServiceDTO meetBoardServiceDTO, String email) throws Exception;
 
@@ -21,4 +21,6 @@ public interface MeetBoardService {
     ResponseMeetBoardDTO updateBoardService(UpdateMeetBoardServiceDTO updateMeetBoardServiceDTO, String username) throws Exception;
 
     Page<MeetBoardSummaryDTO> getPagedList(Long meetId, Pageable pageable);
+
+    MeetBoardPermissionDTO getPermission(String email, Long meetBoardId);
 }

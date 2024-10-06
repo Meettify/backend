@@ -1,6 +1,5 @@
 package com.example.meettify.controller.meetBoard;
 
-import com.amazonaws.Response;
 import com.example.meettify.dto.meetBoard.*;
 import com.example.meettify.service.meetBoard.MeetBoardService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -51,8 +50,13 @@ public class MeetBoardController implements MeetBoardControllerDocs{
         try {
             String email = userDetails.getUsername();
             log.info("email : " + email);
-            ResponseMeetBoardDetailsDTO meetBoardDetailsResponseDTO = meetBoardService.getDetails(meetBoardId);
-            return ResponseEntity.status(HttpStatus.OK).body(meetBoardDetailsResponseDTO);
+            MeetBoardDetailsDTO meetBoardDetailsDTO = meetBoardService.getDetails(meetBoardId);
+            MeetBoardPermissionDTO meetBoardPermission = meetBoardService.getPermission(email, meetBoardId);
+            ResponseMeetBoardDetailPermissionDTO response = ResponseMeetBoardDetailPermissionDTO.builder()
+                    .meetBoardDetailsDTO(meetBoardDetailsDTO)
+                    .meetBoardPermissionDTO(meetBoardPermission)
+                    .build();
+            return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             log.error("예외 : " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
