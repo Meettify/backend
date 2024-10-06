@@ -10,6 +10,7 @@ import com.example.meettify.entity.meetBoard.MeetBoardCommentEntity;
 import com.example.meettify.entity.meetBoard.MeetBoardEntity;
 import com.example.meettify.entity.member.MemberEntity;
 import com.example.meettify.exception.meet.MeetException;
+import com.example.meettify.exception.meetBoardComment.MeetBoardCommentException;
 import com.example.meettify.repository.meet.MeetMemberRepository;
 import com.example.meettify.repository.meet.MeetRepository;
 import com.example.meettify.repository.meetBoard.MeetBoardCommentRepository;
@@ -67,7 +68,7 @@ public class MeetBoardCommentServiceImpl implements MeetBoardCommentService {
         // 6. 저장된 댓글을 Response DTO로 변환하여 반환
         return ResponseMeetBoardCommentDTO.changeDTO(savedComment);
     } catch (EntityNotFoundException e) {
-        throw new MeetException(e.getMessage());
+        throw new MeetBoardCommentException(e.getMessage());
     }
 
 }
@@ -79,7 +80,7 @@ public class MeetBoardCommentServiceImpl implements MeetBoardCommentService {
             meetBoardCommentRepository.delete(findComment);
             return "모임 게시판 댓글을 삭제했습니다.";
         } catch (Exception e) {
-            throw new MeetException(e.getMessage());
+            throw new MeetBoardCommentException(e.getMessage());
         }
     }
 
@@ -104,7 +105,7 @@ public class MeetBoardCommentServiceImpl implements MeetBoardCommentService {
             return isAuthor || isAdmin;
 
         } catch (Exception e) {
-            throw new MeetException(e.getMessage());
+            throw new MeetBoardCommentException(e.getMessage());
         }
     }
 }
