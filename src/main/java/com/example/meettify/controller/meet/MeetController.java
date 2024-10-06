@@ -51,7 +51,7 @@ public class MeetController implements  MeetControllerDocs{
     public ResponseEntity<?> getDetail(@PathVariable Long meetId, @AuthenticationPrincipal UserDetails userDetails) {
         try {
             String email = (userDetails != null) ? userDetails.getUsername() : null;
-            MeetRole meetRole = (email != null) ? meetService.getMeetRole(meetId, email) : MeetRole.EXPEL;  //
+            MeetRole meetRole = (email != null) ? meetService.getMeetRole(meetId, email) : MeetRole.OUTSIDER;  //
 
             //권한 정보 가져오기
             MeetPermissionDTO meetPermissionDTO = meetService.getPermission(email, meetId);
@@ -74,6 +74,7 @@ public class MeetController implements  MeetControllerDocs{
                     .meetBoardSummaryDTOList(meetBoardSummaryDTO)
                     .meetId(meetId)
                     .meetPermissionDTO(meetPermissionDTO)
+                    .meetRole(meetRole)
                     .build());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(MeetRole.EXPEL);
