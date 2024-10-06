@@ -5,7 +5,6 @@ import com.example.meettify.dto.meetBoard.MeetBoardCommentServiceDTO;
 import com.example.meettify.dto.meetBoard.RequestMeetBoardCommentDTO;
 import com.example.meettify.dto.meetBoard.ResponseMeetBoardCommentDTO;
 import com.example.meettify.service.meetBoard.MeetBoardCommentService;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
