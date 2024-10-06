@@ -50,7 +50,7 @@ public class MeetBoardController implements MeetBoardControllerDocs{
         try {
             String email = userDetails.getUsername();
             log.info("email : " + email);
-            MeetBoardDetailsDTO meetBoardDetailsDTO = meetBoardService.getDetails(meetBoardId);
+            MeetBoardDetailsDTO meetBoardDetailsDTO = meetBoardService.getDetails(email,meetBoardId);
             MeetBoardPermissionDTO meetBoardPermission = meetBoardService.getPermission(email, meetBoardId);
             ResponseMeetBoardDetailPermissionDTO response = ResponseMeetBoardDetailPermissionDTO.builder()
                     .meetBoardDetailsDTO(meetBoardDetailsDTO)

@@ -44,6 +44,7 @@ public class MeetBoardServiceImpl implements MeetBoardService {
     private final MemberRepository memberRepository;
     private final ModelMapper modelMapper;
     private final S3ImageUploadService s3ImageUploadService;  // S3 서비스 추가
+    private final MeetBoardCommentService meetBoardCommentService;
 
 
     public Page<MeetBoardSummaryDTO> getPagedList(Long meetId, Pageable pageable) {
@@ -85,17 +86,20 @@ public class MeetBoardServiceImpl implements MeetBoardService {
 
 
 @Override
-public MeetBoardDetailsDTO getDetails(Long meetBoardId) {
+public MeetBoardDetailsDTO getDetails(String email,Long meetBoardId) {
     try {
         // 게시글과 이미지를 조인하여 가져옴
         MeetBoardEntity meetBoardEntity = meetBoardRepository.findById(meetBoardId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 게시글을 찾을 수 없습니다. 게시글 ID: " + meetBoardId));
 
-        // 빌더 패턴을 사용한 정적 메서드로 DTO 생성
-        MeetBoardDetailsDTO meetBoardDetailsDTO = MeetBoardDetailsDTO.fromEntity(meetBoardEntity);
+        // 댓글 리스트 변환
+        List<ResponseMeetBoardCommentDTO> commentDTOs = meetBoardEntity.getComments() != null ?
+                meetBoardEntity.getComments().stream()
+                        .map(e-> ResponseMeetBoardCommentDTO.changeDTO(e, meetBoardCommentService.getPermission(email,meetBoardId)))
+                        .toList() : new ArrayList<>();
 
-        return meetBoardDetailsDTO;
-
+        // 빌더 패턴을 사용한 정적 메서드로 DTO 생성 후 반환
+        return MeetBoardDetailsDTO.changeDTO(meetBoardEntity,commentDTOs);
     } catch (EntityNotFoundException e) {
         throw new MeetBoardException("게시글을 찾을 수 없습니다: " + meetBoardId);
     } catch (Exception e) {
