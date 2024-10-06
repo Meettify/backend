@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface MeetMemberRepository extends JpaRepository<MeetMemberEntity, Long> {
 
@@ -17,6 +18,11 @@ public interface MeetMemberRepository extends JpaRepository<MeetMemberEntity, Lo
             "JOIN FETCH mm.meetEntity me " +
             "WHERE m.memberEmail = :email AND me.meetId = :meetId")
     Optional<MeetMemberEntity> findByEmailAndMeetId(@Param("email") String email, @Param("meetId") Long meetId);
+
+
+    @Query("SELECT mm.meetMemberId FROM meetMembers mm " +
+            "WHERE mm.memberEntity.memberEmail = :email")
+    Set<Long> findByEmail(@Param("email") String email);
 
     @Query("SELECT mm FROM meetMembers mm " +
             "JOIN FETCH mm.memberEntity m " +

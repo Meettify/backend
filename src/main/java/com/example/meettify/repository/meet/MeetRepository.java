@@ -17,12 +17,12 @@ public interface MeetRepository extends JpaRepository<MeetEntity, Long> {
     Optional<MeetEntity> findByIdWithImages(@Param("meetId") Long meetId);
 
 
-    //무한로딩을 위한 정보를 가져옴
-    @Query("SELECT m FROM meets m JOIN FETCH m.meetImages WHERE m.meetCategory = :category " +
-            "AND m.meetId > :lastId  ORDER BY m.meetId ASC")
+
+
+    // 무한 로딩을 위한 정보를 가져옴 (lastId 기반)
+    @Query("SELECT m FROM meets m LEFT JOIN FETCH m.meetImages WHERE m.meetCategory = :category AND m.meetId > :lastId ORDER BY m.meetId ASC")
     List<MeetEntity> findByMeetIdGreaterThanAndCategory(
             @Param("lastId") Long lastId,
             @Param("category") Category category,
             Pageable pageable);
-
 }

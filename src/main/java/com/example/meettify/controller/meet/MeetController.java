@@ -35,11 +35,13 @@ public class MeetController implements  MeetControllerDocs{
     @GetMapping
     public ResponseEntity<?> getList(@RequestParam(defaultValue = "0") Long lastId,
                                         @RequestParam(defaultValue = "9") int size
-                                        ,@RequestParam(required = false) Category category) {
+                                        ,@RequestParam(required = false) Category category, @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            List<MeetSummaryDTO> meetList = meetService.getMeetList(lastId, size,category);
+            String email = (userDetails != null) ? userDetails.getUsername() : null;
+            List<MeetSummaryDTO> meetList = meetService.getMeetList(email,lastId, size,category);
             return ResponseEntity.status(HttpStatus.OK).body(meetList);
         } catch (Exception e) {
+            log.error("Error fetching meet list", e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 모임 리스트 요청입니다");
         }
     }

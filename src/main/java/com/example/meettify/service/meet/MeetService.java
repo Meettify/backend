@@ -27,7 +27,7 @@ public interface MeetService {
 
     MeetDetailDTO getMeetDetail(Long meetId);
 
-    List<MeetSummaryDTO> getMeetList(Long lastId, int size, Category category);
+    List<MeetSummaryDTO> getMeetList(String email,Long lastId, int size, Category category);
 
     MeetRole getMeetRole(Long meetId, String email);
 
