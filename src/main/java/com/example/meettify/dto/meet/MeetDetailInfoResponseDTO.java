@@ -16,4 +16,5 @@ public class MeetDetailInfoResponseDTO {
     MeetDetailDTO meetDetailDTO;
     MeetRole meetRole;
     List<MeetBoardSummaryDTO> meetBoardSummaryDTOList;
+    MeetPermissionDTO meetPermissionDTO;
 }
