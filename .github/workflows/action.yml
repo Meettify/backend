@@ -128,10 +128,14 @@ jobs:
             docker-compose rm -f
             
             # 충돌하는 컨테이너가 있는지 확인 후 제거
-            if [ "$(docker ps -aq -f name=ubuntu-k6)" ]; then
-              echo "Removing existing k6 container..."
-              docker rm -f ubuntu-k6
-            fi
+            containers=(k6 grafana redis mysql prometheus nginx certbot meettify)
+
+            for container in "${containers[@]}"; do
+              if [ "$(docker ps -aq -f name=$container)" ]; then
+                echo "Removing existing $container container..."
+                docker rm -f $container
+              fi
+            done
             
             # 사용하지 않는 이미지 확인 후 삭제
             echo "Removing unused Docker images..."
