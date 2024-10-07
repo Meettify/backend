@@ -11,6 +11,7 @@ services:
       retries: 3
   mysql:
     image: mysql:8.0
+    container_name: mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${RDS_MYSQL_SECRET}  # 환경 변수를 사용하여 비밀번호 설정
       MYSQL_DATABASE: meettify  # 기본 데이터베이스 생성
@@ -23,12 +24,14 @@ services:
     restart: always
 
   prometheus:
+    container_name: prometheus
     image: prom/prometheus:v2.30.3
     ports:
       - "9090:9090"  # 외부 포트
     restart: always
 
   grafana:
+    container_name: grafana
     image: grafana/grafana:8.2.2
     environment:
       - GF_SECURITY_ADMIN_USER=admin  # 기본 관리자 사용자 이름
@@ -42,7 +45,7 @@ services:
     platform: linux/amd64
     command: ["run", "/test/script.js"]  # 테스트 스크립트 경로
     restart: always
-    container_name: ubuntu-k6  # 컨테이너 이름 고정
+    container_name: k6  # 컨테이너 이름 고정
 
   nginx:
     image: nginx:latest
@@ -61,6 +64,7 @@ services:
 
   certbot:
     image: certbot/certbot
+    container_name: certbot
     volumes:
       - ./data/certbot/conf:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
@@ -68,6 +72,7 @@ services:
 
 
   api:
+    container_name: meettify
     build:
       context: .
       dockerfile: docker/api/Dockerfile # Dockerfile 경로
