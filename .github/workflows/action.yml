@@ -126,6 +126,12 @@ jobs:
             # 기존 컨테이너 중지 및 제거
             docker-compose down --remove-orphans
             docker-compose rm -f
+            
+            # 충돌하는 컨테이너가 있는지 확인 후 제거
+            if [ "$(docker ps -aq -f name=ubuntu-k6)" ]; then
+              echo "Removing existing k6 container..."
+              docker rm -f ubuntu-k6
+            fi
 
             # 최신 이미지 가져와서 컨테이너 실행
             docker-compose pull
