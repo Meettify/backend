@@ -9,7 +9,8 @@ import lombok.*;
 @Builder
 public class UpdateMemberServiceDTO {
     private String nickName;
-    private String memberPw;
+    private String originalMemberPw;
+    private String updateMemberPw;
     private AddressDTO memberAddr;
 
 
@@ -18,7 +19,8 @@ public class UpdateMemberServiceDTO {
                 member.getMemberAddr() != null ? member.getMemberAddr() : new AddressDTO("", "", "");
         return UpdateMemberServiceDTO.builder()
                 .nickName(member.getNickName())
-                .memberPw(member.getMemberPw())
+                .originalMemberPw(member.getOriginalMemberPw())
+                .updateMemberPw(member.getUpdateMemberPw())
                 .memberAddr(member.getMemberAddr())
                 .build();
     }

@@ -132,6 +132,10 @@ jobs:
               echo "Removing existing k6 container..."
               docker rm -f ubuntu-k6
             fi
+            
+            # 사용하지 않는 이미지 확인 후 삭제
+            echo "Removing unused Docker images..."
+            docker image prune -f
 
             # 최신 이미지 가져와서 컨테이너 실행
             docker-compose pull

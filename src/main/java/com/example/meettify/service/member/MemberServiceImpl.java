@@ -139,8 +139,12 @@ public class MemberServiceImpl implements MemberService {
                 findMember = findMemberEntity(email);
 
                 // 비밀번호 변경이 오면 비밀번호 암호화
-                if (updateServiceDTO.getMemberPw() != null) {
-                    encodePw = passwordEncoder.encode(updateServiceDTO.getMemberPw());
+                if (updateServiceDTO.getOriginalMemberPw() != null &&
+                        updateServiceDTO.getUpdateMemberPw() != null &&
+                        passwordEncoder.matches(updateServiceDTO.getOriginalMemberPw(), findMember.getMemberPw())) {
+                    if(!passwordEncoder.matches(updateServiceDTO.getUpdateMemberPw(), findMember.getMemberPw())) {
+                        encodePw = passwordEncoder.encode(updateServiceDTO.getUpdateMemberPw());
+                    }
                 }
 
                 findMember.updateMember(updateServiceDTO, encodePw);
