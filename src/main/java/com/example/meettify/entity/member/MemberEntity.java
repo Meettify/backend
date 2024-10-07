@@ -32,7 +32,7 @@ public class MemberEntity extends BaseEntity {
     @Column(name = "member_pw")
     private String memberPw;
 
-    @Column(name = "nick_name", nullable = false)
+    @Column(name = "nick_name", nullable = false, unique = true)
     private String nickName;
 
     @Enumerated(EnumType.STRING)
