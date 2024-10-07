@@ -51,9 +51,9 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./data/nginx:/etc/nginx/conf.d
-      - ./data/certbot/conf:/etc/letsencrypt
-      - ./data/certbot/www:/var/www/certbot
+      - /home/ubuntu/data/nginx/nginx.conf:/etc/nginx/nginx.conf  # nginx.conf를 컨테이너로 마운트
+      - ./data/certbot/conf:/etc/letsencrypt  # Certbot의 인증서 저장소
+      - ./data/certbot/www:/var/www/certbot  # 웹서버에서 인증서 확인에 사용할 경로
     depends_on:
       - certbot
 
