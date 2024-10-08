@@ -51,9 +51,6 @@ jobs:
           NAVER_CLIENT: ${{ secrets.NAVER_CLIENT }}  # Naver OAuth 클라이언트 ID
           NAVER_SECRET: ${{ secrets.NAVER_SECRET }}  # Naver OAuth 비밀 키
           OAUTH2_URI: ${{ secrets.OAUTH2_URI }}  # OAuth URI
-          SPRING_PROFILES_ACTIVE: prod  # 활성 Spring 프로파일 설정
-          REDIS_HOST: redis  # Redis 서비스 이름으로 설정
-          REDIS_PORT: 6379  # Redis 포트
         run: ./gradlew clean build
 
       # 6. 테스트 실행
