@@ -39,21 +39,6 @@ jobs:
 
       # 5. Gradle 빌드
       - name: Run Gradle Build
-        env:
-          RDS_MYSQL_URL: ${{ secrets.RDS_MYSQL_URL }}
-          RDS_MYSQL_NAME: ${{ secrets.RDS_MYSQL_NAME }}
-          RDS_MYSQL_SECRET: ${{ secrets.RDS_MYSQL_SECRET }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          S3_ACCESS: ${{ secrets.S3_ACCESS }}  # AWS 액세스 키
-          S3_SECRET: ${{ secrets.S3_SECRET }}  # AWS 비밀 키
-          GOOGLE_CLIENT: ${{ secrets.GOOGLE_CLIENT }}  # Google OAuth 클라이언트 ID
-          GOOGLE_SECRET: ${{ secrets.GOOGLE_SECRET }}  # Google OAuth 비밀 키
-          NAVER_CLIENT: ${{ secrets.NAVER_CLIENT }}  # Naver OAuth 클라이언트 ID
-          NAVER_SECRET: ${{ secrets.NAVER_SECRET }}  # Naver OAuth 비밀 키
-          OAUTH2_URI: ${{ secrets.OAUTH2_URI }}  # OAuth URI
-          SPRING_PROFILES_ACTIVE: prod  # 활성 Spring 프로파일 설정
-          REDIS_HOST: redis  # Redis 서비스 이름으로 설정
-          REDIS_PORT: 6379  # Redis 포트
         run: ./gradlew clean build
 
       # 6. 테스트 실행
