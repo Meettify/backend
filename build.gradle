@@ -13,10 +13,6 @@ java {
     }
 }
 
-test {
-    exclude '**/MeettifyApplicationTests.class'
-}
-
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
@@ -27,12 +23,11 @@ repositories {
     mavenCentral()
 }
 
-
 dependencies {
     // JPA
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     // MongoDB
-    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
     // OAuth2.0
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     // Security
@@ -41,8 +36,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     // Actuator
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    // AWS S3
-    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
     // lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
@@ -55,15 +48,13 @@ dependencies {
     // MySQL
     runtimeOnly 'com.mysql:mysql-connector-j'
     // jwt
-    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-    implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
-    implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
-    // redis
-//    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.12.6'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.12.5'
     // 유효성 검사 라이브러리
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     // swagger
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
+    implementation 'io.springfox:springfox-boot-starter:3.0.0'
     // ModelMapper 라이브러리
     implementation 'org.modelmapper:modelmapper:3.1.1'
     // ⭐ Spring boot 3.x이상에서 QueryDsl 패키지를 정의하는 방법
@@ -75,7 +66,8 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
+    // guava
+    implementation 'com.google.guava:guava:32.1.2-jre'
 }
 
 tasks.named('bootBuildImage') {
