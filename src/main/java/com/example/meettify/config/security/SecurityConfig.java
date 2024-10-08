@@ -2,7 +2,6 @@ package com.example.meettify.config.security;
 
 import com.example.meettify.config.jwt.JwtProvider;
 import com.example.meettify.config.jwt.JwtSecurityConfig;
-import com.example.meettify.config.login.CustomUsernamePasswordAuthenticationFilter;
 import com.example.meettify.config.oauth.OAuth2FailHandler;
 import com.example.meettify.config.oauth.OAuth2SuccessHandler;
 import com.example.meettify.config.oauth.PrincipalOAuthUserService;
@@ -15,18 +14,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.web.config.PageableHandlerMethodArgumentResolverCustomizer;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -92,7 +87,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/logistics").permitAll()
                 );
 
-        http.addFilterBefore(new CustomUsernamePasswordAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         // JWT Configuration
         http.apply(new JwtSecurityConfig(jwtProvider));
 
@@ -115,11 +109,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // Spring Security에 이 매니저를 빈으로 등록하여 다른 컴포넌트에서 사용할 수 있게 합니다.
-    @Bean
-    public AuthenticationManager authManager(AuthenticationConfiguration authConfig) throws Exception {
-        return authConfig.getAuthenticationManager();
-    }
 
     @Bean
     public ForwardedHeaderFilter forwardedHeaderFilter() {

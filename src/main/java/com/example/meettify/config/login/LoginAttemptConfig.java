@@ -3,6 +3,7 @@ package com.example.meettify.config.login;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 *   work    : 로그인 횟수를 카운트하고 캐시에 저장하는 클래스
 *   date    : 2024/10/08
 * */
+@Log4j2
 @Service
 public class LoginAttemptConfig {
     private static final int MAX_ATTEMPTS = 5;
@@ -35,11 +37,13 @@ public class LoginAttemptConfig {
 
     // 성공하면 기존의 캐시를 비어줌
     public void loginSuccess(String email) {
+        log.info("로그인에 성공했습니다.");
         attemptsCache.invalidate(email);
     }
 
     // 로그인 실패하면 캐시 해당 사용자의 로그인 실패 횟수를 증가시키고 다시 캐시에 저장
     public void loginFailed(String email) {
+        log.info("로그인에 실패했습니다.");
         int failedAttemptsCount = 0;
 
         try {
@@ -49,6 +53,8 @@ public class LoginAttemptConfig {
         }
         failedAttemptsCount++;
         attemptsCache.put(email, failedAttemptsCount);
+        // 현재 실패 횟수 로그 출력
+        log.info("현재 {}의 로그인 실패 횟수: {}", email, failedAttemptsCount);
     }
 
     // 정해진 로그링 실패 횟수를 초과하면 isBlocked가 true가 되어 해당 계정으로 로그인할 수 없습니다.
@@ -56,6 +62,7 @@ public class LoginAttemptConfig {
         try {
             return attemptsCache.get(email) >= MAX_ATTEMPTS;
         } catch (ExecutionException e) {
+            log.error("로그인 실패 횟수 가져오기 중 오류 발생", e);
             return false;
         }
     }

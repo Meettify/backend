@@ -1,6 +1,7 @@
 package com.example.meettify.service.member;
 
 import com.example.meettify.config.jwt.JwtProvider;
+import com.example.meettify.config.login.LoginAttemptConfig;
 import com.example.meettify.dto.jwt.TokenDTO;
 import com.example.meettify.dto.member.MemberServiceDTO;
 import com.example.meettify.dto.member.UpdateMemberServiceDTO;
@@ -15,6 +16,8 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,6 +42,7 @@ public class MemberServiceImpl implements MemberService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
     private final TokenRepository tokenRepository;
+    private final LoginAttemptConfig loginAttemptConfig;
 
     // 회원가입
     @Override
@@ -75,12 +79,20 @@ public class MemberServiceImpl implements MemberService {
     public TokenDTO login(String email, String password) {
         try {
             boolean isMember = memberRepository.existsByMemberEmail(email);
+            log.info("isMember : {}", isMember);
             TokenEntity tokenEntity;
             TokenDTO token;
 
             // 회원이 있으면 true
             if (isMember) {
                 MemberEntity findMember = findMemberEntity(email);
+                log.info("findMember : {}", findMember);
+
+                if(loginAttemptConfig.isBlocked(email)) {
+                    log.error("Member is blocked for 1 day");
+                    throw new LockedException("Member is blocked for 1 day");
+                }
+
                 // DB에 넣어져 있는 비밀번호는 암호화가 되어 있어서 비교하는 기능을 사용해야 합니다.
                 // 사용자가 입력한 패스워드를 암호화하여 사용자 정보와 비교
                 if (passwordEncoder.matches(password, findMember.getMemberPw())) {
@@ -101,10 +113,15 @@ public class MemberServiceImpl implements MemberService {
                     }
 
                     TokenEntity saveToken = tokenRepository.save(tokenEntity);
+                    // 로그인 성공 시 캐시 초기화
+                    loginAttemptConfig.loginSuccess(email);
                     TokenDTO response = TokenDTO.changeDTO(saveToken, token.getAccessToken());
                     log.info("response : {}", response);
                     return response;
                 }
+                // 비밀번호가 틀린 경우 실패 처리
+                loginAttemptConfig.loginFailed(email);
+                throw new BadCredentialsException("비밀번호가 일치하지 않습니다.");
             }
             throw new EntityNotFoundException(String.format("회원이 존재하지 않습니다. 이메일: %s", email));
         } catch (Exception e) {
