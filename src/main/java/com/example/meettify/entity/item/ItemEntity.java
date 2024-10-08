@@ -11,9 +11,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /*
  *   writer  : 유요한
@@ -98,6 +96,7 @@ public class ItemEntity extends BaseEntity {
     }
 
     public void remainImgId(List<Long> remainImgId) {
-        this.images.removeIf(img -> !remainImgId.contains(img.getItemImgId()));
+        Set<Long> remainImgIdSet = new HashSet<>(remainImgId); // O(1) 조회를 위한 Set 사용
+        this.images.removeIf(img -> !remainImgIdSet.contains(img.getItemImgId()));
     }
 }

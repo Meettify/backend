@@ -5,6 +5,7 @@ import com.example.meettify.dto.item.ResponseItemImgDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -47,18 +48,20 @@ public class ItemImgEntity extends BaseEntity {
     private ItemEntity item;
 
     // 이미지 엔티티 생성
-    public static ItemImgEntity createEntity(List<ResponseItemImgDTO> images,
+    public static List<ItemImgEntity> createEntityList(List<ResponseItemImgDTO> images,
                                              ItemEntity item) {
-        ItemImgEntity responseImg = null;
+
+        List<ItemImgEntity> imageEntity = new ArrayList<>();
         for (ResponseItemImgDTO image : images) {
-            responseImg = ItemImgEntity.builder()
+            ItemImgEntity responseImg = ItemImgEntity.builder()
                     .uploadImgPath(image.getUploadImgPath())
                     .uploadImgName(image.getUploadImgName())
                     .originalImgName(image.getOriginalImgName())
                     .uploadImgUrl(image.getUploadImgUrl())
                     .item(item)
                     .build();
+            imageEntity.add(responseImg);
         }
-        return responseImg;
+        return imageEntity;
     }
 }

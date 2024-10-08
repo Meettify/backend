@@ -159,7 +159,7 @@ public class MemberServiceImpl implements MemberService {
                 if (updateServiceDTO.getOriginalMemberPw() != null &&
                         updateServiceDTO.getUpdateMemberPw() != null &&
                         passwordEncoder.matches(updateServiceDTO.getOriginalMemberPw(), findMember.getMemberPw())) {
-                    if(!passwordEncoder.matches(updateServiceDTO.getUpdateMemberPw(), findMember.getMemberPw())) {
+                    if (!passwordEncoder.matches(updateServiceDTO.getUpdateMemberPw(), findMember.getMemberPw())) {
                         encodePw = passwordEncoder.encode(updateServiceDTO.getUpdateMemberPw());
                     }
                 }
@@ -171,8 +171,12 @@ public class MemberServiceImpl implements MemberService {
                 return response;
             }
             throw new EntityNotFoundException("회원이 존재하지 않습니다.");
+        } catch (EntityNotFoundException e) {
+            log.error("Entity not found: {}", e.getMessage());
+            throw new MemberException("회원이 존재하지 않습니다.");
         } catch (Exception e) {
-            throw new MemberException(e.getMessage());
+            log.error("Error updating member: ", e);
+            throw new MemberException("회원 수정 중 오류가 발생했습니다.");
         }
     }
 
