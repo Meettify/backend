@@ -29,6 +29,7 @@ public class ResponseMemberDTO {
                 .memberId(member.getMemberId())
                 .memberEmail(member.getMemberEmail())
                 .memberName(member.getMemberName())
+                .nickName(member.getNickName())
                 .memberPw(member.getMemberPw())
                 .memberRole(member.getMemberRole())
                 .memberAddr(AddressDTO.builder()
