@@ -66,6 +66,8 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // Guava - 로그인 회수 제한
+    implementation 'com.google.guava:guava:32.1.2-jre'
 }
 
 tasks.named('bootBuildImage') {
