@@ -128,8 +128,24 @@ jobs:
           source: build/libs/*.jar  # 빌드 후 생성된 JAR 파일 경로
           target: /home/ubuntu/  # EC2의 대상 경로
 
+      # 13. 컨테이너 정지 및 종료
+      - name: Stop and remove existing containers
+        run: |
+          echo "Stopping and removing all containers..."
+          docker-compose down --remove-orphans
 
-      # 11. EC2에 SSH 접속해서 배포
+          containers=(k6 grafana redis mysql prometheus nginx certbot)
+
+          for container in "${containers[@]}"; do
+            if [ "$(docker ps -aq -f name=$container)" ]; then
+              echo "Removing existing $container container..."
+              docker rm -f $container
+            else
+              echo "No $container container to remove."
+            fi
+          done
+
+      # 14. EC2에 SSH 접속해서 배포
       - name: SSH to EC2 and deploy
         uses: appleboy/ssh-action@master
         with:
@@ -138,20 +154,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            # 기존 컨테이너 중지 및 제거
-            docker-compose down --remove-orphans
-            docker-compose rm -f
-            
-            # 충돌하는 컨테이너가 있는지 확인 후 제거
-            containers=(k6 grafana redis mysql prometheus nginx certbot meettify)
-
-            for container in "${containers[@]}"; do
-              if [ "$(docker ps -aq -f name=$container)" ]; then
-                echo "Removing existing $container container..."
-                docker rm -f $container
-              fi
-            done
-            
             # 사용하지 않는 이미지 확인 후 삭제
             echo "Removing unused Docker images..."
             docker image prune -f
