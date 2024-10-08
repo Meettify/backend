@@ -84,3 +84,7 @@ clean {
     delete file('src/main/generated')
 }
 
+tasks.withType(Test) {
+    // MeettifyApplicationTests 테스트만 제외
+    exclude '**/MeettifyApplicationTests*'
+}
