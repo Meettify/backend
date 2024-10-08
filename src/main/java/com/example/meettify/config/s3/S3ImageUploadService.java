@@ -1,6 +1,7 @@
 package com.example.meettify.config.s3;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.example.meettify.exception.file.FileUploadException;
@@ -86,6 +87,33 @@ public class S3ImageUploadService {
         String ext = oriFileName.substring(oriFileName.lastIndexOf(".") + 1);
         return UUID.randomUUID().toString() + "." + ext;
     }
+
+    // S3에 업로드된 파일 삭제
+    public String deleteFile(String uploadFilePath, String uuidFileName) {
+        String result = "success";
+
+        try {
+            // ex) 구분/년/월/일/파일.확장자
+            String keyName = uploadFilePath + "/" + uuidFileName;
+            boolean isObjectExist = amazonS3.doesObjectExist(bucket, keyName);
+
+            if (isObjectExist) {
+                amazonS3.deleteObject(bucket, keyName);
+            } else {
+                result = "file not found";
+            }
+        } catch (AmazonS3Exception e) {
+            // S3에서 파일 삭제 실패
+            result = "S3 file deletion failed: " + e.getMessage();
+            log.error("S3 file deletion failed", e);
+        } catch (Exception e) {
+            // 기타 예외 처리
+            result = "file deletion failed: " + e.getMessage();
+            log.error("File deletion failed", e);
+        }
+        return result;
+    }
+
 
 
 

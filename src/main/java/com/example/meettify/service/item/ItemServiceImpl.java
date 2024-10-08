@@ -21,7 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 
@@ -43,8 +42,8 @@ public class ItemServiceImpl implements ItemService {
             if (findMember != null) {
                 List<ResponseItemImgDTO> itemImages = uploadItemImages(files);
                 ItemEntity itemEntity = ItemEntity.createEntity(item);
-                ItemImgEntity imgEntity = ItemImgEntity.createEntity(itemImages, itemEntity);
-                itemEntity.addImage(imgEntity);
+                List<ItemImgEntity> imagesEntity = ItemImgEntity.createEntityList(itemImages, itemEntity);
+                itemEntity.getImages().addAll(imagesEntity);
                 ItemEntity saveItem = itemRepository.save(itemEntity);
                 return ResponseItemDTO.changeDTO(saveItem);
             }
@@ -73,20 +72,40 @@ public class ItemServiceImpl implements ItemService {
                                       String role) {
         try {
             ItemEntity findItem = itemRepository.findById(itemId)
-                    .orElse(null);
+                    .orElseThrow(() -> new ItemException("Item not found with id: " + itemId));
             List<ItemImgEntity> findItemImg = itemImgRepository.findByItem_ItemId(itemId);
 
-            if(updateItemDTO.getRemainImgId().isEmpty()) {
+            // 만약 남겨야 할 이미지 ID가 비어있다면, 모든 이미지를 삭제
+            if (updateItemDTO.getRemainImgId().isEmpty()) {
+                // s3에서 해당 상품의 이미지 모두 삭제
+                findItem.getImages().forEach(
+                        img -> s3ImageUploadService.deleteFile(img.getUploadImgPath(), img.getUploadImgName())
+                );
+                // 리스트에서 모든 이미지를 삭제
                 requireNonNull(findItem).getImages().clear();
             } else {
-                requireNonNull(findItem).remainImgId(updateItemDTO.getRemainImgId());
+                // 먼저 S3에서 삭제해야 할 이미지 처리
+                findItem.getImages().forEach(img -> {
+                    if (!updateItemDTO.getRemainImgId().contains(img.getItemImgId())) {
+                        s3ImageUploadService.deleteFile(img.getUploadImgPath(), img.getUploadImgName()); // S3에서 삭제
+                    }
+                });
+
+                // 이미지를 필터링하여 남겨야 할 이미지만 남김
+                findItem.remainImgId(updateItemDTO.getRemainImgId());
             }
 
-            findItem.updateItem(updateItemDTO, findItemImg);
+            // s3에 추가할 이미지
+            List<ResponseItemImgDTO> responseImages = uploadItemImages(files);
+            // 이미지들을 엔티티로 변환
+            List<ItemImgEntity> imagesEntity = ItemImgEntity.createEntityList(responseImages, findItem);
+            // 새로운 이미지들 추가
+            findItem.updateItem(updateItemDTO, imagesEntity);
             ItemEntity saveItem = itemRepository.save(findItem);
             return ResponseItemDTO.changeDTO(saveItem);
         } catch (Exception e) {
-            throw new ItemException(e.getMessage());
+            log.error("Error updating item: ", e);
+            throw new ItemException("Failed to update the item.");
         }
     }
 }

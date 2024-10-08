@@ -24,7 +24,7 @@ public class ItemController implements ItemControllerDocs{
     private final ItemService itemService;
     private final ModelMapper modelMapper;
 
-    @GetMapping("")
+    @PostMapping("")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> createItem(@Validated @RequestPart CreateItemDTO item,
                                         @RequestPart(value = "files", required = false)List<MultipartFile> files,
@@ -48,7 +48,10 @@ public class ItemController implements ItemControllerDocs{
     @Override
     @PutMapping("/{itemId}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> updateItem(Long itemId, UpdateItemDTO item, List<MultipartFile> files, UserDetails userDetails) {
+    public ResponseEntity<?> updateItem(@PathVariable Long itemId,
+                                        @RequestPart UpdateItemDTO item,
+                                        @RequestPart(value = "files", required = false) List<MultipartFile> files,
+                                        @AuthenticationPrincipal UserDetails userDetails) {
         try {
             String email = userDetails.getUsername();
             String authority = userDetails.getAuthorities()
@@ -63,4 +66,6 @@ public class ItemController implements ItemControllerDocs{
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+
 }
