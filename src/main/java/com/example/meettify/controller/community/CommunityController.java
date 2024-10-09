@@ -59,7 +59,10 @@ public class CommunityController implements CommunityControllerDocs {
     @GetMapping("/{communityId}")
     public ResponseEntity<?> itemDetail(@PathVariable Long communityId) {
         try {
-            communityService.
+            ResponseBoardDTO response = communityService.getBoard(communityId);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }
