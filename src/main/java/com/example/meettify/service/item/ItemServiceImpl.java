@@ -1,10 +1,7 @@
 package com.example.meettify.service.item;
 
 import com.example.meettify.config.s3.S3ImageUploadService;
-import com.example.meettify.dto.item.CreateItemServiceDTO;
-import com.example.meettify.dto.item.ResponseItemDTO;
-import com.example.meettify.dto.item.ResponseItemImgDTO;
-import com.example.meettify.dto.item.UpdateItemServiceDTO;
+import com.example.meettify.dto.item.*;
 import com.example.meettify.entity.item.ItemEntity;
 import com.example.meettify.entity.item.ItemImgEntity;
 import com.example.meettify.entity.member.MemberEntity;
@@ -13,8 +10,11 @@ import com.example.meettify.exception.member.MemberException;
 import com.example.meettify.repository.item.ItemImgRepository;
 import com.example.meettify.repository.item.ItemRepository;
 import com.example.meettify.repository.member.MemberRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,6 +35,7 @@ public class ItemServiceImpl implements ItemService {
     private final S3ImageUploadService s3ImageUploadService;
 
 
+    // 상품 등록 메서드
     @Override
     public ResponseItemDTO createItem(CreateItemServiceDTO item, List<MultipartFile> files, String memberEmail) {
         try {
@@ -64,6 +65,7 @@ public class ItemServiceImpl implements ItemService {
         );
     }
 
+    // 상품 수정 메서드
     @Override
     public ResponseItemDTO updateItem(Long itemId,
                                       UpdateItemServiceDTO updateItemDTO,
@@ -109,6 +111,7 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
+    // 상품 조회 메서드
     @Override
     @Transactional(readOnly = true)
     public ResponseItemDTO getItem(Long itemId) {
@@ -125,17 +128,41 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
+    // 상품 삭제 메서드
     @Override
     public String deleteItem(Long itemId) {
         try {
-            if (!itemRepository.existsById(itemId)) {
-                throw new ItemException("존재하지 않는 상품입니다.");
-            }
+            ItemEntity findItem = itemRepository.findById(itemId)
+                    .orElseThrow(() -> new ItemException("Item not found with id: " + itemId));
+
+            // s3에 이미지 삭제
+            findItem.getImages().forEach(
+                    img -> s3ImageUploadService.deleteFile(img.getUploadImgPath(), img.getUploadImgName())
+            );
+            // 상품 삭제
             itemRepository.deleteById(itemId);
             log.info("Successfully deleted item with id: {}", itemId);
             return "상품을 삭제했습니다.";
         } catch (Exception e) {
             throw new ItemException("상품 삭제하는데 실패했습니다. 원인 : " + e.getMessage());
+        }
+    }
+
+    // 여러 상품을 페이징 처리해서 가져오는 메서드 : 여러 조건 검색 가능
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ResponseItemDTO> searchItems(ItemSearchCondition condition, Pageable pageable) {
+        try {
+            Page<ItemEntity> itemsPage = itemRepository.itemsSearch(condition, pageable);
+
+            if (itemsPage.isEmpty()) {
+                throw new EntityNotFoundException("조건에 만족하는 상품이 없습니다.");
+            }
+
+            return itemsPage.map(ResponseItemDTO::changeDTO);
+        } catch (Exception e) {
+            log.error("error : " + e.getMessage());
+            throw new EntityNotFoundException("상품 조회에 실패하였습니다.\n" + e.getMessage());
         }
     }
 }

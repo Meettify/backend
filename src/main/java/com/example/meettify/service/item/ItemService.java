@@ -1,8 +1,11 @@
 package com.example.meettify.service.item;
 
 import com.example.meettify.dto.item.CreateItemServiceDTO;
+import com.example.meettify.dto.item.ItemSearchCondition;
 import com.example.meettify.dto.item.ResponseItemDTO;
 import com.example.meettify.dto.item.UpdateItemServiceDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,4 +28,7 @@ public interface ItemService {
     ResponseItemDTO getItem(Long itemId);
 
     String deleteItem(Long itemId);
+
+    // 동적 검색
+    Page<ResponseItemDTO> searchItems(ItemSearchCondition condition, Pageable pageable);
 }
