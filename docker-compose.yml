@@ -68,7 +68,7 @@ services:
 
 
   certbot:
-    image: certbot/certbot
+    image: certbot/certbot:latest
     container_name: certbot
     volumes:
       - ./data/certbot/conf:/etc/letsencrypt
