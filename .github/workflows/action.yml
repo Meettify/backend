@@ -1,10 +1,8 @@
 name: CI/CD Pipeline
 # main으로 이동하면 동작
 on:
-  push:
-    branches:
-      - main
   pull_request:
+    types: [closed] # PR이 닫힐 때 실행 즉, 머지될 때
     branches:
       - main
 
@@ -153,16 +151,26 @@ jobs:
             echo "Stopping and removing all containers..."
             docker-compose down --remove-orphans
 
-            containers=(k6 grafana redis mysql prometheus nginx certbot)
-
+            containers=(k6 grafana redis prometheus nginx certbot)
+  
             for container in "${containers[@]}"; do
+              if [ "$(docker ps -q -f name=$container)" ]; then
+                echo "Stopping $container container..."
+                docker stop $container
+              fi
+
               if [ "$(docker ps -aq -f name=$container)" ]; then
                 echo "Removing existing $container container..."
                 docker rm -f $container
+                if [ $? -ne 0 ]; then
+                  echo "Failed to remove $container container. Retrying in 5 seconds..."
+                  sleep 5
+                  docker rm -f $container
+                fi
               else
                 echo "No $container container to remove."
               fi
-              done
+            done
             
             # 사용하지 않는 이미지 확인 후 삭제
             echo "Removing unused Docker images..."
