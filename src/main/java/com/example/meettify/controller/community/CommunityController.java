@@ -16,6 +16,7 @@ import java.util.List;
 @RestController
 @Log4j2
 @RequiredArgsConstructor
+@RequestMapping("/api/v1/community")
 public class CommunityController implements CommunityControllerDocs {
     private final CommunityService communityService;
     private final ModelMapper modelMapper;
