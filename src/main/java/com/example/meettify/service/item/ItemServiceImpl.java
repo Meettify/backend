@@ -108,4 +108,19 @@ public class ItemServiceImpl implements ItemService {
             throw new ItemException("Failed to update the item.");
         }
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ResponseItemDTO getItem(Long itemId) {
+        try {
+            ItemEntity findItem = itemRepository.findById(itemId)
+                    .orElseThrow(() -> new ItemException("Item not found with id: " + itemId));
+
+            ResponseItemDTO response = ResponseItemDTO.changeDTO(findItem);
+            log.info("response: {}", response);
+            return response;
+        } catch (Exception e) {
+            throw new ItemException("상품 조회 실패, 원인 :" + e.getMessage());
+        }
+    }
 }

@@ -24,4 +24,7 @@ public interface ItemControllerDocs {
                                  UpdateItemDTO item,
                                  List<MultipartFile> files,
                                  UserDetails userDetails);
+
+    @Operation(summary = "상품 상세 정보", description = "상품 상세정보를 보는 API")
+    ResponseEntity<?> itemDetail(Long itemId);
 }

@@ -2,9 +2,11 @@ package com.example.meettify.controller.item;
 
 import com.example.meettify.dto.item.*;
 import com.example.meettify.service.item.ItemService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,6 +26,7 @@ public class ItemController implements ItemControllerDocs{
     private final ItemService itemService;
     private final ModelMapper modelMapper;
 
+    // 상품 등록
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> createItem(@Validated @RequestPart CreateItemDTO item,
@@ -45,6 +48,7 @@ public class ItemController implements ItemControllerDocs{
         }
     }
 
+    // 상품 수정
     @Override
     @PutMapping("/{itemId}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -67,5 +71,17 @@ public class ItemController implements ItemControllerDocs{
         }
     }
 
-
+    // 상품 상세 정보
+    @Override
+    @GetMapping("/{itemId}")
+    public ResponseEntity<?> itemDetail(@PathVariable Long itemId) {
+        try {
+            ResponseItemDTO item = itemService.getItem(itemId);
+            log.info("item : " + item);
+            return ResponseEntity.ok().body(item);
+        } catch (EntityNotFoundException e) {
+            log.error("존재하지 않는 상품입니다.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("존재하지 않는 상품입니다.");
+        }
+    }
 }

@@ -13,9 +13,14 @@ public interface ItemService {
                                List<MultipartFile> files,
                                String memberEmail);
 
+    // 상품 수정
     ResponseItemDTO updateItem(Long itemId,
                                UpdateItemServiceDTO updateItemDTO,
                                List<MultipartFile> files,
                                String memberEmail,
                                String role);
+
+    // 상품 상세 페이지
+    ResponseItemDTO getItem(Long itemId);
+
 }
