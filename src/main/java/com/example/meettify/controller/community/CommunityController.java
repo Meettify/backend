@@ -22,6 +22,7 @@ public class CommunityController implements CommunityControllerDocs {
 
     // 커뮤니티 생성
     @Override
+    @PostMapping("")
     public ResponseEntity<?> createCommunity(@RequestPart CreateBoardDTO community,
                                              @RequestPart(value = "files", required = false) List<MultipartFile> files,
                                              @AuthenticationPrincipal UserDetails userDetails) {
