@@ -1,7 +1,14 @@
 package com.example.meettify.entity.community;
 
+import com.example.meettify.dto.board.ResponseBoardImgDTO;
+import com.example.meettify.dto.item.ResponseItemImgDTO;
+import com.example.meettify.entity.item.ItemEntity;
+import com.example.meettify.entity.item.ItemImgEntity;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /*
  *   writer  : 유요한
@@ -41,4 +48,22 @@ public class CommunityImgEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
     private CommunityEntity community;
+
+    // 이미지 엔티티 생성
+    public static List<CommunityImgEntity> createEntityList(List<ResponseBoardImgDTO> images,
+                                                            CommunityEntity community) {
+
+        List<CommunityImgEntity> imageEntity = new ArrayList<>();
+        for (ResponseBoardImgDTO image : images) {
+            CommunityImgEntity responseImg = CommunityImgEntity.builder()
+                    .uploadImgPath(image.getUploadImgPath())
+                    .uploadImgName(image.getUploadImgName())
+                    .originalImgName(image.getOriginalImgName())
+                    .uploadImgUrl(image.getUploadImgUrl())
+                    .community(community)
+                    .build();
+            imageEntity.add(responseImg);
+        }
+        return imageEntity;
+    }
 }

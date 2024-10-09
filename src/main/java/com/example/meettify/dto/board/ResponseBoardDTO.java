@@ -6,38 +6,49 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-@ToString
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 public class ResponseBoardDTO {
-    @Schema(description = "문의글 번호", example = "1", required = true)
+    @Schema(description = "게시글 번호", example = "1", required = true)
     private Long boardId;
 
-    @Schema(description = "문의글 제목", required = true)
-    @NotNull(message = "문의글 제목은 필 수 입력입니다.")
+    @Schema(description = "게시글 제목", required = true)
+    @NotNull(message = "게시글 제목은 필 수 입력입니다.")
     private String title;
 
-    @Schema(description = "문의글 본문")
+    @Schema(description = "게시글 본문")
     private String content;
 
     @Schema(description = "유저 닉네임")
     private String nickName;
 
-    @Schema(description = "문의글 작성 시간")
+    @Schema(description = "게시글 작성 시간")
     private LocalDateTime regTime;
+
+    @Schema(description = "게시글 이미지")
+    @Builder.Default
+    private List<ResponseBoardImgDTO> images = new ArrayList<>();
 
 
     // 엔티티를 DTO로 변환하는 작업
     public static ResponseBoardDTO changeCommunity(CommunityEntity community) {
+        List<ResponseBoardImgDTO> images = community.getImages().stream()
+                .map(ResponseBoardImgDTO::changeDTO)
+                .toList();
+
         return ResponseBoardDTO.builder()
                 .boardId(community.getBoardId())
                 .title(community.getTitle())
                 .content(community.getContent())
                 .nickName(community.getMember().getNickName())
                 .regTime(community.getRegTime())
+                .images(images)
                 .build();
     }
 }
