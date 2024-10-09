@@ -25,14 +25,16 @@ services:
 
   prometheus:
     container_name: prometheus
-    image: prom/prometheus:v2.30.3
+    image: prom/prometheus:latest
     ports:
       - "9090:9090"  # 외부 포트
     restart: always
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml  # 설정 파일 마운트
 
   grafana:
     container_name: grafana
-    image: grafana/grafana:8.2.2
+    image: grafana/grafana:latest
     environment:
       - GF_SECURITY_ADMIN_USER=admin  # 기본 관리자 사용자 이름
       - GF_SECURITY_ADMIN_PASSWORD=admin  # 기본 관리자 비밀번호
@@ -40,12 +42,15 @@ services:
       - "3000:3000"  # 외부 포트
     restart: always
 
+
   k6:
-    image: grafana/k6:0.35.0
+    image: grafana/k6:latest
     platform: linux/amd64
     command: ["run", "/test/script.js"]  # 테스트 스크립트 경로
     restart: always
     container_name: k6  # 컨테이너 이름 고정
+    volumes:
+      - ./test/script.js:/test/script.js  # 테스트 스크립트 마운트
 
   nginx:
     image: nginx:latest
