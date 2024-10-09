@@ -68,7 +68,7 @@ public class ItemController implements ItemControllerDocs{
                     .getAuthority();
             UpdateItemServiceDTO changeServiceDTO = modelMapper.map(item, UpdateItemServiceDTO.class);
             log.info("changeServiceDTO : " + changeServiceDTO);
-            ResponseItemDTO response = itemService.updateItem(itemId, changeServiceDTO, files, email, authority);
+            ResponseItemDTO response = itemService.updateItem(itemId, changeServiceDTO, files);
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

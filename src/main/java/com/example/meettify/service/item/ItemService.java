@@ -20,9 +20,7 @@ public interface ItemService {
     // 상품 수정
     ResponseItemDTO updateItem(Long itemId,
                                UpdateItemServiceDTO updateItemDTO,
-                               List<MultipartFile> files,
-                               String memberEmail,
-                               String role);
+                               List<MultipartFile> files);
 
     // 상품 상세 페이지
     ResponseItemDTO getItem(Long itemId);

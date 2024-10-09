@@ -69,13 +69,10 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ResponseItemDTO updateItem(Long itemId,
                                       UpdateItemServiceDTO updateItemDTO,
-                                      List<MultipartFile> files,
-                                      String memberEmail,
-                                      String role) {
+                                      List<MultipartFile> files) {
         try {
             ItemEntity findItem = itemRepository.findById(itemId)
                     .orElseThrow(() -> new ItemException("Item not found with id: " + itemId));
-            List<ItemImgEntity> findItemImg = itemImgRepository.findByItem_ItemId(itemId);
 
             // 만약 남겨야 할 이미지 ID가 비어있다면, 모든 이미지를 삭제
             if (updateItemDTO.getRemainImgId().isEmpty()) {
