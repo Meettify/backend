@@ -84,4 +84,16 @@ public class ItemController implements ItemControllerDocs{
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("존재하지 않는 상품입니다.");
         }
     }
+
+    @Override
+    @DeleteMapping("/{itemId}")
+    public ResponseEntity<?> deleteItem(@PathVariable Long itemId,
+                                        @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            String result = itemService.deleteItem(itemId);
+            return ResponseEntity.ok().body(result);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

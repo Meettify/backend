@@ -27,4 +27,7 @@ public interface ItemControllerDocs {
 
     @Operation(summary = "상품 상세 정보", description = "상품 상세정보를 보는 API")
     ResponseEntity<?> itemDetail(Long itemId);
+
+    @Operation(summary = "상품 삭제", description = "상품 삭제하는 API")
+    ResponseEntity<?> deleteItem(Long itemId, UserDetails userDetails);
 }

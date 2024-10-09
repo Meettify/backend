@@ -120,7 +120,22 @@ public class ItemServiceImpl implements ItemService {
             log.info("response: {}", response);
             return response;
         } catch (Exception e) {
+            log.error("Failed to fetch item with id {}: {}", itemId, e.getMessage());
             throw new ItemException("상품 조회 실패, 원인 :" + e.getMessage());
+        }
+    }
+
+    @Override
+    public String deleteItem(Long itemId) {
+        try {
+            if (!itemRepository.existsById(itemId)) {
+                throw new ItemException("존재하지 않는 상품입니다.");
+            }
+            itemRepository.deleteById(itemId);
+            log.info("Successfully deleted item with id: {}", itemId);
+            return "상품을 삭제했습니다.";
+        } catch (Exception e) {
+            throw new ItemException("상품 삭제하는데 실패했습니다. 원인 : " + e.getMessage());
         }
     }
 }
