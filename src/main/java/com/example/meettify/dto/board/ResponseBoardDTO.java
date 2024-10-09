@@ -15,10 +15,10 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 public class ResponseBoardDTO {
-    @Schema(description = "게시글 번호", example = "1", required = true)
+    @Schema(description = "게시글 번호", example = "1")
     private Long boardId;
 
-    @Schema(description = "게시글 제목", required = true)
+    @Schema(description = "게시글 제목")
     @NotNull(message = "게시글 제목은 필 수 입력입니다.")
     private String title;
 

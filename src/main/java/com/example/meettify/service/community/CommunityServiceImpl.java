@@ -118,4 +118,20 @@ public class CommunityServiceImpl implements CommunityService {
             throw new ItemException("Failed to update the item.");
         }
     }
+
+    // 커뮤니티 상세 페이지
+    @Override
+    @Transactional(readOnly = true)
+    public ResponseBoardDTO getBoard(Long communityId) {
+        try {
+            CommunityEntity findCommunity = communityRepository.findById(communityId)
+                    .orElseThrow(() -> new BoardException("Community not found with id: " + communityId));
+            log.info("findCommunity: {}", findCommunity);
+            return ResponseBoardDTO.changeCommunity(findCommunity);
+        } catch (Exception e) {
+            log.error("Error retrieving community: ", e.getMessage());
+            throw new BoardException("상세 페이지를 조회하는데 실패했습니다.");
+        }
+
+    }
 }

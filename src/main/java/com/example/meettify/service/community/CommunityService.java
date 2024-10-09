@@ -17,4 +17,7 @@ public interface CommunityService {
     ResponseBoardDTO updateBoard(Long communityId,
                                  UpdateServiceDTO board,
                                  List<MultipartFile> files);
+
+    // 커뮤니티 상세 페이지
+    ResponseBoardDTO getBoard(Long communityId);
 }
