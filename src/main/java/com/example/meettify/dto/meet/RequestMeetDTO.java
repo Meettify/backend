@@ -36,8 +36,6 @@ public class RequestMeetDTO {
     @NotNull(message = "모임 지역은 필수입니다.")
     private String meetLocation;
 
-    @Schema(description = "모임 이미지 리스트", example = "main.jpg")
-    private List<MultipartFile> images;  // 이미지를 리스트로 처리
 
 
     @Schema(description = "카테고리 정하기", example = "운동")

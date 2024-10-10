@@ -1,6 +1,7 @@
 package com.example.meettify.service.meet;
 
 import com.example.meettify.config.s3.S3ImageUploadService;
+import com.example.meettify.dto.item.ResponseItemImgDTO;
 import com.example.meettify.dto.meet.*;
 import com.example.meettify.dto.meet.category.Category;
 import com.example.meettify.dto.meetBoard.MeetBoardSummaryDTO;
@@ -31,10 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /*
@@ -62,21 +60,16 @@ public class MeetServiceImpl implements MeetService {
 
         // 2. MeetEntity를 저장소에 저장
         MeetEntity savedMeet = meetRepository.save(meetEntity);
+        List<MeetImageEntity> imageEntities = new ArrayList<>();
 
         // 3. 이미지가 있는 경우, S3에 업로드하고 해당 URL을 MeetImageEntity로 저장
         if (meet.getImagesFile() != null && !meet.getImagesFile().isEmpty()) {
+            System.out.println("이미지 저장로직이 실행됩니다.");
+            meet.getImagesFile().stream().forEach(e-> System.out.println(e.getName()));
+            meet.getImagesFile().stream().forEach(e-> System.out.println(e.getOriginalFilename()));
             // S3에 이미지 업로드 및 DTO 생성 (FileDTOFactory 활용)
-            List<MeetImageEntity> imageEntities = s3ImageUploadService.upload(
-                    "meetImages",
-                    meet.getImagesFile(),
-                    (oriFileName, uploadFileName, uploadFilePath, uploadFileUrl) -> MeetImageEntity.builder()
-                            .meetEntity(savedMeet)
-                            .oriFileName(oriFileName)
-                            .uploadFileName(uploadFileName)
-                            .uploadFilePath(uploadFilePath)
-                            .uploadFileUrl(uploadFileUrl)
-                            .build()
-            );
+            imageEntities = uploadMeetImages(meet.getImagesFile(), savedMeet);
+
 
             // 업로드된 이미지들을 DB에 저장
             meetImageRepository.saveAll(imageEntities);
@@ -94,8 +87,9 @@ public class MeetServiceImpl implements MeetService {
         // MeetMemberEntity 저장
         meetMemberRepository.save(meetMemberEntity);
 
+
         // 5. 응답 DTO 생성 및 반환
-        ResponseMeetDTO  responseMeetDTO = ResponseMeetDTO.changeDTO(savedMeet);
+        ResponseMeetDTO  responseMeetDTO = ResponseMeetDTO.changeDTO(savedMeet,imageEntities);
 
         return responseMeetDTO;
     }
@@ -308,5 +302,19 @@ public class MeetServiceImpl implements MeetService {
             throw new MeetException("권한 관련 조회 중 에러 발생: " + e.getMessage());
         }
     }
+
+
+    private List<MeetImageEntity> uploadMeetImages(List<MultipartFile> files, MeetEntity savedMeet) throws  java.io.IOException {
+        return s3ImageUploadService.upload("meetImages", files, (oriFileName, uploadFileName, uploadFilePath, uploadFileUrl) ->
+                MeetImageEntity.builder()
+                        .meetEntity(savedMeet)
+                        .oriFileName(oriFileName)
+                        .uploadFileName(uploadFileName)
+                        .uploadFilePath(uploadFilePath)
+                        .uploadFileUrl(uploadFileUrl)
+                        .build()
+        );
+    }
+
 
 }

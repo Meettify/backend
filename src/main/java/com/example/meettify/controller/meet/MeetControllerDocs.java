@@ -12,10 +12,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Tag(name = "meet", description = "모임 API")
 
@@ -30,7 +30,7 @@ public interface MeetControllerDocs {
 
 
     @Operation(summary = "모임 만들기", description = "모임 만들어 주는 API, 신규 모임정보와 이미지, 회원 정보가 필요하다.")
-    public ResponseEntity<?> makeMeet(@Valid @RequestBody RequestMeetDTO meet, BindingResult bindingResult, @AuthenticationPrincipal UserDetails userDetails);
+    public ResponseEntity<?> makeMeet(@Valid @RequestPart RequestMeetDTO meet, @RequestPart List<MultipartFile> images, BindingResult bindingResult, @AuthenticationPrincipal UserDetails userDetails);
 
     @Operation(summary = "모임 내에서 접속 유저의 권한", description = "모임 내의 권한 정보 전달하기 ")
     public ResponseEntity<?> getMeetRole(@PathVariable Long meetId, @AuthenticationPrincipal UserDetails userDetails);
