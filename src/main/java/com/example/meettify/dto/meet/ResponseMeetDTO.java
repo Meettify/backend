@@ -30,14 +30,14 @@ public class ResponseMeetDTO {
     private List<String> images;
     private Category category;
 
-    public static ResponseMeetDTO changeDTO(MeetEntity meetEntity) {
+    public static ResponseMeetDTO changeDTO(MeetEntity meetEntity, List<MeetImageEntity> imageEntities) {
         return ResponseMeetDTO.builder()
                 .meetId(meetEntity.getMeetId())
                 .meetName(meetEntity.getMeetName())
                 .meetDescription(meetEntity.getMeetDescription())
                 .meetMaximum(meetEntity.getMeetMaximum())
                 .meetLocation(meetEntity.getMeetLocation())
-                .images(meetEntity.getMeetImages() !=null ? meetEntity.getMeetImages().stream().map(MeetImageEntity::getUploadFileUrl).collect(Collectors.toList()):new ArrayList<>())
+                .images(imageEntities !=null ? imageEntities.stream().map(MeetImageEntity::getUploadFileUrl).collect(Collectors.toList()):new ArrayList<>())
                 .category(meetEntity.getMeetCategory())
                 .build();
     }

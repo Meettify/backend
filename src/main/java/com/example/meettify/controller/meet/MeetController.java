@@ -11,12 +11,14 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Objects;
@@ -137,9 +139,11 @@ public class MeetController implements  MeetControllerDocs{
 
 
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     // BindingResult 타입의 매개변수를 지정하면 BindingResult 매개 변수가 입력값 검증 예외를 처리한다.
-    public ResponseEntity<?> makeMeet(@Valid @RequestBody RequestMeetDTO meet, BindingResult bindingResult, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<?> makeMeet(@Valid @RequestPart("meet") RequestMeetDTO meet,
+                                      @RequestPart(value = "images", required = false) List<MultipartFile> images,
+                                      BindingResult bindingResult, @AuthenticationPrincipal UserDetails userDetails) {
 
         try {
             // 입력값 검증 예외가 발생하면 예외 메세지를 출력
@@ -148,7 +152,7 @@ public class MeetController implements  MeetControllerDocs{
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(bindingResult.getAllErrors());
             }
             String email = userDetails.getUsername();
-            MeetServiceDTO meetServiceDTO = MeetServiceDTO.makeServiceDTO(meet);
+            MeetServiceDTO meetServiceDTO = MeetServiceDTO.makeServiceDTO(meet,images);
             ResponseMeetDTO response = meetService.makeMeet(meetServiceDTO, email);
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
