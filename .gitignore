@@ -53,3 +53,6 @@ src/main/.DS_Store
 src/main/java/.DS_Store
 
 nginx/nginx.conf
+
+### docker-compose ###
+docker-compose-local.yml

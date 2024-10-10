@@ -156,6 +156,7 @@ management:
         include:
           - health
           - info
+          - prometheus
           - metrics
           - env
           - mappings
@@ -165,3 +166,10 @@ management:
           - beans
           - caches
           - heapdump
+      metrics:
+        export:
+          prometheus:
+            enabled: true # Prometheus 메트릭 수집 활성화
+      endpoint:
+        health:
+          show-details: always # 배포 환경에서도 건강 상태의 세부 정보 표시
