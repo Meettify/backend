@@ -54,6 +54,7 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    restart: on-failure  # api가 실패했을 때만 재시작
     volumes:
         - ./data/nginx/nginx.conf:/etc/nginx/nginx.conf
         - ./data/certbot/conf:/etc/letsencrypt
