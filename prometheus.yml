@@ -1,7 +1,14 @@
 global:
   scrape_interval: 15s # 스크랩 주기
+  evaluation_interval: 15s
 
 scrape_configs:
-  - job_name: 'api' # 모니터링할 서비스 이름
+  - job_name: "ubuntu-api-1"
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 5s
     static_configs:
-      - targets: ['backend-api:8080'] # 모니터링할 서비스의 주소와 포트
+      - targets: ["meettify.store:8080"] # 환경 변수로 변경
+
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
