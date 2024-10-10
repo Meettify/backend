@@ -1,5 +1,5 @@
 global:
-  scrape_interval: 15s # 스크랩 주기
+  scrape_interval: 15s
   evaluation_interval: 15s
 
 scrape_configs:
@@ -7,8 +7,12 @@ scrape_configs:
     metrics_path: '/actuator/prometheus'
     scrape_interval: 5s
     static_configs:
-      - targets: ["meettify.store:8080"] # 환경 변수로 변경
+      - targets: ["localhost:8080"]
 
   - job_name: "prometheus"
     static_configs:
-      - targets: ["localhost:9090"]
+      - targets: ["localhost:9090"] # Prometheus 엔드포인트
+
+  - job_name: "grafana"
+    static_configs:
+      - targets: ["localhost:3000"] # Grafana 메트릭 수집
