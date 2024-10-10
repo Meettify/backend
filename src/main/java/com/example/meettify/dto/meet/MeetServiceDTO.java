@@ -33,13 +33,13 @@ public class MeetServiceDTO {
     private List<MultipartFile> imagesFile;
     private Category meetCategory;
 
-    public static MeetServiceDTO makeServiceDTO(RequestMeetDTO request) {
+    public static MeetServiceDTO makeServiceDTO(RequestMeetDTO request,List<MultipartFile> images) {
         return MeetServiceDTO.builder()
                 .meetName(request.getMeetName())
                 .meetDescription(request.getMeetDescription())
                 .meetMaximum(request.getMeetMaximum())
                 .meetLocation(request.getMeetLocation())
-                .imagesFile(request.getImages())
+                .imagesFile(images)
                 .meetCategory(request.getCategory())
                 .build();
     }
