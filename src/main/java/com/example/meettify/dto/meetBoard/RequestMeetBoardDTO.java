@@ -41,11 +41,6 @@ public class RequestMeetBoardDTO {
     private String meetBoardContent;
 
 
-    @Schema(description = "모임 게시판 이미지 리스트", example = "main.jpg")
-    private List<MultipartFile> images;
-
-    @Schema(description = "게시판 작성 시간", example = "")
-    private LocalDateTime postDate;
 
 
 }
