@@ -4,6 +4,7 @@ import com.example.meettify.dto.meetBoard.*;
 import com.example.meettify.service.meetBoard.MeetBoardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -16,11 +17,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.MediaType;
+
+import java.util.List;
 
 @RestController
 @Log4j2
 @RequestMapping("/api/v1/meetBoards")
-@Tag(name = "meetBoard", description = "모임 게시판 API")
 @RequiredArgsConstructor
 public class MeetBoardController implements MeetBoardControllerDocs{
     private final MeetBoardService meetBoardService;
@@ -64,14 +67,18 @@ public class MeetBoardController implements MeetBoardControllerDocs{
     }
 
     //모임 게시물 등록
-    @PostMapping
-    public ResponseEntity<?> postBoard(@Validated @RequestBody RequestMeetBoardDTO meetBoard, BindingResult bindingResult, @AuthenticationPrincipal UserDetails userDetails) {
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<?> makeBoard(@Validated @RequestPart("meetBoard") RequestMeetBoardDTO meetBoard,
+                                       @RequestPart(value = "images" , required = false) List<MultipartFile> images,
+                                       BindingResult bindingResult,
+                                       @AuthenticationPrincipal UserDetails userDetails) {
+        System.out.println("postBoard 컨트럴러 입장");
         try {
             if (bindingResult.hasErrors()) {
                 log.error("binding error : {}", bindingResult.getAllErrors());
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(bindingResult.getAllErrors());
             }
-            MeetBoardServiceDTO meetBoardServiceDTO = MeetBoardServiceDTO.makeServiceDTO(meetBoard);
+            MeetBoardServiceDTO meetBoardServiceDTO = MeetBoardServiceDTO.makeServiceDTO(meetBoard,images);
             ResponseMeetBoardDTO response = meetBoardService.postBoard(meetBoardServiceDTO, userDetails.getUsername());
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
@@ -94,7 +101,7 @@ public class MeetBoardController implements MeetBoardControllerDocs{
     @PatchMapping("{meetBoardId}")
     @Tag(name = "meetBoard")
     @Operation(summary = "모임 게시판 수정", description = "모임 게시글 수정하기 ")
-    public ResponseEntity<?> updateBoard(@Validated @RequestBody UpdateRequestMeetBoardDTO requestMeetBoardDTO, BindingResult bindingResult,@PathVariable Long meetBoardId, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<?> updateBoard(@Validated @RequestPart UpdateRequestMeetBoardDTO requestMeetBoardDTO, BindingResult bindingResult,@PathVariable Long meetBoardId, @AuthenticationPrincipal UserDetails userDetails) {
         try {
             UpdateMeetBoardServiceDTO updateMeetBoardServiceDTO = UpdateMeetBoardServiceDTO.makeServiceDTO(meetBoardId,requestMeetBoardDTO);
             ResponseMeetBoardDTO response = meetBoardService.updateBoardService(updateMeetBoardServiceDTO, userDetails.getUsername());

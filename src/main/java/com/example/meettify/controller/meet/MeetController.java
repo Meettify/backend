@@ -61,15 +61,7 @@ public class MeetController implements  MeetControllerDocs{
             // 모임 디테일 정보를 가져온다.
             MeetDetailDTO meetDetailDTO = meetService.getMeetDetail(meetId);
 
-
-            //Todo :  비회원 게시판 노출 유무에 따라서 달라짐
-            //            if(meetRole == MeetRole.EXPEL ) {
-            //                //회원일 경우에만 게시글 관련 정보를 볼 수 있따.  최근 게시글 3개를 가져온다.
-            //                meetBoardSummaryDTO = new ArrayList<MeetBoardSummaryDTO>();
-            //            }else{
-            // 요약 게시판 정보 가져오기
             List<MeetBoardSummaryDTO> meetBoardSummaryDTO = meetService.getMeetSummaryList(meetId);
-            //}
 
             return ResponseEntity.status(HttpStatus.OK).body(MeetDetailInfoResponseDTO.builder()
                     .meetDetailDTO(meetDetailDTO)
@@ -143,7 +135,8 @@ public class MeetController implements  MeetControllerDocs{
     // BindingResult 타입의 매개변수를 지정하면 BindingResult 매개 변수가 입력값 검증 예외를 처리한다.
     public ResponseEntity<?> makeMeet(@Valid @RequestPart("meet") RequestMeetDTO meet,
                                       @RequestPart(value = "images", required = false) List<MultipartFile> images,
-                                      BindingResult bindingResult, @AuthenticationPrincipal UserDetails userDetails) {
+                                      BindingResult bindingResult,
+                                      @AuthenticationPrincipal UserDetails userDetails) {
 
         try {
             // 입력값 검증 예외가 발생하면 예외 메세지를 출력

@@ -181,7 +181,7 @@ public class MeetServiceImpl implements MeetService {
                     .orElseThrow(() -> new EntityNotFoundException("엔티티가 존재하지 않음."));
 
             // 2. MeetEntity를 MeetDetailDTO로 매핑
-            MeetDetailDTO responseMeetDTO = modelMapper.map(meetEntity, MeetDetailDTO.class);
+            MeetDetailDTO responseMeetDTO = MeetDetailDTO.changeDTO(meetEntity);
 
             return responseMeetDTO;
         }catch (Exception e){
