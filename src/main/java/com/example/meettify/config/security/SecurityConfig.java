@@ -85,6 +85,11 @@ public class SecurityConfig {
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/swagger-config").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/logistics").permitAll()
+
+                        // prometheus & grafana
+                        .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/prometheus").permitAll()
+                        .requestMatchers("/grafana").permitAll()
                 );
 
         // JWT Configuration
