@@ -109,45 +109,30 @@ logging:
     root: info
 
 management:
-  endpoint:
-    # true로 설정하면, 애플리케이션의 상태를 나타내는 /actuator/health 엔드포인트가 활성화됩니다.
-    # 이 엔드포인트는 일반적으로 애플리케이션의 건강 상태를 나타내는데 사용됩니다.
-    health:
+  server:
+    port: 8081
+  info:
+    java:
       enabled: true
-      cache:
-        time-to-live: 1d
-    # 사용자 지정 정보를 나타내는 엔드포인트입니다.
-    info:
+    os:
       enabled: true
-    # 애플리케이션의 환경 속성을 제공하는 엔드포인트
     env:
       enabled: true
-    # 애플리케이션의 URL 매핑 정보를 제공하는 엔드포인트
-    mappings:
-      enabled: true
-    # 로깅 설정을 제공하는 엔드포인트
-    loggers:
-      enabled: true
-    prometheus:
+
+  endpoint:
+    shutdown:
       enabled: true
 
-  # 활성화할 관리 엔드포인트를 명시적으로 지정하는데 사용됩니다.
+    health:
+      show-details: always
+
   endpoints:
     web:
       exposure:
-        # *는 모든 엔드포인트를 활성화하고, exclude에 명시된 엔드포인트는 제외됩니다.
-        include:
-          - health
-          - info
-          - prometheus
-          - env
-          - mappings
-          - events
-          - loggers
-      metrics:
-        export:
-          prometheus:
-            enabled: true # Prometheus 메트릭 수집 활성화
-        health:
-          show-details: always # 배포 환경에서도 건강 상태의 세부 정보 표시
+        include: prometheus
 
+
+server:
+  tomcat:
+    mbeanregistry:
+      enabled: true

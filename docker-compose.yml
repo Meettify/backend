@@ -41,6 +41,8 @@ services:
     ports:
       - "3000:3000"  # 외부 포트
     restart: always
+    depends_on:
+      - prometheus
 
 
   k6:
