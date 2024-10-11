@@ -135,7 +135,8 @@ public class MeetController implements  MeetControllerDocs{
     // BindingResult 타입의 매개변수를 지정하면 BindingResult 매개 변수가 입력값 검증 예외를 처리한다.
     public ResponseEntity<?> makeMeet(@Valid @RequestPart("meet") RequestMeetDTO meet,
                                       @RequestPart(value = "images", required = false) List<MultipartFile> images,
-                                      BindingResult bindingResult, @AuthenticationPrincipal UserDetails userDetails) {
+                                      BindingResult bindingResult,
+                                      @AuthenticationPrincipal UserDetails userDetails) {
 
         try {
             // 입력값 검증 예외가 발생하면 예외 메세지를 출력

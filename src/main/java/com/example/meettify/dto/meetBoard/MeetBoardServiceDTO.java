@@ -9,9 +9,11 @@ package com.example.meettify.dto.meetBoard;
  * */
 
 import lombok.*;
+import org.springframework.cglib.core.Local;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -24,18 +26,19 @@ public class MeetBoardServiceDTO {
     private Long meetId;
     private String meetBoardTitle;
     private String meetBoardContent;
-    private List<MultipartFile> imagesFile;
+    @Builder.Default
+    private List<MultipartFile> imagesFile = new ArrayList<>();
     private LocalDateTime postDate;
 
 
-    public static MeetBoardServiceDTO makeServiceDTO(RequestMeetBoardDTO request) {
+    public static MeetBoardServiceDTO makeServiceDTO(RequestMeetBoardDTO request,List<MultipartFile> images) {
 
         return MeetBoardServiceDTO.builder()
                 .meetId(request.getMeetId())
                 .meetBoardTitle(request.getMeetBoardTitle())
                 .meetBoardContent(request.getMeetBoardContent())
-                .imagesFile(request.getImages())
-                .postDate(request.getPostDate())
+                .imagesFile(images !=null ? images : new ArrayList<>())
+                .postDate(LocalDateTime.now())
                 .build();
     }
 
