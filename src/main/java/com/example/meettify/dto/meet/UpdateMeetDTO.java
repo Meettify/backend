@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -42,11 +43,10 @@ public class UpdateMeetDTO {
     @NotNull(message = "모임 지역은 필수입니다.")
     private String meetLocation;
 
-    @Schema(description = "새로운 모임 이미지", example = "main.jpg")
-    private List<MultipartFile> newImages;  // 이미지를 멀티파트 파일로 처리
 
-    @Schema(description = "기존 모임 이미지 이미지",example = "s3URL")
-    private List<String> exigistingImages;
+    @Schema(description = "기존 모임 이미지중 유지할 것",example = "s3URL")
+    @Builder.Default
+    private List<String> exigistingImages = new ArrayList<String>();
 
     @Schema(description = "카테고리 정하기", example = "운동")
     @NotNull(message = "모임 카테고리는 필수입니다.")

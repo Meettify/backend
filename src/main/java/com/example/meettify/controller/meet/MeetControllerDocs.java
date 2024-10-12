@@ -39,7 +39,8 @@ public interface MeetControllerDocs {
 
     @Operation(summary = "수정 API", description = "모임에 대한 수정을 진행하는 API")
     public ResponseEntity<?> updateMeet(@PathVariable Long meetId,
-                                        @Validated @RequestBody UpdateMeetDTO updateMeetDTO,
+                                        @Valid @RequestPart UpdateMeetDTO updateMeetDTO,
+                                        @RequestPart(value = "files", required = false) List<MultipartFile> images,
                                         @AuthenticationPrincipal UserDetails userDetails);
 
     @Operation(summary = "모임 가입 회원 리스트 보기", description = "모임 가입 회원 리스트 구현")
