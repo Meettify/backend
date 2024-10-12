@@ -1,7 +1,7 @@
 package com.example.meettify.service.meet;
 
 import com.example.meettify.config.s3.S3ImageUploadService;
-import com.example.meettify.dto.item.ResponseItemImgDTO;
+import com.example.meettify.dto.item.ResponseItemDTO;
 import com.example.meettify.dto.meet.*;
 import com.example.meettify.dto.meet.category.Category;
 import com.example.meettify.dto.meetBoard.MeetBoardSummaryDTO;
@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -189,32 +190,6 @@ public class MeetServiceImpl implements MeetService {
         }
     }
 
-    @Override
-    public List<MeetSummaryDTO> getMeetList(String email, Long lastId, int size, Category category) {
-        Pageable pageable = PageRequest.of(0, size, Sort.by("meetId").ascending());
-
-        // meetId > lastId 조건으로 데이터를 가져옴
-        List<MeetEntity> meets = meetRepository.findByMeetIdGreaterThanAndCategory(lastId, category, pageable);
-
-        // 현재 멤버가 가입 중인 모임 정보 가져오기
-        MemberEntity member = memberRepository.findByMemberEmail(email);
-        Set<Long> memberMeetIds = (member != null) ? meetMemberRepository.findByEmail(email) : Collections.emptySet();
-
-        // MeetSummaryDTO로 변환
-        return meets.stream()
-                .map(meet -> MeetSummaryDTO.builder()
-                        .meetId(meet.getMeetId())
-                        .meetName(meet.getMeetName())
-                        .location(meet.getMeetLocation())
-                        .category(meet.getMeetCategory())
-                        .maximum(meet.getMeetMaximum())
-                        .imageUrls(meet.getMeetImages().stream()
-                                .map(MeetImageEntity::getUploadFileUrl)
-                                .collect(Collectors.toList()))
-                        .isMember(memberMeetIds.contains(meet.getMeetId())) // 빠른 비교를 위한 Set 사용
-                        .build())
-                .collect(Collectors.toList());
-    }
 
     @Override
     public MeetRole getMeetRole(Long meetId, String email) {
@@ -229,8 +204,34 @@ public class MeetServiceImpl implements MeetService {
     }
 
     // ToDO: fetch JOIN 다시 손 보기
+    // 여러 모임을 페이징 처리해서 가져오는 메서드 : 조건 검색 가능
+    @Transactional(readOnly = true)
+    public Page<MeetSummaryDTO> meetsSearch(MeetSearchCondition condition, Pageable pageable, String email) {
+        try {
+            // MeetEntity 페이지 가져오기
+            Page<MeetEntity> meetPage = meetRepository.meetsSearch(condition, pageable);
+
+            // 검색된 모임이 없을 경우 예외 처리
+            if (meetPage.isEmpty()) {
+                throw new EntityNotFoundException("조건에 만족하는 모임이 없습니다.");
+            }
+
+            // 사용자 정보를 통해 모임 멤버 ID 목록 조회
+            MemberEntity member = memberRepository.findByMemberEmail(email);
+            Set<Long> memberMeetIds = (member != null) ? meetMemberRepository.findByEmail(email) : Collections.emptySet();
+
+            return meetPage.map(meet -> MeetSummaryDTO.changeDTO(meet, memberMeetIds));
+        } catch (Exception e) {
+            log.error("error : " + e.getMessage());
+            throw new EntityNotFoundException("모임 조회에 실패하였습니다.\n" + e.getMessage());
+        }
+    }
+
+
+
+    // ToDO: fetch JOIN 다시 손 보기
     @Override
-    public List<MeetBoardSummaryDTO>  getMeetSummaryList(Long meetId) {
+    public List<MeetBoardSummaryDTO>  getMeetBoardSummaryList(Long meetId) {
         try {
             Pageable pageable = PageRequest.of(0, 3);  // 첫 번째 페이지에서 3개의 결과만 가져옴
             List<MeetBoardEntity> recentMeetBoards = meetBoardRepository.findTop3MeetBoardEntitiesByMeetId(meetId, pageable);
