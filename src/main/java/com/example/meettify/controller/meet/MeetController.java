@@ -135,7 +135,7 @@ public class MeetController implements  MeetControllerDocs{
     }
 
     //모임 회원 Role변경하기
-    @PatchMapping("/{meetId}/{meetMemberId}")
+    @PutMapping("/{meetId}/{meetMemberId}")
     @Tag(name = "meet")
     @Operation(summary = "모임 회원 Role 변경하기", description = "모임 회원 Role 변경 구현")
     public ResponseEntity<?> updateMeetMemberRole(@PathVariable Long meetId,
@@ -214,10 +214,12 @@ public class MeetController implements  MeetControllerDocs{
     }
 
     //모임 변경하기
-    @PatchMapping("/{meetId}")
+    @PutMapping(value ="/{meetId}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public ResponseEntity<?> updateMeet(@PathVariable Long meetId,
-                                        @Validated @RequestBody UpdateMeetDTO updateMeetDTO,
+                                        @Valid @RequestPart("updateMeetDTO")UpdateMeetDTO updateMeetDTO,
+                                        @RequestPart(value = "images", required = false) List<MultipartFile> newImages,
                                         @AuthenticationPrincipal UserDetails userDetails) {
+
         try {
             String email = userDetails.getUsername();
             //권한체크
@@ -226,7 +228,7 @@ public class MeetController implements  MeetControllerDocs{
                 // ServiceDTODTO 바꾸는 로직
                 UpdateMeetServiceDTO updateMeetServiceDTO = UpdateMeetServiceDTO.makeServiceDTO(updateMeetDTO);
                 // 응답ServiceDTO 받기
-                ResponseMeetDTO response = meetService.update(updateMeetServiceDTO, updateMeetDTO.getNewImages());
+                ResponseMeetDTO response = meetService.update(updateMeetServiceDTO, newImages);
                 //반환하기
                 return ResponseEntity.ok().body(response);
             }

@@ -70,8 +70,6 @@ public class MeetServiceImpl implements MeetService {
             meet.getImagesFile().stream().forEach(e-> System.out.println(e.getOriginalFilename()));
             // S3에 이미지 업로드 및 DTO 생성 (FileDTOFactory 활용)
             imageEntities = uploadMeetImages(meet.getImagesFile(), savedMeet);
-
-
             // 업로드된 이미지들을 DB에 저장
             meetImageRepository.saveAll(imageEntities);
         }
@@ -90,7 +88,7 @@ public class MeetServiceImpl implements MeetService {
 
 
         // 5. 응답 DTO 생성 및 반환
-        ResponseMeetDTO  responseMeetDTO = ResponseMeetDTO.changeDTO(savedMeet,imageEntities);
+        ResponseMeetDTO  responseMeetDTO = ResponseMeetDTO.changeDTO(savedMeet);
 
         return responseMeetDTO;
     }
@@ -136,7 +134,7 @@ public class MeetServiceImpl implements MeetService {
 
     @Override
     @Transactional
-    public ResponseMeetDTO update(UpdateMeetServiceDTO updateMeetServiceDTO, List<MultipartFile> newImages) throws IOException {
+    public ResponseMeetDTO update(UpdateMeetServiceDTO updateMeetServiceDTO, List<MultipartFile> newImages) throws IOException, java.io.IOException {
         // 1. 변경 요청한 모임이 존재하는지 확인
         MeetEntity findMeet = meetRepository.findById(updateMeetServiceDTO.getMeetId())
                 .orElseThrow(() -> new MeetException("변경 대상 엔티티가 존재하지 않습니다."));
@@ -144,14 +142,36 @@ public class MeetServiceImpl implements MeetService {
         // 2. 업데이트할 모임 정보 적용
         findMeet.updateMeet(updateMeetServiceDTO);
 
-        // 추후에 s3삭제 기능 구현 예정
-        // ...
+        // 3. 유지하지 않을 이미지들 삭제
+        if (findMeet.getMeetImages() != null && !findMeet.getMeetImages().isEmpty()) {
+            List<String> existingImgUrls = updateMeetServiceDTO.getExistingImageUrls();
+            List<MeetImageEntity> imagesToDelete = findMeet.getMeetImages().stream()
+                    .filter(img -> !existingImgUrls.contains(img.getUploadFileUrl()))
+                    .toList();
+
+            if (!imagesToDelete.isEmpty()) {
+                imagesToDelete.forEach(image -> {
+                    // S3에서 이미지 삭제
+                    s3ImageUploadService.deleteFile(image.getUploadFilePath(), image.getUploadFileName());
+                    // 이미지 엔티티 삭제
+                    meetImageRepository.delete(image);
+                });
+                findMeet.getMeetImages().removeAll(imagesToDelete); // 엔티티에서 삭제
+            }
+        }
+
+        // 4. 신규 이미지 등록
+        if (newImages != null && !newImages.isEmpty()) {
+            List<MeetImageEntity> newImageEntities = uploadMeetImages(newImages, findMeet);
+            findMeet.getMeetImages().addAll(newImageEntities); // 새로운 이미지를 엔티티에 추가
+            meetImageRepository.saveAll(newImageEntities); // DB에 이미지 저장
+        }
 
         // 5. 최종적으로 변경된 엔티티 저장
         meetRepository.save(findMeet);
 
         // 6. 응답 DTO 생성 및 반환
-        return modelMapper.map(findMeet, ResponseMeetDTO.class);
+        return ResponseMeetDTO.changeDTO(findMeet);
     }
 
     // 이미 가입된 회원인지 확인
