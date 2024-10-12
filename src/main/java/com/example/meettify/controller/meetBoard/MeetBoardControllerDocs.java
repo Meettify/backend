@@ -5,6 +5,7 @@ import com.example.meettify.dto.meetBoard.RequestMeetBoardDTO;
 import com.example.meettify.dto.meetBoard.UpdateRequestMeetBoardDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -39,7 +40,12 @@ public interface MeetBoardControllerDocs {
     @Operation(summary = "모임 게시물 Detail", description = "모임 게시물 상세 조회 ")
     public ResponseEntity<?> getDetail(@PathVariable Long meetBoardId, @AuthenticationPrincipal UserDetails userDetails);
 
-    @Tag(name = "meetBoard")
     @Operation(summary = "모임 게시판 수정", description = "모임 게시글 수정하기 ")
-    public ResponseEntity<?> updateBoard(@Validated @RequestBody UpdateRequestMeetBoardDTO requestMeetBoardDTO, BindingResult bindingResult, @PathVariable Long meetBoardId, @AuthenticationPrincipal UserDetails userDetails);
+    @PutMapping("{meetBoardId}")
+    public ResponseEntity<?> updateBoard(
+            @PathVariable Long meetBoardId,
+            @Valid @RequestPart("updateBoard") UpdateRequestMeetBoardDTO requestMeetBoardDTO,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images,
+            BindingResult bindingResult,
+            @AuthenticationPrincipal UserDetails userDetails);
 }
