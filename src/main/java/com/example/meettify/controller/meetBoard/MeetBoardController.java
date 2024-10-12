@@ -19,7 +19,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.MediaType;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Log4j2
@@ -40,7 +42,19 @@ public class MeetBoardController implements MeetBoardControllerDocs{
             Pageable pageable = PageRequest.of(page, size);
             // 서비스에서 페이징된 게시글 리스트를 조회
             Page<MeetBoardSummaryDTO> meetBoardPage = meetBoardService.getPagedList(meetId, pageable);
-            return ResponseEntity.status(HttpStatus.OK).body(meetBoardPage);
+
+            // 페이징 정보와 함께 응답할 데이터 준비
+            Map<String, Object> response = new HashMap<>();
+            response.put("meetBoardPage", meetBoardPage.getContent()); // 게시글 리스트
+            response.put("currentPage", meetBoardPage.getNumber()); // 현재 페이지 번호
+            response.put("totalItems", meetBoardPage.getTotalElements()); // 전체 아이템 개수
+            response.put("totalPages", meetBoardPage.getTotalPages()); // 전체 페이지 수
+            response.put("hasPrevious", meetBoardPage.hasPrevious()); // 직전 페이지 존재 여부
+            response.put("hasNext", meetBoardPage.hasNext()); // 다음 페이지 존재 여부
+            response.put("isFirst", meetBoardPage.isFirst()); // 첫 페이지 여부
+            response.put("isLast", meetBoardPage.isLast()); // 마지막 페이지 여부
+
+            return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             log.error("게시글 리스트 조회 오류: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

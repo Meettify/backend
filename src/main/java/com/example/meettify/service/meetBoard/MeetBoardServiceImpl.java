@@ -163,22 +163,16 @@ public MeetBoardDetailsDTO getDetails(String email,Long meetBoardId) {
     @Override
     public String deleteBoard(Long meetId, Long meetBoardId, String email) throws Exception {
         try {
-            MeetMemberEntity meetMember = meetMemberRepository.findMeetMemberWithBoardAndMember(email, meetId, meetBoardId)
-                    .orElseThrow(EntityNotFoundException::new);
-
-            MeetBoardEntity meetBoard = meetMember.getMeetEntity().getMeetBoardEntity().stream()
-                    .filter(board -> board.getMeetBoardId().equals(meetBoardId))
-                    .findFirst()
-                    .orElseThrow(EntityNotFoundException::new);
-
-            if (meetMember.getMemberEntity().equals(meetBoard.getMemberEntity()) ||
-                    meetMember.getMeetRole() == MeetRole.ADMIN) {
-
+            MeetBoardEntity meetBoard = meetBoardRepository.findById(meetBoardId).orElseThrow(EntityNotFoundException::new);
+            //권한 체크
+            if (getPermission(email,meetBoardId).isCanDelete() ) {
                 //S3에서 이미지 삭제하는 로직 만들기.
-
+                meetBoard.getMeetBoardImages().forEach(
+                        img ->s3ImageUploadService.deleteFile(img.getUploadFilePath(), img.getOriFileName())
+                );
                 // 이미지 경로 가져와서 삭제 (이미지 삭제 로직은 그대로 유지)
-                meetBoardRepository.delete(meetBoard);
-
+                meetBoardRepository.deleteById(meetBoardId);
+                log.info("Successfully deleted meetBoard with id: {}", meetBoardId);
                 return "게시물을 삭제했습니다.";
             }
             return "게시물을 삭제할 권한이 없습니다.";
