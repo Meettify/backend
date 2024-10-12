@@ -101,8 +101,16 @@ public class MeetServiceImpl implements MeetService {
             MeetMemberEntity meetMemberEntity = meetMemberRepository.findByEmailAndMeetId(email, meetId)
                     .orElseThrow(() -> new MeetException("Member not part of this meet."));
             if (meetMemberEntity.getMeetRole() == MeetRole.ADMIN) {
+
+                MeetEntity meetEntity = meetRepository.findById(meetId).get();
+                // s3에 이미지 삭제
+                meetEntity.getMeetImages().forEach(
+                        img -> s3ImageUploadService.deleteFile(img.getUploadFilePath(), img.getUploadFileName())
+                );
+
                 meetRepository.deleteById(meetId);
-                // S3에 등록된 이미지 있을 경우 삭제되는 로직 작성.
+
+                log.info("Successfully deleted meet with id: {}", meetId);
                 return "소모임 삭제 완료";
             }
             throw new MeetException("회원ID과 모임 관리자정보가 일치하지 않습니다.");
