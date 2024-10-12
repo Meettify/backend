@@ -1,8 +1,11 @@
 package com.example.meettify.service.meet;
 
+import com.example.meettify.dto.item.ResponseItemDTO;
 import com.example.meettify.dto.meet.*;
 import com.example.meettify.dto.meet.category.Category;
 import com.example.meettify.dto.meetBoard.MeetBoardSummaryDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -25,13 +28,13 @@ public interface MeetService {
     boolean isAlreadyMember(Long meetId, String email);
     void applyToJoinMeet(Long meetId, String email);
 
-    MeetDetailDTO getMeetDetail(Long meetId);
+    public Page<MeetSummaryDTO> meetsSearch(MeetSearchCondition condition, Pageable pageable, String email);
 
-    List<MeetSummaryDTO> getMeetList(String email,Long lastId, int size, Category category);
+    MeetDetailDTO getMeetDetail(Long meetId);
 
     MeetRole getMeetRole(Long meetId, String email);
 
-    List<MeetBoardSummaryDTO>  getMeetSummaryList(Long meetId);
+    List<MeetBoardSummaryDTO>  getMeetBoardSummaryList(Long meetId);
 
     List<ResponseMeetMemberDTO> getMeetMemberList(Long meetId);
 

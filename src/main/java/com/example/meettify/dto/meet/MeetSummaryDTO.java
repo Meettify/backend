@@ -1,9 +1,13 @@
 package com.example.meettify.dto.meet;
 
 import com.example.meettify.dto.meet.category.Category;
+import com.example.meettify.entity.meet.MeetEntity;
+import com.example.meettify.entity.meet.MeetImageEntity;
 import lombok.*;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @ToString
 @Getter
@@ -18,5 +22,21 @@ public class MeetSummaryDTO {
     private Long maximum;
     private List<String> imageUrls;
     private boolean isMember;
+
+
+    public static MeetSummaryDTO changeDTO(MeetEntity meet, Set<Long> memberMeetIds) {
+        return MeetSummaryDTO.builder()
+                .meetId(meet.getMeetId())
+                .meetName(meet.getMeetName())
+                .location(meet.getMeetLocation())
+                .category(meet.getMeetCategory())
+                .maximum(meet.getMeetMaximum())
+                .imageUrls(meet.getMeetImages().stream()
+                        .map(MeetImageEntity::getUploadFileUrl)
+                        .collect(Collectors.toList()))
+                .isMember(memberMeetIds.contains(meet.getMeetId())) // 사용자가 이 모임의 멤버인지 여부
+                .build();
+    }
+
 }
 

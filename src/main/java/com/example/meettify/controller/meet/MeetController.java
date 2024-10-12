@@ -10,6 +10,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +22,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 
@@ -35,13 +39,37 @@ public class MeetController implements  MeetControllerDocs{
 
     //모임 리스트 보기
     @GetMapping
-    public ResponseEntity<?> getList(@RequestParam(defaultValue = "0") Long lastId,
-                                        @RequestParam(defaultValue = "9") int size
-                                        ,@RequestParam(required = false) Category category, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<?> getList(Pageable pageable, MeetSearchCondition condition,
+                                         @AuthenticationPrincipal UserDetails userDetails) {
         try {
+            log.info("condition : " + condition);
+            Page<MeetSummaryDTO> meets = meetService.meetsSearch(condition, pageable,userDetails.getUsername());
+                    log.info("상품 조회 {}", meets);
+
+
             String email = (userDetails != null) ? userDetails.getUsername() : null;
-            List<MeetSummaryDTO> meetList = meetService.getMeetList(email,lastId, size,category);
-            return ResponseEntity.status(HttpStatus.OK).body(meetList);
+
+            Map<String, Object> response = new HashMap<>();
+            //현재 페이지의 아이템 목록
+            response.put("meets", meets.getContent());
+            //현재 페이지 번호
+            // 현재 페이지 번호
+            response.put("nowPageNumber", meets.getNumber() + 1);
+            // 전체 페이지 수
+            response.put("totalPage", meets.getTotalPages());
+            // 한 페이지에 출력되는 데이터 개수
+            response.put("pageSize", meets.getSize());
+            // 다음 페이지 존재 여부
+            response.put("hasNextPage", meets.hasNext());
+            // 이전 페이지 존재 여부
+            response.put("hasPreviousPage", meets.hasPrevious());
+            // 첫 번째 페이지 여부
+            response.put("isFirstPage", meets.isFirst());
+            // 마지막 페이지 여부
+            response.put("isLastPage", meets.isLast());
+
+
+            return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             log.error("Error fetching meet list", e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 모임 리스트 요청입니다");
@@ -61,7 +89,7 @@ public class MeetController implements  MeetControllerDocs{
             // 모임 디테일 정보를 가져온다.
             MeetDetailDTO meetDetailDTO = meetService.getMeetDetail(meetId);
 
-            List<MeetBoardSummaryDTO> meetBoardSummaryDTO = meetService.getMeetSummaryList(meetId);
+            List<MeetBoardSummaryDTO> meetBoardSummaryDTO = meetService.getMeetBoardSummaryList(meetId);
 
             return ResponseEntity.status(HttpStatus.OK).body(MeetDetailInfoResponseDTO.builder()
                     .meetDetailDTO(meetDetailDTO)
