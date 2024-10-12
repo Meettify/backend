@@ -2,8 +2,7 @@ package com.example.meettify.controller.meetBoard;
 
 import com.example.meettify.dto.meetBoard.*;
 import com.example.meettify.service.meetBoard.MeetBoardService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -112,12 +111,21 @@ public class MeetBoardController implements MeetBoardControllerDocs{
         }
     }
 
-    @PatchMapping("{meetBoardId}")
-    @Tag(name = "meetBoard")
-    @Operation(summary = "모임 게시판 수정", description = "모임 게시글 수정하기 ")
-    public ResponseEntity<?> updateBoard(@Validated @RequestPart UpdateRequestMeetBoardDTO requestMeetBoardDTO, BindingResult bindingResult,@PathVariable Long meetBoardId, @AuthenticationPrincipal UserDetails userDetails) {
+    @PutMapping("{meetBoardId}")
+    public ResponseEntity<?> updateBoard(
+            @PathVariable Long meetBoardId,
+            @Valid  @RequestPart("updateBoard") UpdateRequestMeetBoardDTO requestMeetBoardDTO,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images,
+            BindingResult bindingResult,
+            @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            UpdateMeetBoardServiceDTO updateMeetBoardServiceDTO = UpdateMeetBoardServiceDTO.makeServiceDTO(meetBoardId,requestMeetBoardDTO);
+            // 입력값 검증 예외가 발생하면 예외 메세지를 출력
+            if (bindingResult.hasErrors()) {
+                log.error("binding error: {}", bindingResult.getAllErrors());
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(bindingResult.getAllErrors());
+            }
+
+            UpdateMeetBoardServiceDTO updateMeetBoardServiceDTO = UpdateMeetBoardServiceDTO.makeServiceDTO(meetBoardId,requestMeetBoardDTO,images);
             ResponseMeetBoardDTO response = meetBoardService.updateBoardService(updateMeetBoardServiceDTO, userDetails.getUsername());
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {

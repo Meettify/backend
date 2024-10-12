@@ -22,10 +22,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /*
  *   worker : 조영흔
@@ -184,42 +184,44 @@ public MeetBoardDetailsDTO getDetails(String email,Long meetBoardId) {
     @Override
     public ResponseMeetBoardDTO updateBoardService(UpdateMeetBoardServiceDTO updateMeetBoardServiceDTO, String username) throws Exception {
         try {
-            // updateMeetBoardServiceDTO 자체가 Null일 수 있으므로 먼저 검사
-            if (updateMeetBoardServiceDTO == null) {
-                throw new IllegalArgumentException("업데이트 데이터가 null입니다.");
-            }
 
-            // MeetBoardEntity를 조회하며, 없으면 예외 처리
-            MeetBoardEntity meetBoardEntity = meetBoardRepository.findById(updateMeetBoardServiceDTO.getMeetBoardId())
+            //1. MeetBoardEntity를 조회하며, 없으면 예외 처리
+            MeetBoardEntity findBoard = meetBoardRepository.findById(updateMeetBoardServiceDTO.getMeetBoardId())
                     .orElseThrow(() -> new EntityNotFoundException("변경 대상 엔티티가 존재하지 않습니다."));
 
-            // 엔티티 업데이트
-            meetBoardEntity.updateMeetBoard(updateMeetBoardServiceDTO);
+            //2. 업데이트할 모임 게시판 정보 적용
+            findBoard.updateMeetBoard(updateMeetBoardServiceDTO);
 
-            // 이미지를 업데이트하는 로직
-            if (updateMeetBoardServiceDTO.getImages() != null && !updateMeetBoardServiceDTO.getImages().isEmpty()) {
-                List<MeetBoardImageEntity> imageEntities = s3ImageUploadService.upload(
-                        "meetImages",
-                        updateMeetBoardServiceDTO.getImages(),
-                        (oriFileName, uploadFileName, uploadFilePath, uploadFileUrl) -> MeetBoardImageEntity.builder()
-                                .meetBoardEntity(meetBoardEntity)
-                                .oriFileName(oriFileName)
-                                .uploadFileName(uploadFileName)
-                                .uploadFilePath(uploadFilePath)
-                                .uploadFileUrl(uploadFileUrl)
-                                .build()
-                );
+            // 3. 유지하지 않을 이미지들 삭제
+            if (findBoard.getMeetBoardImages() != null && !findBoard.getMeetBoardImages().isEmpty()) {
+                List<String> existingImgUrls = updateMeetBoardServiceDTO.getImagesUrl();
+                List<MeetBoardImageEntity> imagesToDelete = findBoard.getMeetBoardImages().stream()
+                        .filter(img -> !existingImgUrls.contains(img.getUploadFileUrl()))
+                        .toList();
 
-                // 기존 이미지 중에서 업데이트되지 않은 이미지를 삭제하는 로직 추가
-                // 예: meetBoardEntity에 있는 기존 이미지 목록과 updateMeetBoardServiceDTO.getImages()를 비교해서 삭제
-                // 이 부분은 사용자에 맞게 추가적으로 구현해야 함
+                if (!imagesToDelete.isEmpty()) {
+                    imagesToDelete.forEach(image -> {
+                        // S3에서 이미지 삭제
+                        s3ImageUploadService.deleteFile(image.getUploadFilePath(), image.getUploadFileName());
+                        // 이미지 엔티티 삭제
+                        meetBoardImageRepository.delete(image);
+                    });
+                    findBoard.getMeetBoardImages().removeAll(imagesToDelete); // 엔티티에서 삭제
+                }
+
             }
 
-            // 업데이트된 엔티티를 DTO로 변환해서 반환
-            meetBoardRepository.save(meetBoardEntity);
-            ResponseMeetBoardDTO responseMeetBoardDTO =   ResponseMeetBoardDTO.changeDTO(meetBoardEntity);
-            log.info("response : {}", responseMeetBoardDTO);
-            return ResponseMeetBoardDTO.changeDTO(meetBoardEntity);
+            // 4. 신규 이미지 등록
+            if (updateMeetBoardServiceDTO.getNewImages() != null && !updateMeetBoardServiceDTO.getNewImages().isEmpty()) {
+                List<MeetBoardImageEntity> newImageEntities = uploadMeetBoardImages(updateMeetBoardServiceDTO.getNewImages(), findBoard);
+                findBoard.getMeetBoardImages().addAll(newImageEntities);
+                meetBoardImageRepository.saveAll(newImageEntities);
+            }
+
+            // 5. 최종적으로 변경된 엔티티 저장
+            meetBoardRepository.save(findBoard);
+
+            return ResponseMeetBoardDTO.changeDTO(findBoard);
 
         } catch (EntityNotFoundException e) {
             throw new Exception("엔티티가 존재하지 않음: " + e.getMessage());
@@ -231,6 +233,18 @@ public MeetBoardDetailsDTO getDetails(String email,Long meetBoardId) {
         }
     }
 
+
+    private List<MeetBoardImageEntity> uploadMeetBoardImages(List<MultipartFile> files, MeetBoardEntity savedBoard) throws  java.io.IOException {
+        return s3ImageUploadService.upload("meetImages", files, (oriFileName, uploadFileName, uploadFilePath, uploadFileUrl) ->
+                MeetBoardImageEntity.builder()
+                        .meetBoardEntity(savedBoard)
+                        .oriFileName(oriFileName)
+                        .uploadFileName(uploadFileName)
+                        .uploadFilePath(uploadFilePath)
+                        .uploadFileUrl(uploadFileUrl)
+                        .build()
+        );
+    }
 
 
 }
