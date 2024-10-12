@@ -24,14 +24,6 @@ public interface MeetMemberRepository extends JpaRepository<MeetMemberEntity, Lo
             "WHERE mm.memberEntity.memberEmail = :email")
     Set<Long> findByEmail(@Param("email") String email);
 
-    @Query("SELECT mm FROM meetMembers mm " +
-            "JOIN FETCH mm.memberEntity m " +
-            "JOIN FETCH mm.meetEntity me " +
-            "JOIN FETCH me.MeetBoardEntity mb " +
-            "WHERE m.memberEmail = :email AND me.meetId = :meetId AND mb.meetBoardId = :meetBoardId")
-    Optional<MeetMemberEntity> findMeetMemberWithBoardAndMember(@Param("email") String email,
-                                                                @Param("meetId") Long meetId,
-                                                                @Param("meetBoardId") Long meetBoardId);
 
     boolean existsByMeetEntityAndMemberEntity(MeetEntity meetEntity, MemberEntity memberEntity);
 
