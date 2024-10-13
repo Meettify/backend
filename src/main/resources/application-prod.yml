@@ -109,8 +109,6 @@ logging:
     root: info
 
 management:
-  server:
-    port: 8081
   info:
     java:
       enabled: true
@@ -122,17 +120,24 @@ management:
   endpoint:
     shutdown:
       enabled: true
-
     health:
       show-details: always
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
 
   endpoints:
     web:
       exposure:
-        include: prometheus
-
+        include: "*"
+      base-path: /monitor
 
 server:
   tomcat:
     mbeanregistry:
       enabled: true
+info:
+  app:
+    name: meettify
+    company: B.F
