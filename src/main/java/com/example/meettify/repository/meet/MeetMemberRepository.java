@@ -35,9 +35,9 @@ public interface MeetMemberRepository extends JpaRepository<MeetMemberEntity, Lo
     List<MeetMemberEntity> findMeetMembersWithMeetAndMember(@Param("meetId") Long meetId);
 
     // 가입한 모임 리스트 가져오기
-    @Query("SELECT DISTINCT me FROM meetMembers mm " +
-            "JOIN mm.meetEntity me " +
+    @Query("SELECT DISTINCT mm FROM meetMembers mm " +
+            "JOIN FETCH mm.meetEntity me " +
             "JOIN FETCH me.meetImages mI " +
             "WHERE mm.memberEntity.memberEmail = :memberEmail")
-    List<MeetEntity> findMeetsByMemberName(@Param("memberEmail") String memberEmail);
+    List<MeetMemberEntity> findMeetsByMemberName(@Param("memberEmail") String memberEmail);
 }
