@@ -143,7 +143,6 @@ public class MeetController implements  MeetControllerDocs{
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 정보의 모임 가입 리스트 조회입니다.");
             }
             List<MyMeetResponseDTO> meetResponseDTOS = meetService.getMyMeet(email);
-            System.out.println(meetResponseDTOS);
             return ResponseEntity.status(HttpStatus.OK).body(meetResponseDTOS);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 가입한 모임 리스트 조회입니다.");

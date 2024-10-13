@@ -336,10 +336,14 @@ public class MeetServiceImpl implements MeetService {
     @Override
     public List<MyMeetResponseDTO> getMyMeet(String email) {
         try {
-            List<MeetEntity> findMeetList = meetMemberRepository.findMeetsByMemberName(email);
-            return findMeetList.stream().map(MyMeetResponseDTO::changeDTO).collect(Collectors.toList());
+            List<MeetMemberEntity> findMeetList = meetMemberRepository.findMeetsByMemberName(email);
+
+            return findMeetList.stream()
+                    .map(MyMeetResponseDTO::changeDTO)
+                    .collect(Collectors.toList());
+
         } catch (Exception e) {
-            throw new MeetException("가입한 모임 리스트 조회 중 에러 발생" + e.getMessage());
+            throw new MeetException("가입한 모임 리스트 조회 중 에러 발생: " + e.getMessage());
         }
     }
 
