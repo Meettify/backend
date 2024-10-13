@@ -16,6 +16,8 @@ public enum MeetRole {
     MEMBER,
     @Schema(name = "대기 멤버")
     WAITING,
+    @Schema(name = "휴면 멤버" )
+    DORMANT,
     @Schema(name = "비회원")
     OUTSIDER,
     @Schema(name = "추방자")

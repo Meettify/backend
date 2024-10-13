@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 public class MyMeetResponseDTO {
+    private Long meetMemberId;
     private Long meetId;
     private String meetName;
     private String location;
@@ -28,6 +29,7 @@ public class MyMeetResponseDTO {
         MeetEntity meet = meetMember.getMeetEntity();
 
         return MyMeetResponseDTO.builder()
+                .meetMemberId(meetMember.getMeetMemberId())
                 .meetId(meet.getMeetId())
                 .meetName(meet.getMeetName())
                 .location(meet.getMeetLocation())
