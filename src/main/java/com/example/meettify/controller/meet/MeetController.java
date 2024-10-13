@@ -134,6 +134,22 @@ public class MeetController implements  MeetControllerDocs{
         }
     }
 
+    //가입한 모임 리스트 보기
+    @GetMapping("/myMeet")
+    public ResponseEntity<?> getMyMeet(@AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            String email = userDetails.getUsername();
+            if (email == null || email.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 정보의 모임 가입 리스트 조회입니다.");
+            }
+            List<MyMeetResponseDTO> meetResponseDTOS = meetService.getMyMeet(email);
+            System.out.println(meetResponseDTOS);
+            return ResponseEntity.status(HttpStatus.OK).body(meetResponseDTOS);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 가입한 모임 리스트 조회입니다.");
+        }
+    }
+
     //모임 회원 Role변경하기
     @PutMapping("/{meetId}/{meetMemberId}")
     @Tag(name = "meet")

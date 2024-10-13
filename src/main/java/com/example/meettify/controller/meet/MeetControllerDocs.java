@@ -30,6 +30,9 @@ public interface MeetControllerDocs {
     @Operation(summary = "모임 디테일 정보", description = "모임 디테일 정보와 현재 모임에서 권한 관련 정보를 전달해줘야 한다.")
     public ResponseEntity<?> getDetail(@PathVariable Long meetId, @AuthenticationPrincipal UserDetails userDetails);
 
+    @Operation(summary = "가입한 모임 리스트", description = "가입한 모임 리스트를 가져온다. ")
+    public ResponseEntity<?> getMyMeet(@AuthenticationPrincipal UserDetails userDetails);
+
 
     @Operation(summary = "모임 만들기", description = "모임 만들어 주는 API, 신규 모임정보와 이미지, 회원 정보가 필요하다.")
     public ResponseEntity<?> makeMeet(@Valid @RequestPart RequestMeetDTO meet, @RequestPart List<MultipartFile> images, BindingResult bindingResult, @AuthenticationPrincipal UserDetails userDetails);

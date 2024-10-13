@@ -22,7 +22,7 @@ public interface MeetMemberRepository extends JpaRepository<MeetMemberEntity, Lo
 
     @Query("SELECT mm.meetMemberId FROM meetMembers mm " +
             "WHERE mm.memberEntity.memberEmail = :email")
-    Set<Long> findByEmail(@Param("email") String email);
+    Set<Long> findIdByEmail(@Param("email") String email);
 
 
     boolean existsByMeetEntityAndMemberEntity(MeetEntity meetEntity, MemberEntity memberEntity);
@@ -33,4 +33,11 @@ public interface MeetMemberRepository extends JpaRepository<MeetMemberEntity, Lo
             "JOIN FETCH mm.meetEntity me " +
             "WHERE me.meetId = :meetId")
     List<MeetMemberEntity> findMeetMembersWithMeetAndMember(@Param("meetId") Long meetId);
+
+    // 가입한 모임 리스트 가져오기
+    @Query("SELECT DISTINCT me FROM meetMembers mm " +
+            "JOIN mm.meetEntity me " +
+            "JOIN FETCH me.meetImages mI " +
+            "WHERE mm.memberEntity.memberEmail = :memberEmail")
+    List<MeetEntity> findMeetsByMemberName(@Param("memberEmail") String memberEmail);
 }
