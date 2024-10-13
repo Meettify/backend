@@ -246,7 +246,7 @@ public class MeetServiceImpl implements MeetService {
 
             // 사용자 정보를 통해 모임 멤버 ID 목록 조회
             MemberEntity member = memberRepository.findByMemberEmail(email);
-            Set<Long> memberMeetIds = (member != null) ? meetMemberRepository.findByEmail(email) : Collections.emptySet();
+            Set<Long> memberMeetIds = (member != null) ? meetMemberRepository.findIdByEmail(email) : Collections.emptySet();
 
             return meetPage.map(meet -> MeetSummaryDTO.changeDTO(meet, memberMeetIds));
         } catch (Exception e) {
@@ -329,6 +329,17 @@ public class MeetServiceImpl implements MeetService {
             return MeetPermissionDTO.of(false, false); // 수정 및 삭제 불가
         } catch (Exception e) {
             throw new MeetException("권한 관련 조회 중 에러 발생: " + e.getMessage());
+        }
+    }
+
+    //내가 가입한 모임 리스트 구현
+    @Override
+    public List<MyMeetResponseDTO> getMyMeet(String email) {
+        try {
+            List<MeetEntity> findMeetList = meetMemberRepository.findMeetsByMemberName(email);
+            return findMeetList.stream().map(MyMeetResponseDTO::changeDTO).collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new MeetException("가입한 모임 리스트 조회 중 에러 발생" + e.getMessage());
         }
     }
 

@@ -41,4 +41,6 @@ public interface MeetService {
     MeetRole updateRole(Long meetMemberId, MeetRole meetRole);
 
     MeetPermissionDTO getPermission(String email, Long meetId);
+
+    List<MyMeetResponseDTO> getMyMeet(String email);
 }
