@@ -49,6 +49,8 @@ services:
     volumes:
       - ./grafana/data:/var/lib/grafana
       - ./grafana/config:/etc/grafana
+      - /etc/letsencrypt/live/meettify.store/fullchain.pem:/etc/grafana/grafana.crt
+      - /etc/letsencrypt/live/meettify.store/privkey.pem:/etc/grafana/grafana.key
     environment:
       - GF_SECURITY_ADMIN_USER=admin # grafana 사용자 이름
       - GF_SECURITY_ADMIN_PASSWORD=admin # grafana 사용자 비밀번호
