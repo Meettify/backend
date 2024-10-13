@@ -2,7 +2,6 @@ package com.example.meettify.controller.meet;
 
 
 import com.example.meettify.dto.meet.*;
-import com.example.meettify.dto.meet.category.Category;
 import com.example.meettify.dto.meetBoard.MeetBoardSummaryDTO;
 import com.example.meettify.service.meet.MeetService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -149,10 +147,8 @@ public class MeetController implements  MeetControllerDocs{
         }
     }
 
-    //모임 회원 Role변경하기
-    @PutMapping("/{meetId}/{meetMemberId}")
-    @Tag(name = "meet")
-    @Operation(summary = "모임 회원 Role 변경하기", description = "모임 회원 Role 변경 구현")
+    //관리자 모임 회원 Role변경하기
+    @PutMapping("/admin/{meetId}/{meetMemberId}")
     public ResponseEntity<?> updateMeetMemberRole(@PathVariable Long meetId,
                                                   @PathVariable Long meetMemberId,
                                                   @RequestBody @Valid UpdateRoleRequestDTO request, // DTO 사용
@@ -172,6 +168,27 @@ public class MeetController implements  MeetControllerDocs{
         }
     }
 
+
+    //마이페이지에서 모임 탈퇴하는 API
+    @PutMapping("/{meetId}/{meetMemberId}")
+    public ResponseEntity<?> leaveMeet(@PathVariable Long meetId,
+                                       @PathVariable Long meetMemberId,
+                                       @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+
+            String email = userDetails.getUsername();
+            // 관리자면 탈퇴 못 하는 로직 추가
+            MeetRole role= meetService.getMeetRole(meetId, email);
+            if ((role == MeetRole.ADMIN)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("권리자는 모임 휴먼상태로 변경 불가능합니다.");
+            }
+
+            MeetRole UpdatedRole = meetService.updateRole(meetMemberId, MeetRole.DORMANT);
+            return ResponseEntity.status(HttpStatus.OK).body(UpdatedRole.name());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("모임 탈퇴 중 오류가 발생했습니다." +e.getMessage());
+        }
+    }
 
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

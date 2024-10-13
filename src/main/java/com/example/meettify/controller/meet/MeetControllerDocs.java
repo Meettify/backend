@@ -4,7 +4,6 @@ import com.example.meettify.dto.meet.MeetSearchCondition;
 import com.example.meettify.dto.meet.RequestMeetDTO;
 import com.example.meettify.dto.meet.UpdateMeetDTO;
 import com.example.meettify.dto.meet.UpdateRoleRequestDTO;
-import com.example.meettify.dto.meet.category.Category;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -63,6 +62,12 @@ public interface MeetControllerDocs {
                                                   @PathVariable Long meetMemberId,
                                                   @RequestBody @Valid UpdateRoleRequestDTO request, // DTO 사용
                                                   @AuthenticationPrincipal UserDetails userDetails);
+
+    @PutMapping("/{meetId}/{meetMemberId}")
+    @Operation(summary = "마이페이지에서 모임 탈퇴", description = "마이 페이지에서 모임 탈퇴하는 기능을 구현")
+    public ResponseEntity<?> leaveMeet(@PathVariable Long meetId,
+                                       @PathVariable Long meetMemberId,
+                                       @AuthenticationPrincipal UserDetails userDetails);
 
 
 }
