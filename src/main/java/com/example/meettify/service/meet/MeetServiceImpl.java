@@ -1,7 +1,7 @@
 package com.example.meettify.service.meet;
 
 import com.example.meettify.config.s3.S3ImageUploadService;
-import com.example.meettify.dto.item.ResponseItemImgDTO;
+import com.example.meettify.dto.item.ResponseItemDTO;
 import com.example.meettify.dto.meet.*;
 import com.example.meettify.dto.meet.category.Category;
 import com.example.meettify.dto.meetBoard.MeetBoardSummaryDTO;
@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -69,8 +70,6 @@ public class MeetServiceImpl implements MeetService {
             meet.getImagesFile().stream().forEach(e-> System.out.println(e.getOriginalFilename()));
             // S3에 이미지 업로드 및 DTO 생성 (FileDTOFactory 활용)
             imageEntities = uploadMeetImages(meet.getImagesFile(), savedMeet);
-
-
             // 업로드된 이미지들을 DB에 저장
             meetImageRepository.saveAll(imageEntities);
         }
@@ -89,7 +88,7 @@ public class MeetServiceImpl implements MeetService {
 
 
         // 5. 응답 DTO 생성 및 반환
-        ResponseMeetDTO  responseMeetDTO = ResponseMeetDTO.changeDTO(savedMeet,imageEntities);
+        ResponseMeetDTO  responseMeetDTO = ResponseMeetDTO.changeDTO(savedMeet);
 
         return responseMeetDTO;
     }
@@ -100,8 +99,16 @@ public class MeetServiceImpl implements MeetService {
             MeetMemberEntity meetMemberEntity = meetMemberRepository.findByEmailAndMeetId(email, meetId)
                     .orElseThrow(() -> new MeetException("Member not part of this meet."));
             if (meetMemberEntity.getMeetRole() == MeetRole.ADMIN) {
+
+                MeetEntity meetEntity = meetRepository.findById(meetId).get();
+                // s3에 이미지 삭제
+                meetEntity.getMeetImages().forEach(
+                        img -> s3ImageUploadService.deleteFile(img.getUploadFilePath(), img.getUploadFileName())
+                );
+
                 meetRepository.deleteById(meetId);
-                // S3에 등록된 이미지 있을 경우 삭제되는 로직 작성.
+
+                log.info("Successfully deleted meet with id: {}", meetId);
                 return "소모임 삭제 완료";
             }
             throw new MeetException("회원ID과 모임 관리자정보가 일치하지 않습니다.");
@@ -127,7 +134,7 @@ public class MeetServiceImpl implements MeetService {
 
     @Override
     @Transactional
-    public ResponseMeetDTO update(UpdateMeetServiceDTO updateMeetServiceDTO, List<MultipartFile> newImages) throws IOException {
+    public ResponseMeetDTO update(UpdateMeetServiceDTO updateMeetServiceDTO, List<MultipartFile> newImages) throws IOException, java.io.IOException {
         // 1. 변경 요청한 모임이 존재하는지 확인
         MeetEntity findMeet = meetRepository.findById(updateMeetServiceDTO.getMeetId())
                 .orElseThrow(() -> new MeetException("변경 대상 엔티티가 존재하지 않습니다."));
@@ -135,14 +142,36 @@ public class MeetServiceImpl implements MeetService {
         // 2. 업데이트할 모임 정보 적용
         findMeet.updateMeet(updateMeetServiceDTO);
 
-        // 추후에 s3삭제 기능 구현 예정
-        // ...
+        // 3. 유지하지 않을 이미지들 삭제
+        if (findMeet.getMeetImages() != null && !findMeet.getMeetImages().isEmpty()) {
+            List<String> existingImgUrls = updateMeetServiceDTO.getExistingImageUrls();
+            List<MeetImageEntity> imagesToDelete = findMeet.getMeetImages().stream()
+                    .filter(img -> !existingImgUrls.contains(img.getUploadFileUrl()))
+                    .toList();
+
+            if (!imagesToDelete.isEmpty()) {
+                imagesToDelete.forEach(image -> {
+                    // S3에서 이미지 삭제
+                    s3ImageUploadService.deleteFile(image.getUploadFilePath(), image.getUploadFileName());
+                    // 이미지 엔티티 삭제
+                    meetImageRepository.delete(image);
+                });
+                findMeet.getMeetImages().removeAll(imagesToDelete); // 엔티티에서 삭제
+            }
+        }
+
+        // 4. 신규 이미지 등록
+        if (newImages != null && !newImages.isEmpty()) {
+            List<MeetImageEntity> newImageEntities = uploadMeetImages(newImages, findMeet);
+            findMeet.getMeetImages().addAll(newImageEntities); // 새로운 이미지를 엔티티에 추가
+            meetImageRepository.saveAll(newImageEntities); // DB에 이미지 저장
+        }
 
         // 5. 최종적으로 변경된 엔티티 저장
         meetRepository.save(findMeet);
 
         // 6. 응답 DTO 생성 및 반환
-        return modelMapper.map(findMeet, ResponseMeetDTO.class);
+        return ResponseMeetDTO.changeDTO(findMeet);
     }
 
     // 이미 가입된 회원인지 확인
@@ -189,32 +218,6 @@ public class MeetServiceImpl implements MeetService {
         }
     }
 
-    @Override
-    public List<MeetSummaryDTO> getMeetList(String email, Long lastId, int size, Category category) {
-        Pageable pageable = PageRequest.of(0, size, Sort.by("meetId").ascending());
-
-        // meetId > lastId 조건으로 데이터를 가져옴
-        List<MeetEntity> meets = meetRepository.findByMeetIdGreaterThanAndCategory(lastId, category, pageable);
-
-        // 현재 멤버가 가입 중인 모임 정보 가져오기
-        MemberEntity member = memberRepository.findByMemberEmail(email);
-        Set<Long> memberMeetIds = (member != null) ? meetMemberRepository.findByEmail(email) : Collections.emptySet();
-
-        // MeetSummaryDTO로 변환
-        return meets.stream()
-                .map(meet -> MeetSummaryDTO.builder()
-                        .meetId(meet.getMeetId())
-                        .meetName(meet.getMeetName())
-                        .location(meet.getMeetLocation())
-                        .category(meet.getMeetCategory())
-                        .maximum(meet.getMeetMaximum())
-                        .imageUrls(meet.getMeetImages().stream()
-                                .map(MeetImageEntity::getUploadFileUrl)
-                                .collect(Collectors.toList()))
-                        .isMember(memberMeetIds.contains(meet.getMeetId())) // 빠른 비교를 위한 Set 사용
-                        .build())
-                .collect(Collectors.toList());
-    }
 
     @Override
     public MeetRole getMeetRole(Long meetId, String email) {
@@ -229,8 +232,34 @@ public class MeetServiceImpl implements MeetService {
     }
 
     // ToDO: fetch JOIN 다시 손 보기
+    // 여러 모임을 페이징 처리해서 가져오는 메서드 : 조건 검색 가능
+    @Transactional(readOnly = true)
+    public Page<MeetSummaryDTO> meetsSearch(MeetSearchCondition condition, Pageable pageable, String email) {
+        try {
+            // MeetEntity 페이지 가져오기
+            Page<MeetEntity> meetPage = meetRepository.meetsSearch(condition, pageable);
+
+            // 검색된 모임이 없을 경우 예외 처리
+            if (meetPage.isEmpty()) {
+                throw new EntityNotFoundException("조건에 만족하는 모임이 없습니다.");
+            }
+
+            // 사용자 정보를 통해 모임 멤버 ID 목록 조회
+            MemberEntity member = memberRepository.findByMemberEmail(email);
+            Set<Long> memberMeetIds = (member != null) ? meetMemberRepository.findIdByEmail(email) : Collections.emptySet();
+
+            return meetPage.map(meet -> MeetSummaryDTO.changeDTO(meet, memberMeetIds));
+        } catch (Exception e) {
+            log.error("error : " + e.getMessage());
+            throw new EntityNotFoundException("모임 조회에 실패하였습니다.\n" + e.getMessage());
+        }
+    }
+
+
+
+    // ToDO: fetch JOIN 다시 손 보기
     @Override
-    public List<MeetBoardSummaryDTO>  getMeetSummaryList(Long meetId) {
+    public List<MeetBoardSummaryDTO>  getMeetBoardSummaryList(Long meetId) {
         try {
             Pageable pageable = PageRequest.of(0, 3);  // 첫 번째 페이지에서 3개의 결과만 가져옴
             List<MeetBoardEntity> recentMeetBoards = meetBoardRepository.findTop3MeetBoardEntitiesByMeetId(meetId, pageable);
@@ -300,6 +329,21 @@ public class MeetServiceImpl implements MeetService {
             return MeetPermissionDTO.of(false, false); // 수정 및 삭제 불가
         } catch (Exception e) {
             throw new MeetException("권한 관련 조회 중 에러 발생: " + e.getMessage());
+        }
+    }
+
+    //내가 가입한 모임 리스트 구현
+    @Override
+    public List<MyMeetResponseDTO> getMyMeet(String email) {
+        try {
+            List<MeetMemberEntity> findMeetList = meetMemberRepository.findMeetsByMemberName(email);
+
+            return findMeetList.stream()
+                    .map(MyMeetResponseDTO::changeDTO)
+                    .collect(Collectors.toList());
+
+        } catch (Exception e) {
+            throw new MeetException("가입한 모임 리스트 조회 중 에러 발생: " + e.getMessage());
         }
     }
 

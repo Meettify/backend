@@ -1,12 +1,13 @@
 package com.example.meettify.controller.meet;
 
+import com.example.meettify.dto.meet.MeetSearchCondition;
 import com.example.meettify.dto.meet.RequestMeetDTO;
 import com.example.meettify.dto.meet.UpdateMeetDTO;
 import com.example.meettify.dto.meet.UpdateRoleRequestDTO;
-import com.example.meettify.dto.meet.category.Category;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,12 +22,15 @@ import java.util.List;
 
 public interface MeetControllerDocs {
     @Operation(summary = "모임 리스트", description = "모임 데이터 List를 페이징 처리와 함께 제공해주는 기능")
-    public ResponseEntity<?> getList(@RequestParam(defaultValue = "0") Long lastId,
-                                     @RequestParam(defaultValue = "9") int size
-            ,@RequestParam(required = false) Category category, @AuthenticationPrincipal UserDetails userDetails);
+    @GetMapping
+    public ResponseEntity<?> getList(Pageable pageable, MeetSearchCondition condition,
+                                     @AuthenticationPrincipal UserDetails userDetails);
 
     @Operation(summary = "모임 디테일 정보", description = "모임 디테일 정보와 현재 모임에서 권한 관련 정보를 전달해줘야 한다.")
     public ResponseEntity<?> getDetail(@PathVariable Long meetId, @AuthenticationPrincipal UserDetails userDetails);
+
+    @Operation(summary = "가입한 모임 리스트", description = "가입한 모임 리스트를 가져온다. ")
+    public ResponseEntity<?> getMyMeet(@AuthenticationPrincipal UserDetails userDetails);
 
 
     @Operation(summary = "모임 만들기", description = "모임 만들어 주는 API, 신규 모임정보와 이미지, 회원 정보가 필요하다.")
@@ -37,7 +41,8 @@ public interface MeetControllerDocs {
 
     @Operation(summary = "수정 API", description = "모임에 대한 수정을 진행하는 API")
     public ResponseEntity<?> updateMeet(@PathVariable Long meetId,
-                                        @Validated @RequestBody UpdateMeetDTO updateMeetDTO,
+                                        @Valid @RequestPart UpdateMeetDTO updateMeetDTO,
+                                        @RequestPart(value = "files", required = false) List<MultipartFile> images,
                                         @AuthenticationPrincipal UserDetails userDetails);
 
     @Operation(summary = "모임 가입 회원 리스트 보기", description = "모임 가입 회원 리스트 구현")
@@ -57,6 +62,12 @@ public interface MeetControllerDocs {
                                                   @PathVariable Long meetMemberId,
                                                   @RequestBody @Valid UpdateRoleRequestDTO request, // DTO 사용
                                                   @AuthenticationPrincipal UserDetails userDetails);
+
+    @PutMapping("/{meetId}/{meetMemberId}")
+    @Operation(summary = "마이페이지에서 모임 탈퇴", description = "마이 페이지에서 모임 탈퇴하는 기능을 구현")
+    public ResponseEntity<?> leaveMeet(@PathVariable Long meetId,
+                                       @PathVariable Long meetMemberId,
+                                       @AuthenticationPrincipal UserDetails userDetails);
 
 
 }

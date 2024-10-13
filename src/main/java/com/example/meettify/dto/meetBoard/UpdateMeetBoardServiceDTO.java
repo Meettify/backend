@@ -22,16 +22,16 @@ public class UpdateMeetBoardServiceDTO {
     private Long meetBoardId;
     String meetBoardTitle;
     String meetBoardContent;
-    private List<MultipartFile> images;
+    private List<MultipartFile> newImages;
     private List<String> imagesUrl;
 
 
-    public static UpdateMeetBoardServiceDTO makeServiceDTO(Long meetBoardId,UpdateRequestMeetBoardDTO updateRequestMeetBoardDTO){
+    public static UpdateMeetBoardServiceDTO makeServiceDTO(Long meetBoardId,UpdateRequestMeetBoardDTO updateRequestMeetBoardDTO, List<MultipartFile> newImages){
         return UpdateMeetBoardServiceDTO.builder()
                 .meetBoardId(meetBoardId)
                 .meetBoardTitle(updateRequestMeetBoardDTO.getMeetBoardTitle())
                 .meetBoardContent(updateRequestMeetBoardDTO.getMeetBoardContent())
-                .images(updateRequestMeetBoardDTO.getImages())
+                .newImages(newImages)
                 .imagesUrl(updateRequestMeetBoardDTO.getImagesUrl())
                 .build();
     }

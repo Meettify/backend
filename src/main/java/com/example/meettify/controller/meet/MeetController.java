@@ -2,7 +2,6 @@ package com.example.meettify.controller.meet;
 
 
 import com.example.meettify.dto.meet.*;
-import com.example.meettify.dto.meet.category.Category;
 import com.example.meettify.dto.meetBoard.MeetBoardSummaryDTO;
 import com.example.meettify.service.meet.MeetService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,17 +9,20 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 
@@ -35,13 +37,37 @@ public class MeetController implements  MeetControllerDocs{
 
     //모임 리스트 보기
     @GetMapping
-    public ResponseEntity<?> getList(@RequestParam(defaultValue = "0") Long lastId,
-                                        @RequestParam(defaultValue = "9") int size
-                                        ,@RequestParam(required = false) Category category, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<?> getList(Pageable pageable, MeetSearchCondition condition,
+                                         @AuthenticationPrincipal UserDetails userDetails) {
         try {
+            log.info("condition : " + condition);
+            Page<MeetSummaryDTO> meets = meetService.meetsSearch(condition, pageable,userDetails.getUsername());
+                    log.info("상품 조회 {}", meets);
+
+
             String email = (userDetails != null) ? userDetails.getUsername() : null;
-            List<MeetSummaryDTO> meetList = meetService.getMeetList(email,lastId, size,category);
-            return ResponseEntity.status(HttpStatus.OK).body(meetList);
+
+            Map<String, Object> response = new HashMap<>();
+            //현재 페이지의 아이템 목록
+            response.put("meets", meets.getContent());
+            //현재 페이지 번호
+            // 현재 페이지 번호
+            response.put("nowPageNumber", meets.getNumber() + 1);
+            // 전체 페이지 수
+            response.put("totalPage", meets.getTotalPages());
+            // 한 페이지에 출력되는 데이터 개수
+            response.put("pageSize", meets.getSize());
+            // 다음 페이지 존재 여부
+            response.put("hasNextPage", meets.hasNext());
+            // 이전 페이지 존재 여부
+            response.put("hasPreviousPage", meets.hasPrevious());
+            // 첫 번째 페이지 여부
+            response.put("isFirstPage", meets.isFirst());
+            // 마지막 페이지 여부
+            response.put("isLastPage", meets.isLast());
+
+
+            return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             log.error("Error fetching meet list", e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 모임 리스트 요청입니다");
@@ -61,7 +87,7 @@ public class MeetController implements  MeetControllerDocs{
             // 모임 디테일 정보를 가져온다.
             MeetDetailDTO meetDetailDTO = meetService.getMeetDetail(meetId);
 
-            List<MeetBoardSummaryDTO> meetBoardSummaryDTO = meetService.getMeetSummaryList(meetId);
+            List<MeetBoardSummaryDTO> meetBoardSummaryDTO = meetService.getMeetBoardSummaryList(meetId);
 
             return ResponseEntity.status(HttpStatus.OK).body(MeetDetailInfoResponseDTO.builder()
                     .meetDetailDTO(meetDetailDTO)
@@ -106,10 +132,23 @@ public class MeetController implements  MeetControllerDocs{
         }
     }
 
-    //모임 회원 Role변경하기
-    @PatchMapping("/{meetId}/{meetMemberId}")
-    @Tag(name = "meet")
-    @Operation(summary = "모임 회원 Role 변경하기", description = "모임 회원 Role 변경 구현")
+    //가입한 모임 리스트 보기
+    @GetMapping("/myMeet")
+    public ResponseEntity<?> getMyMeet(@AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            String email = userDetails.getUsername();
+            if (email == null || email.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 정보의 모임 가입 리스트 조회입니다.");
+            }
+            List<MyMeetResponseDTO> meetResponseDTOS = meetService.getMyMeet(email);
+            return ResponseEntity.status(HttpStatus.OK).body(meetResponseDTOS);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 가입한 모임 리스트 조회입니다.");
+        }
+    }
+
+    //관리자 모임 회원 Role변경하기
+    @PutMapping("/admin/{meetId}/{meetMemberId}")
     public ResponseEntity<?> updateMeetMemberRole(@PathVariable Long meetId,
                                                   @PathVariable Long meetMemberId,
                                                   @RequestBody @Valid UpdateRoleRequestDTO request, // DTO 사용
@@ -129,6 +168,27 @@ public class MeetController implements  MeetControllerDocs{
         }
     }
 
+
+    //마이페이지에서 모임 탈퇴하는 API
+    @PutMapping("/{meetId}/{meetMemberId}")
+    public ResponseEntity<?> leaveMeet(@PathVariable Long meetId,
+                                       @PathVariable Long meetMemberId,
+                                       @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+
+            String email = userDetails.getUsername();
+            // 관리자면 탈퇴 못 하는 로직 추가
+            MeetRole role= meetService.getMeetRole(meetId, email);
+            if ((role == MeetRole.ADMIN)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("권리자는 모임 휴먼상태로 변경 불가능합니다.");
+            }
+
+            MeetRole UpdatedRole = meetService.updateRole(meetMemberId, MeetRole.DORMANT);
+            return ResponseEntity.status(HttpStatus.OK).body(UpdatedRole.name());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("모임 탈퇴 중 오류가 발생했습니다." +e.getMessage());
+        }
+    }
 
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -186,10 +246,12 @@ public class MeetController implements  MeetControllerDocs{
     }
 
     //모임 변경하기
-    @PatchMapping("/{meetId}")
+    @PutMapping(value ="/{meetId}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public ResponseEntity<?> updateMeet(@PathVariable Long meetId,
-                                        @Validated @RequestBody UpdateMeetDTO updateMeetDTO,
+                                        @Valid @RequestPart("updateMeetDTO")UpdateMeetDTO updateMeetDTO,
+                                        @RequestPart(value = "images", required = false) List<MultipartFile> newImages,
                                         @AuthenticationPrincipal UserDetails userDetails) {
+
         try {
             String email = userDetails.getUsername();
             //권한체크
@@ -198,7 +260,7 @@ public class MeetController implements  MeetControllerDocs{
                 // ServiceDTODTO 바꾸는 로직
                 UpdateMeetServiceDTO updateMeetServiceDTO = UpdateMeetServiceDTO.makeServiceDTO(updateMeetDTO);
                 // 응답ServiceDTO 받기
-                ResponseMeetDTO response = meetService.update(updateMeetServiceDTO, updateMeetDTO.getNewImages());
+                ResponseMeetDTO response = meetService.update(updateMeetServiceDTO, newImages);
                 //반환하기
                 return ResponseEntity.ok().body(response);
             }

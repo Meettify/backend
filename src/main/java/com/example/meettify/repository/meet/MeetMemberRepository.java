@@ -22,16 +22,8 @@ public interface MeetMemberRepository extends JpaRepository<MeetMemberEntity, Lo
 
     @Query("SELECT mm.meetMemberId FROM meetMembers mm " +
             "WHERE mm.memberEntity.memberEmail = :email")
-    Set<Long> findByEmail(@Param("email") String email);
+    Set<Long> findIdByEmail(@Param("email") String email);
 
-    @Query("SELECT mm FROM meetMembers mm " +
-            "JOIN FETCH mm.memberEntity m " +
-            "JOIN FETCH mm.meetEntity me " +
-            "JOIN FETCH me.MeetBoardEntity mb " +
-            "WHERE m.memberEmail = :email AND me.meetId = :meetId AND mb.meetBoardId = :meetBoardId")
-    Optional<MeetMemberEntity> findMeetMemberWithBoardAndMember(@Param("email") String email,
-                                                                @Param("meetId") Long meetId,
-                                                                @Param("meetBoardId") Long meetBoardId);
 
     boolean existsByMeetEntityAndMemberEntity(MeetEntity meetEntity, MemberEntity memberEntity);
 
@@ -41,4 +33,11 @@ public interface MeetMemberRepository extends JpaRepository<MeetMemberEntity, Lo
             "JOIN FETCH mm.meetEntity me " +
             "WHERE me.meetId = :meetId")
     List<MeetMemberEntity> findMeetMembersWithMeetAndMember(@Param("meetId") Long meetId);
+
+    // 가입한 모임 리스트 가져오기
+    @Query("SELECT DISTINCT mm FROM meetMembers mm " +
+            "JOIN FETCH mm.meetEntity me " +
+            "JOIN FETCH me.meetImages mI " +
+            "WHERE mm.memberEntity.memberEmail = :memberEmail")
+    List<MeetMemberEntity> findMeetsByMemberName(@Param("memberEmail") String memberEmail);
 }

@@ -2,8 +2,7 @@ package com.example.meettify.controller.meetBoard;
 
 import com.example.meettify.dto.meetBoard.*;
 import com.example.meettify.service.meetBoard.MeetBoardService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -19,7 +18,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.MediaType;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Log4j2
@@ -40,7 +41,19 @@ public class MeetBoardController implements MeetBoardControllerDocs{
             Pageable pageable = PageRequest.of(page, size);
             // 서비스에서 페이징된 게시글 리스트를 조회
             Page<MeetBoardSummaryDTO> meetBoardPage = meetBoardService.getPagedList(meetId, pageable);
-            return ResponseEntity.status(HttpStatus.OK).body(meetBoardPage);
+
+            // 페이징 정보와 함께 응답할 데이터 준비
+            Map<String, Object> response = new HashMap<>();
+            response.put("meetBoardPage", meetBoardPage.getContent()); // 게시글 리스트
+            response.put("currentPage", meetBoardPage.getNumber()); // 현재 페이지 번호
+            response.put("totalItems", meetBoardPage.getTotalElements()); // 전체 아이템 개수
+            response.put("totalPages", meetBoardPage.getTotalPages()); // 전체 페이지 수
+            response.put("hasPrevious", meetBoardPage.hasPrevious()); // 직전 페이지 존재 여부
+            response.put("hasNext", meetBoardPage.hasNext()); // 다음 페이지 존재 여부
+            response.put("isFirst", meetBoardPage.isFirst()); // 첫 페이지 여부
+            response.put("isLast", meetBoardPage.isLast()); // 마지막 페이지 여부
+
+            return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             log.error("게시글 리스트 조회 오류: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -98,12 +111,21 @@ public class MeetBoardController implements MeetBoardControllerDocs{
         }
     }
 
-    @PatchMapping("{meetBoardId}")
-    @Tag(name = "meetBoard")
-    @Operation(summary = "모임 게시판 수정", description = "모임 게시글 수정하기 ")
-    public ResponseEntity<?> updateBoard(@Validated @RequestPart UpdateRequestMeetBoardDTO requestMeetBoardDTO, BindingResult bindingResult,@PathVariable Long meetBoardId, @AuthenticationPrincipal UserDetails userDetails) {
+    @PutMapping("{meetBoardId}")
+    public ResponseEntity<?> updateBoard(
+            @PathVariable Long meetBoardId,
+            @Valid  @RequestPart("updateBoard") UpdateRequestMeetBoardDTO requestMeetBoardDTO,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images,
+            BindingResult bindingResult,
+            @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            UpdateMeetBoardServiceDTO updateMeetBoardServiceDTO = UpdateMeetBoardServiceDTO.makeServiceDTO(meetBoardId,requestMeetBoardDTO);
+            // 입력값 검증 예외가 발생하면 예외 메세지를 출력
+            if (bindingResult.hasErrors()) {
+                log.error("binding error: {}", bindingResult.getAllErrors());
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(bindingResult.getAllErrors());
+            }
+
+            UpdateMeetBoardServiceDTO updateMeetBoardServiceDTO = UpdateMeetBoardServiceDTO.makeServiceDTO(meetBoardId,requestMeetBoardDTO,images);
             ResponseMeetBoardDTO response = meetBoardService.updateBoardService(updateMeetBoardServiceDTO, userDetails.getUsername());
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
