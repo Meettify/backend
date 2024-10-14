@@ -13,4 +13,12 @@ public interface CommunityRepository extends JpaRepository<CommunityEntity, Long
     " order by c.communityId desc ",
     countQuery = "select count(c) from communities c")
     Page<CommunityEntity> findAll(Pageable pageable);
+
+    // 커뮤니티 검색
+    @Query(value = "select c from communities c" +
+    " join fetch c.member" +
+    " where (:searchTitle is null or c.title like %:searchTitle%)" +
+    " order by c.communityId desc ",
+    countQuery = "select count(c) from communities c where (:searchTitle is null or c.title like %:searchTitle%)")
+    Page<CommunityEntity> findBySearchTitle(Pageable pageable, String searchTitle);
 }

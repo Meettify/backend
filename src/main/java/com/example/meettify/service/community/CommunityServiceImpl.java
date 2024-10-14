@@ -171,4 +171,18 @@ public class CommunityServiceImpl implements CommunityService {
             throw new BoardException("커뮤니티 글을 가져오는데 실패했습니다. : " + e.getMessage());
         }
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ResponseBoardDTO> searchTitle(Pageable pageable, String searchTitle) {
+        try {
+            Page<CommunityEntity> findAllByTitle = communityRepository.findBySearchTitle(pageable, searchTitle);
+            log.info("조회된 커뮤니티 수 : {}", findAllByTitle.getTotalElements());
+            log.info("조회된 커뮤니티 : {}", findAllByTitle);
+            return findAllByTitle.map(ResponseBoardDTO::changeCommunity);
+        } catch (Exception e) {
+            log.error("Error retrieving community: ", e.getMessage());
+            throw new BoardException("커뮤니티 글을 가져오는데 실패했습니다. : " + e.getMessage());
+        }
+    }
 }

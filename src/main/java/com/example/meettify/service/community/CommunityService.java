@@ -28,4 +28,7 @@ public interface CommunityService {
 
     // 커뮤니티 전체 조회
     Page<ResponseBoardDTO> getBoards(Pageable pageable);
+
+    // 커뮤니티 제목 검색
+    Page<ResponseBoardDTO> searchTitle(Pageable pageable, String searchTitle);
 }

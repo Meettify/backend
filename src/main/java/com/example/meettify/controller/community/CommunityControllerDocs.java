@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -32,4 +33,7 @@ public interface CommunityControllerDocs {
 
     @Operation(summary = "커뮤니티 페이징", description = "커뮤니티 글을 페이징 처리해서 보여줄 API")
     ResponseEntity<?> communityList(Pageable pageable);
+
+    @Operation(summary = "커뮤니티 제목 검색", description = "커뮤니티 제목 검색 페이징 API")
+    ResponseEntity<?> searchCommunity(Pageable pageable, String searchTitle);
 }
