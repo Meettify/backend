@@ -9,6 +9,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -31,7 +32,7 @@ public class ItemController implements ItemControllerDocs{
     private final ModelMapper modelMapper;
 
     // 상품 등록
-    @PostMapping("")
+    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> createItem(@Validated @RequestPart CreateItemDTO item,
                                         @RequestPart(value = "files", required = false)List<MultipartFile> files,
@@ -54,7 +55,7 @@ public class ItemController implements ItemControllerDocs{
 
     // 상품 수정
     @Override
-    @PutMapping("/{itemId}")
+    @PutMapping(value = "/{itemId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> updateItem(@PathVariable Long itemId,
                                         @RequestPart UpdateItemDTO item,

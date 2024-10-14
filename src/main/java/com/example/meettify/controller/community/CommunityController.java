@@ -7,6 +7,7 @@ import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -28,7 +29,7 @@ public class CommunityController implements CommunityControllerDocs {
 
     // 커뮤니티 생성
     @Override
-    @PostMapping("")
+    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> createCommunity(@RequestPart CreateBoardDTO community,
                                              @RequestPart(value = "files", required = false) List<MultipartFile> files,
@@ -46,10 +47,10 @@ public class CommunityController implements CommunityControllerDocs {
 
     // 커뮤니티 수정
     @Override
-    @PutMapping("/{communityId}")
+    @PutMapping(value = "/{communityId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> updateCommunity(@PathVariable Long communityId,
-                                             @RequestPart UpdateBoardDTO community,
+                                             @RequestPart("community") UpdateBoardDTO community,
                                              @RequestPart(value = "files", required = false) List<MultipartFile> files,
                                              @AuthenticationPrincipal UserDetails userDetails) {
         try {
