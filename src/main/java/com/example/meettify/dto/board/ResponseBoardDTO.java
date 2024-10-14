@@ -43,7 +43,7 @@ public class ResponseBoardDTO {
                 .toList();
 
         return ResponseBoardDTO.builder()
-                .boardId(community.getBoardId())
+                .boardId(community.getCommunityId())
                 .title(community.getTitle())
                 .content(community.getContent())
                 .nickName(community.getMember().getNickName())

@@ -18,7 +18,7 @@ import java.util.*;
 public class CommunityEntity extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "community_id")
-    private Long boardId;
+    private Long communityId;
 
     @Column(length = 300, nullable = false)
     private String title;

@@ -18,6 +18,8 @@ import com.example.meettify.repository.community.CommunityRepository;
 import com.example.meettify.repository.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -152,6 +154,35 @@ public class CommunityServiceImpl implements CommunityService {
         } catch (Exception e) {
             log.error("Error deleting community: ", e.getMessage());
             throw new BoardException("커뮤니티 글을 삭제하는데 실패했습니다. :" + e.getMessage());
+        }
+    }
+
+    // 페이징 처리해서 보여줄 커뮤니티 게시글
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ResponseBoardDTO> getBoards(Pageable pageable) {
+        try {
+            Page<CommunityEntity> findAllCommunity = communityRepository.findAll(pageable);
+            log.info("조회된 커뮤니티 수 : {}", findAllCommunity.getTotalElements());
+            log.info("조회된 커뮤니티 : {}", findAllCommunity);
+            return findAllCommunity.map(ResponseBoardDTO::changeCommunity);
+        } catch (Exception e) {
+            log.error("Error retrieving community: ", e.getMessage());
+            throw new BoardException("커뮤니티 글을 가져오는데 실패했습니다. : " + e.getMessage());
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ResponseBoardDTO> searchTitle(Pageable pageable, String searchTitle) {
+        try {
+            Page<CommunityEntity> findAllByTitle = communityRepository.findBySearchTitle(pageable, searchTitle);
+            log.info("조회된 커뮤니티 수 : {}", findAllByTitle.getTotalElements());
+            log.info("조회된 커뮤니티 : {}", findAllByTitle);
+            return findAllByTitle.map(ResponseBoardDTO::changeCommunity);
+        } catch (Exception e) {
+            log.error("Error retrieving community: ", e.getMessage());
+            throw new BoardException("커뮤니티 글을 가져오는데 실패했습니다. : " + e.getMessage());
         }
     }
 }
