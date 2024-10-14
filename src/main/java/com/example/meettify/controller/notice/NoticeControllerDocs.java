@@ -4,6 +4,7 @@ import com.example.meettify.dto.board.CreateBoardDTO;
 import com.example.meettify.dto.board.UpdateBoardDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -20,4 +21,7 @@ public interface NoticeControllerDocs {
 
     @Operation(summary = "공지사항 삭제", description = "공지사항 삭제 API")
     ResponseEntity<?> deleteNotice(Long noticeId);
+
+    @Operation(summary = "공지사항 페이징", description = "공지사항 페이징 API")
+    ResponseEntity<?> noticeList(Pageable pageable);
 }

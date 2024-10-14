@@ -11,6 +11,8 @@ import com.example.meettify.repository.notice.NoticeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -81,6 +83,20 @@ public class NoticeServiceImpl implements NoticeService{
             throw new BoardException("공지사항이 존재하지 않습니다.");
         } catch (Exception e) {
             throw new BoardException("공지사항을 삭제하는데 실패했습니다. : " + e.getMessage());
+        }
+    }
+
+    // 공지사항 페이징
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ResponseBoardDTO> getAllNotice(Pageable pageable) {
+        try {
+            Page<NoticeEntity> findAllNotice = noticeRepository.findAll(pageable);
+            log.info("조회된 공지사항 수 : {}", findAllNotice.getTotalElements());
+            log.info("조회된 공지사항 : {}", findAllNotice);
+            return findAllNotice.map(ResponseBoardDTO::changeNotice);
+        } catch (Exception e) {
+            throw new BoardException("공지사항을 조회하는데 실패했습니다. : " + e.getMessage());
         }
     }
 }
