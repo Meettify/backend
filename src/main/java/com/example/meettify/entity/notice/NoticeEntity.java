@@ -2,6 +2,7 @@ package com.example.meettify.entity.notice;
 
 import com.example.meettify.config.auditing.entity.BaseEntity;
 import com.example.meettify.dto.board.CreateServiceDTO;
+import com.example.meettify.dto.board.UpdateServiceDTO;
 import com.example.meettify.entity.member.MemberEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -31,5 +32,11 @@ public class NoticeEntity extends BaseEntity {
                 .content(notice.getContent())
                 .member(member)
                 .build();
+    }
+
+    // 수정
+    public void updateNotice(UpdateServiceDTO notice) {
+        this.title = notice.getTitle();
+        this.content = notice.getContent();
     }
 }
