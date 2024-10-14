@@ -5,6 +5,8 @@ import com.example.meettify.service.community.CommunityService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -12,7 +14,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Log4j2
@@ -62,7 +66,7 @@ public class CommunityController implements CommunityControllerDocs {
     // 커뮤니티 조회
     @Override
     @GetMapping("/{communityId}")
-    public ResponseEntity<?> itemDetail(@PathVariable Long communityId) {
+    public ResponseEntity<?> communityDetail(@PathVariable Long communityId) {
         try {
             ResponseBoardDTO response = communityService.getBoard(communityId);
             return ResponseEntity.ok(response);
@@ -77,6 +81,36 @@ public class CommunityController implements CommunityControllerDocs {
         try {
             String response = communityService.deleteBoard(communityId);
             return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @Override
+    @GetMapping("/communityList")
+    public ResponseEntity<?> communityList(Pageable pageable) {
+        try {
+            // 검색하지 않을 때는 모든 글을 보여준다.
+            Page<ResponseBoardDTO> community = communityService.getBoards(pageable);
+            Map<String, Object> response = new HashMap<>();
+            // 현재 페이지의 아이템 목록
+            response.put("communities", community.getContent());
+            // 현재 페이지 번호
+            response.put("nowPageNumber", community.getNumber()+1);
+            // 전체 페이지 수
+            response.put("totalPage", community.getTotalPages());
+            // 한 페이지에 출력되는 데이터 개수
+            response.put("pageSize", community.getSize());
+            // 다음 페이지 존재 여부
+            response.put("hasNextPage", community.hasNext());
+            // 이전 페이지 존재 여부
+            response.put("hasPreviousPage", community.hasPrevious());
+            // 첫 번째 페이지 여부
+            response.put("isFirstPage", community.isFirst());
+            // 마지막 페이지 여부
+            response.put("isLastPage", community.isLast());
+
+            return ResponseEntity.ok().body(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

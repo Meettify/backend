@@ -4,6 +4,7 @@ import com.example.meettify.dto.board.CreateBoardDTO;
 import com.example.meettify.dto.board.UpdateBoardDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,8 +25,11 @@ public interface CommunityControllerDocs {
                                       UserDetails userDetails);
 
     @Operation(summary = "커뮤니티 조회", description = "커뮤니티 글을 조회하는 API")
-    ResponseEntity<?> itemDetail(Long communityId);
+    ResponseEntity<?> communityDetail(Long communityId);
 
     @Operation(summary = "커뮤니티 삭제", description = "커뮤니티 글을 삭제하는 API")
     ResponseEntity<?> deleteCommunity(Long communityId);
+
+    @Operation(summary = "커뮤니티 페이징", description = "커뮤니티 글을 페이징 처리해서 보여줄 API")
+    ResponseEntity<?> communityList(Pageable pageable);
 }
