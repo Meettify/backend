@@ -17,4 +17,7 @@ public interface NoticeControllerDocs {
 
     @Operation(summary = "공지사항 상세페이지", description = "공지사항 상세페이지 API")
     ResponseEntity<?> noticeDetail(Long noticeId);
+
+    @Operation(summary = "공지사항 삭제", description = "공지사항 삭제 API")
+    ResponseEntity<?> deleteNotice(Long noticeId);
 }

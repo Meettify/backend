@@ -63,4 +63,16 @@ public class NoticeController implements NoticeControllerDocs {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    // 공지사항 삭제
+    @Override
+    @DeleteMapping("/{noticeId}")
+    public ResponseEntity<?> deleteNotice(@PathVariable Long noticeId) {
+        try {
+            String response = noticeService.deleteNotice(noticeId);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

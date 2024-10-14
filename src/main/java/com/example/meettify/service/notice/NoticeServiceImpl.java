@@ -67,4 +67,20 @@ public class NoticeServiceImpl implements NoticeService{
             throw new BoardException("공지사항 조회하는데 실패했습니다. " + e.getMessage());
         }
     }
+
+    // 공지사항 삭제
+    @Override
+    public String deleteNotice(Long noticeId) {
+        try {
+            NoticeEntity findNotice = noticeRepository.findById(noticeId)
+                    .orElseThrow(() -> new BoardException("공지사항이 존재 하지 않습니다."));
+            if(findNotice != null) {
+                noticeRepository.deleteById(noticeId);
+                return "공지사항을 삭제하는데 성공했습니다.";
+            }
+            throw new BoardException("공지사항이 존재하지 않습니다.");
+        } catch (Exception e) {
+            throw new BoardException("공지사항을 삭제하는데 실패했습니다. : " + e.getMessage());
+        }
+    }
 }

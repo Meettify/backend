@@ -11,4 +11,6 @@ public interface NoticeService {
     ResponseBoardDTO updateBoard(Long noticeId, UpdateServiceDTO notice);
     // 공지 조회
     ResponseBoardDTO getNotice(Long noticeId);
+    // 공지 삭제
+    String deleteNotice(Long noticeId);
 }
