@@ -9,4 +9,6 @@ public interface NoticeService {
     ResponseBoardDTO saveBoard(CreateServiceDTO notice, String adminEmail);
     // 공지 수정
     ResponseBoardDTO updateBoard(Long noticeId, UpdateServiceDTO notice);
+    // 공지 조회
+    ResponseBoardDTO getNotice(Long noticeId);
 }

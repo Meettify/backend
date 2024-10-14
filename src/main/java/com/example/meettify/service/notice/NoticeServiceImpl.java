@@ -52,4 +52,19 @@ public class NoticeServiceImpl implements NoticeService{
             throw new BoardException("공지사항 수정하는데 실패했습니다. : " + e.getMessage());
         }
     }
+
+    // 공지 상세 페이지
+    @Override
+    @Transactional(readOnly = true)
+    public ResponseBoardDTO getNotice(Long noticeId) {
+        try {
+            NoticeEntity findNotice = noticeRepository.findById(noticeId)
+                    .orElseThrow(() -> new BoardException("공지사항이 존재 하지 않습니다."));
+            ResponseBoardDTO responseBoardDTO = ResponseBoardDTO.changeNotice(findNotice);
+            log.info("responseBoardDTO: {}", responseBoardDTO);
+            return responseBoardDTO;
+        } catch (Exception e) {
+            throw new BoardException("공지사항 조회하는데 실패했습니다. " + e.getMessage());
+        }
+    }
 }

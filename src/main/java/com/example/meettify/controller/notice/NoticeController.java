@@ -52,5 +52,15 @@ public class NoticeController implements NoticeControllerDocs {
         }
     }
 
-
+    // 공지사항 상세페이지
+    @Override
+    @GetMapping("/{noticeId}")
+    public ResponseEntity<?> noticeDetail(@PathVariable Long noticeId) {
+        try {
+            ResponseBoardDTO response = noticeService.getNotice(noticeId);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }
