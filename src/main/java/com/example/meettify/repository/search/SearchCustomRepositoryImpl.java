@@ -51,8 +51,8 @@ public class SearchCustomRepositoryImpl {
         List<CommunityEntity> communityResults = queryFactory
                 .selectFrom(QCommunityEntity.communityEntity)
                 .where(keywordLikeCommunity(keyword))
-                .orderBy(QCommunityEntity.communityEntity.boardId.desc())
-                .limit(10)
+                .orderBy(QCommunityEntity.communityEntity.regTime.desc())
+                .limit(5)
                 .fetch();
 
 
