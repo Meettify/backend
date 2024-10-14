@@ -35,4 +35,5 @@ public class TokenEntity {
     public void updateToken(TokenDTO token) {
         this.refreshToken = token.getRefreshToken();
     }
+
 }
