@@ -222,12 +222,11 @@ public class MeetServiceImpl implements MeetService {
     @Override
     public MeetRole getMeetRole(Long meetId, String email) {
         try {
-
             MeetMemberEntity meetMemberEntity = meetMemberRepository.findByEmailAndMeetId(email, meetId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
-
             return meetMemberEntity.getMeetRole();
         } catch (Exception e) {
-            throw new MeetException(e.getMessage());
+            log.error("error : "+e.getMessage());
+            return MeetRole.OUTSIDER;
         }
     }
 
