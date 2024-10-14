@@ -132,6 +132,26 @@ public class CommunityServiceImpl implements CommunityService {
             log.error("Error retrieving community: ", e.getMessage());
             throw new BoardException("상세 페이지를 조회하는데 실패했습니다.");
         }
+    }
 
+    @Override
+    public String deleteBoard(Long communityId) {
+        try {
+            CommunityEntity findCommunity = communityRepository.findById(communityId)
+                    .orElseThrow(() -> new BoardException("Community not found with id: " + communityId));
+            log.info("findCommunity: {}", findCommunity);
+            if(findCommunity != null) {
+                communityRepository.deleteById(communityId);
+                findCommunity.getImages().forEach(
+                        img -> s3ImageUploadService.deleteFile(img.getUploadImgPath(), img.getUploadImgName())
+                );
+                findCommunity.removeImg();
+                return "삭제가 완료되었습니다.";
+            }
+            throw new BoardException("커뮤니티 글이 존재하지 않습니다. 잘못된 id를 보냈습니다.");
+        } catch (Exception e) {
+            log.error("Error deleting community: ", e.getMessage());
+            throw new BoardException("커뮤니티 글을 삭제하는데 실패했습니다. :" + e.getMessage());
+        }
     }
 }
