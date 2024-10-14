@@ -4,8 +4,6 @@ package com.example.meettify.controller.meet;
 import com.example.meettify.dto.meet.*;
 import com.example.meettify.dto.meetBoard.MeetBoardSummaryDTO;
 import com.example.meettify.service.meet.MeetService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -97,7 +95,7 @@ public class MeetController implements  MeetControllerDocs{
                     .meetRole(meetRole)
                     .build());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(MeetRole.EXPEL);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("게시글 상세조회 실패 : "+e.getMessage());
         }
     }
 
