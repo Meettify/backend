@@ -1,6 +1,7 @@
 package com.example.meettify.dto.board;
 
 import com.example.meettify.entity.community.CommunityEntity;
+import com.example.meettify.entity.notice.NoticeEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -36,7 +37,7 @@ public class ResponseBoardDTO {
     private List<ResponseBoardImgDTO> images = new ArrayList<>();
 
 
-    // 엔티티를 DTO로 변환하는 작업
+    // 커뮤니티 엔티티를 DTO로 변환하는 작업
     public static ResponseBoardDTO changeCommunity(CommunityEntity community) {
         List<ResponseBoardImgDTO> images = community.getImages().stream()
                 .map(ResponseBoardImgDTO::changeDTO)
@@ -49,6 +50,17 @@ public class ResponseBoardDTO {
                 .nickName(community.getMember().getNickName())
                 .regTime(community.getRegTime())
                 .images(images)
+                .build();
+    }
+
+    // 공지사항 엔티티를 DTO로 변환하는 작업
+    public static ResponseBoardDTO changeNotice(NoticeEntity notice) {
+        return ResponseBoardDTO.builder()
+                .boardId(notice.getNoticeId())
+                .title(notice.getTitle())
+                .content(notice.getContent())
+                .nickName(notice.getMember().getNickName())
+                .regTime(notice.getRegTime())
                 .build();
     }
 }

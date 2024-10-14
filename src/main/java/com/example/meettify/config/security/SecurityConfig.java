@@ -61,17 +61,27 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // API 권한 설정
                         .requestMatchers("/", "/**").permitAll()
+                        // 유저
                         .requestMatchers("/api/v1/members/**").permitAll() // 모든 멤버 관련 요청 허용
                         .requestMatchers(HttpMethod.PUT, "/api/v1/members/").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/members/{memberId}").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/notice/").hasRole("ADMIN")
+                        // 공지사항
+                        .requestMatchers("/api/v1/notice/*").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/notice").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/notice/{noticeId}").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/notice/{noticeId}").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/notice/*").permitAll()
+                        // 상품
                         .requestMatchers("/api/v1/items/*").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/items/").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/items").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/items/{itemId}").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/items/{itemId}").hasRole("ADMIN")
+                        // 커뮤니티
+                        .requestMatchers("/api/v1/community/*").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/community").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/community/{communityId}").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/community/{communityId}").hasAnyRole("USER", "ADMIN")
+
+
                         .requestMatchers(HttpMethod.GET, "/api/v1/cart/{cartId}").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/v1/cart/").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/cart/{cartId}").hasAnyRole("USER", "ADMIN")
