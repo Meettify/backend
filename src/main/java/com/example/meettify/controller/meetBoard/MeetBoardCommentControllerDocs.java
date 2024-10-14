@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Tag(name = "meetBoardComment", description = "모임 게시판 댓글 API")
 public interface MeetBoardCommentControllerDocs {
 
-    @Operation(summary = "댓글 수정", description = "댓글 등록하는 API")
+    @Operation(summary = "댓글 등록", description = "댓글 등록하는 API")
     public ResponseEntity<?> postMeetBoardComment(
             @PathVariable Long meetId,
             @PathVariable Long meetBoardId,
