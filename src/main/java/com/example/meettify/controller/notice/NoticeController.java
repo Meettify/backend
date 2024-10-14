@@ -19,6 +19,7 @@ public class NoticeController implements NoticeControllerDocs {
     private final NoticeService noticeService;
     private final ModelMapper modelMapper;
 
+    // 공지 등록
     @Override
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -38,6 +39,7 @@ public class NoticeController implements NoticeControllerDocs {
     // 공지 수정
     @Override
     @PutMapping("/{noticeId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> updateNotice(@PathVariable Long noticeId,
                                           @RequestBody UpdateBoardDTO notice,
                                           @AuthenticationPrincipal UserDetails userDetails) {
@@ -67,6 +69,7 @@ public class NoticeController implements NoticeControllerDocs {
     // 공지사항 삭제
     @Override
     @DeleteMapping("/{noticeId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> deleteNotice(@PathVariable Long noticeId) {
         try {
             String response = noticeService.deleteNotice(noticeId);
