@@ -20,17 +20,23 @@ public class MeetSummaryDTO {
     private String location;
     private Category category;
     private Long maximum;
+    private Long current;
     private List<String> imageUrls;
     private boolean isMember;
 
 
     public static MeetSummaryDTO changeDTO(MeetEntity meet, Set<Long> memberMeetIds) {
+        long current = 1;
+        if(meet.getMeetMember() != null)
+             current = meet.getMeetMember().stream().filter(m->m.getMeetRole() ==MeetRole.ADMIN || m.getMeetRole() == MeetRole.MEMBER ).count();
+
         return MeetSummaryDTO.builder()
                 .meetId(meet.getMeetId())
                 .meetName(meet.getMeetName())
                 .location(meet.getMeetLocation())
                 .category(meet.getMeetCategory())
                 .maximum(meet.getMeetMaximum())
+                .current(current)
                 .imageUrls(meet.getMeetImages().stream()
                         .map(MeetImageEntity::getUploadFileUrl)
                         .collect(Collectors.toList()))
