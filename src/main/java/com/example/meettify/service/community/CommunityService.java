@@ -20,4 +20,7 @@ public interface CommunityService {
 
     // 커뮤니티 상세 페이지
     ResponseBoardDTO getBoard(Long communityId);
+
+    // 커뮤니티 삭제
+    String deleteBoard(Long communityId);
 }

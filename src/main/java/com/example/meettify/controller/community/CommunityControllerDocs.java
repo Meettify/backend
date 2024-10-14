@@ -25,4 +25,7 @@ public interface CommunityControllerDocs {
 
     @Operation(summary = "커뮤니티 조회", description = "커뮤니티 글을 조회하는 API")
     ResponseEntity<?> itemDetail(Long communityId);
+
+    @Operation(summary = "커뮤니티 삭제", description = "커뮤니티 글을 삭제하는 API")
+    ResponseEntity<?> deleteCommunity(Long communityId);
 }

@@ -70,4 +70,15 @@ public class CommunityController implements CommunityControllerDocs {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @Override
+    @DeleteMapping("/{communityId}")
+    public ResponseEntity<?> deleteCommunity(Long communityId) {
+        try {
+            String response = communityService.deleteBoard(communityId);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

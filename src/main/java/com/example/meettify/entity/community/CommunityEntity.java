@@ -64,4 +64,8 @@ public class CommunityEntity extends BaseEntity {
         Set<Long> remainImgIdSet = new HashSet<>(remainImgId); // O(1) 조회를 위한 Set 사용
         this.images.removeIf(img -> !remainImgIdSet.contains(img.getItemImgId()));
     }
+
+    public void removeImg() {
+        this.images = new ArrayList<>();
+    }
 }
