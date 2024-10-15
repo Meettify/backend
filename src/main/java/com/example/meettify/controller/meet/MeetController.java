@@ -34,6 +34,7 @@ public class MeetController implements  MeetControllerDocs{
     private final MeetService meetService;
 
     //모임 리스트 보기
+    @Override
     @GetMapping
     public ResponseEntity<?> getList(Pageable pageable, MeetSearchCondition condition,
                                          @AuthenticationPrincipal UserDetails userDetails) {
@@ -73,6 +74,7 @@ public class MeetController implements  MeetControllerDocs{
     }
 
     //모임 상세 정보
+    @Override
     @GetMapping("{meetId}")
     public ResponseEntity<?> getDetail(@PathVariable Long meetId, @AuthenticationPrincipal UserDetails userDetails) {
         try {
@@ -101,6 +103,7 @@ public class MeetController implements  MeetControllerDocs{
 
 
     //모임 권한 정보 가져오기
+    @Override
     @GetMapping("/{meetId}/role")
     public ResponseEntity<?> getMeetRole(@PathVariable Long meetId, @AuthenticationPrincipal UserDetails userDetails) {
         try {
@@ -116,6 +119,7 @@ public class MeetController implements  MeetControllerDocs{
     }
 
     //모임 가입 회원 리스트 보기
+    @Override
     @GetMapping("/{meetId}/members")
     public ResponseEntity<?> getMeetMemberList(@PathVariable Long meetId, @AuthenticationPrincipal UserDetails userDetails) {
         try {
@@ -131,6 +135,7 @@ public class MeetController implements  MeetControllerDocs{
     }
 
     //가입한 모임 리스트 보기
+    @Override
     @GetMapping("/myMeet")
     public ResponseEntity<?> getMyMeet(@AuthenticationPrincipal UserDetails userDetails) {
         try {
@@ -146,6 +151,7 @@ public class MeetController implements  MeetControllerDocs{
     }
 
     //관리자 모임 회원 Role변경하기
+    @Override
     @PutMapping("/admin/{meetId}/{meetMemberId}")
     public ResponseEntity<?> updateMeetMemberRole(@PathVariable Long meetId,
                                                   @PathVariable Long meetMemberId,
@@ -168,6 +174,7 @@ public class MeetController implements  MeetControllerDocs{
 
 
     //마이페이지에서 모임 탈퇴하는 API
+    @Override
     @PutMapping("/{meetId}/{meetMemberId}")
     public ResponseEntity<?> leaveMeet(@PathVariable Long meetId,
                                        @PathVariable Long meetMemberId,
@@ -188,7 +195,7 @@ public class MeetController implements  MeetControllerDocs{
         }
     }
 
-
+    @Override
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     // BindingResult 타입의 매개변수를 지정하면 BindingResult 매개 변수가 입력값 검증 예외를 처리한다.
     public ResponseEntity<?> makeMeet(@Valid @RequestPart("meet") RequestMeetDTO meet,
@@ -213,6 +220,7 @@ public class MeetController implements  MeetControllerDocs{
     }
 
 
+    @Override
     @DeleteMapping("/{meetId}")
     public ResponseEntity<?> delete(@PathVariable Long meetId, @AuthenticationPrincipal UserDetails userDetails) {
 
@@ -227,6 +235,7 @@ public class MeetController implements  MeetControllerDocs{
     }
 
     //모임 권한 여부 확인
+    @Override
     @GetMapping("/{meetId}/members/edit-permission")
     public ResponseEntity<?> checkEditPermission(@PathVariable Long meetId, @AuthenticationPrincipal UserDetails userDetails) {
         try {
@@ -244,6 +253,7 @@ public class MeetController implements  MeetControllerDocs{
     }
 
     //모임 변경하기
+    @Override
     @PutMapping(value ="/{meetId}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public ResponseEntity<?> updateMeet(@PathVariable Long meetId,
                                         @Valid @RequestPart("updateMeetDTO")UpdateMeetDTO updateMeetDTO,
@@ -269,6 +279,8 @@ public class MeetController implements  MeetControllerDocs{
     }
 
 
+    //가입 신청하는 기능
+    @Override
     @PostMapping("/{meetId}/members")
     public ResponseEntity<?> applyToJoinMeet(@PathVariable Long meetId, @AuthenticationPrincipal UserDetails userDetails) {
         try {
