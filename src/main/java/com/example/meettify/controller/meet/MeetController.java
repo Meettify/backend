@@ -256,7 +256,7 @@ public class MeetController implements  MeetControllerDocs{
             boolean hasPermission = meetService.checkEditPermission(meetId, email);
             if (hasPermission) {
                 // ServiceDTODTO 바꾸는 로직
-                UpdateMeetServiceDTO updateMeetServiceDTO = UpdateMeetServiceDTO.makeServiceDTO(updateMeetDTO);
+                UpdateMeetServiceDTO updateMeetServiceDTO = UpdateMeetServiceDTO.makeServiceDTO(meetId,updateMeetDTO);
                 // 응답ServiceDTO 받기
                 ResponseMeetDTO response = meetService.update(updateMeetServiceDTO, newImages);
                 //반환하기
