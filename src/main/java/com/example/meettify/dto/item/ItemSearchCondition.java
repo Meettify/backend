@@ -2,6 +2,7 @@ package com.example.meettify.dto.item;
 
 import com.example.meettify.dto.item.status.ItemStatus;
 import com.example.meettify.dto.meet.category.Category;
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,7 +21,9 @@ import lombok.ToString;
 public class ItemSearchCondition {
     private String name;
     private Category category;
+    @Min(value = 0, message = "최소값의 최소 가격은 0원입니다.")
     private  int minPrice;
+    @Min(value = 0, message = "최대값의 최소 가격은 0원입니다.")
     private int maxPrice;
     private ItemStatus status;
 }

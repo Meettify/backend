@@ -93,13 +93,18 @@ public class ItemRepositoryImpl implements CustomItemRepository {
     private BooleanBuilder priceEq(int startPrice, int endPrice) {
         BooleanBuilder builder = new BooleanBuilder();
 
+        // 둘 다 0일 경우, 조건 없이 검색
+        if (startPrice == 0 && endPrice == 0) {
+            return null; // 모든 상품 검색
+        }
+
         // 가격 시작 조건이 유효한 경우 추가
-        if (startPrice >= 0) { // 0 이상의 가격도 유효하다면 >= 0으로 수정
+        if (startPrice > 0) { // startPrice가 0보다 클 경우에만 추가
             builder.and(priceGoe(startPrice));
         }
 
         // 가격 끝 조건이 유효한 경우 추가
-        if (endPrice >= 0) { // 0 이상의 가격도 유효하다면 >= 0으로 수정
+        if (endPrice > 0) { // endPrice가 0보다 클 경우에만 추가
             builder.and(priceLoe(endPrice));
         }
 
