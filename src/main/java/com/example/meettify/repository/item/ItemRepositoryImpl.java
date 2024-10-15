@@ -75,18 +75,15 @@ public class ItemRepositoryImpl implements CustomItemRepository {
     }
 
     private BooleanExpression titleEq(String title) {
-        // title이 null인 경우, isNull() 사용
-        return title == null ? itemEntity.itemName.isNull() : itemEntity.itemName.likeIgnoreCase("%" + title + "%");
+        return (title == null || !hasText(title)) ? null : itemEntity.itemName.likeIgnoreCase("%" + title + "%");
     }
 
     private BooleanExpression statusEq(ItemStatus status) {
-        // status가 null인 경우, isNull() 사용
-        return status == null ? itemEntity.itemStatus.isNull() : itemEntity.itemStatus.eq(status);
+        return status == null ? null : itemEntity.itemStatus.eq(status);
     }
 
     private BooleanExpression categoryEq(Category category) {
-        // category가 null인 경우, isNull() 사용
-        return category == null ? itemEntity.itemCategory.isNull() : itemEntity.itemCategory.eq(category);
+        return category == null ? null : itemEntity.itemCategory.eq(category);
     }
 
 
