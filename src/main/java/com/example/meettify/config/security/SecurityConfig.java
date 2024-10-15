@@ -116,10 +116,8 @@ public class SecurityConfig {
 
 
 
-
-
-
                         .requestMatchers("/api/v1/search/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/v1/search").permitAll()
 
 
 
