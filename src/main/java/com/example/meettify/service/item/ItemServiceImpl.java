@@ -148,9 +148,10 @@ public class ItemServiceImpl implements ItemService {
     // 여러 상품을 페이징 처리해서 가져오는 메서드 : 여러 조건 검색 가능
     @Override
     @Transactional(readOnly = true)
-    public Page<ResponseItemDTO> searchItems(ItemSearchCondition condition, Pageable pageable) {
+    public Page<ResponseItemDTO> searchItems(ItemSearchCondition condition, Pageable page) {
         try {
-            Page<ItemEntity> itemsPage = itemRepository.itemsSearch(condition, pageable);
+            Page<ItemEntity> itemsPage = itemRepository.itemsSearch(condition, page);
+            log.info("itemsPage: {}", itemsPage);
 
             if (itemsPage.isEmpty()) {
                 throw new EntityNotFoundException("조건에 만족하는 상품이 없습니다.");

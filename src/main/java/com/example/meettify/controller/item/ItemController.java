@@ -108,7 +108,7 @@ public class ItemController implements ItemControllerDocs{
     // http://localhost:8080/api/v1/items/search?name=당&page=1&sort=itemId,asc&place=종로
     @Override
     @GetMapping("/search")
-    public ResponseEntity<?> searchItemsConditions(Pageable pageable,
+    public ResponseEntity<?> searchItemsConditions(Pageable page,
                                                    @RequestParam(value = "title", required = false) String title,
                                                    @RequestParam(value = "minPrice", required = false, defaultValue = "0") int minPrice,
                                                    @RequestParam(value = "maxPrice", required = false, defaultValue = "0") int maxPrice,
@@ -123,7 +123,7 @@ public class ItemController implements ItemControllerDocs{
                     .category(category)
                     .status(status)
                     .build();
-            Page<ResponseItemDTO> items = itemService.searchItems(condition, pageable);
+            Page<ResponseItemDTO> items = itemService.searchItems(condition, page);
             log.info("condition : " + condition);
             log.info("상품 조회 {}", items);
 
