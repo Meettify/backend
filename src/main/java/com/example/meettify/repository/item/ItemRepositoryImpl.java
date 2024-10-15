@@ -36,25 +36,27 @@ public class ItemRepositoryImpl implements CustomItemRepository {
     @Override
     public Page<ItemEntity> itemsSearch(ItemSearchCondition condition, Pageable pageable) {
         try {
-            BooleanBuilder builder = new BooleanBuilder()
-                    .and(titleEq(condition.getTitle()))
-                    .and(statusEq(condition.getStatus()))
-                    .and(categoryEq(condition.getCategory()))
-                    .and(priceEq(condition.getMinPrice(), condition.getMaxPrice()));
 
             log.info("offset: {}, size: {}", pageable.getOffset(), pageable.getPageSize());
 
             JPAQuery<ItemEntity> content = queryFactory
                     .selectFrom(itemEntity)
-                    .where(builder)
+                    .where(titleEq(condition.getTitle()),
+                            statusEq(condition.getStatus()),
+                            priceEq(condition.getMinPrice(), condition.getMaxPrice()),
+                            categoryEq(condition.getCategory()))
                     .offset(pageable.getOffset())
                     .limit(pageable.getPageSize());
+            log.debug("Content query: {}", content.fetch());
 
             // count 쿼리 : 상품의 총 개수를 가져오기 위해서
             JPAQuery<Long> count = queryFactory
                     .select(itemEntity.count())
                     .from(itemEntity)
-                    .where(builder);
+                    .where(titleEq(condition.getTitle()),
+                            statusEq(condition.getStatus()),
+                            priceEq(condition.getMinPrice(), condition.getMaxPrice()),
+                            categoryEq(condition.getCategory()));
 
             log.info("count: {}", count::fetchOne);
 
@@ -85,14 +87,12 @@ public class ItemRepositoryImpl implements CustomItemRepository {
                 return new PageImpl<>(Collections.emptyList(), pageable, 0); // 빈 페이지 반환
             }
 
-            log.debug("Content query: {}", content); // 쿼리 로그 출력
-            log.debug("Count query: {}", count);     // 쿼리 로그 출력
 
             // 페이지 시작이거나 컨텐츠의 사이즈가 페이지 사이즈보다 작거나
             // 마지막 페이지일 때 카운트 쿼리를 호출하지 않는다.
             return PageableExecutionUtils.getPage(result, pageable, count::fetchOne);
         } catch (Exception e) {
-            log.error("Index out of bounds while fetching items: "+ e.getMessage());
+            log.error("Index out of bounds while fetching items: " + e.getMessage());
             throw new ItemException("상품을 조회하는데 실패했습니다. : " + e.getMessage());
         }
     }
