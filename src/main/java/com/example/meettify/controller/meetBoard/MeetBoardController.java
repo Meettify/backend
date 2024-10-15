@@ -30,6 +30,7 @@ public class MeetBoardController implements MeetBoardControllerDocs{
     private final MeetBoardService meetBoardService;
 
     //모임의 모임 게시판 리스트 조회
+    @Override
     @GetMapping("list/{meetId}")
     public ResponseEntity<?> getList(
             @PathVariable Long meetId,
@@ -61,7 +62,8 @@ public class MeetBoardController implements MeetBoardControllerDocs{
     }
 
     //모임 게시판 상세 조회
-    @GetMapping("{meetBoardId}")
+    @Override
+    @GetMapping("/{meetBoardId}")
     public ResponseEntity<?> getDetail(@PathVariable Long meetBoardId, @AuthenticationPrincipal UserDetails userDetails) {
         try {
             String email = userDetails.getUsername();
@@ -80,6 +82,7 @@ public class MeetBoardController implements MeetBoardControllerDocs{
     }
 
     //모임 게시물 등록
+    @Override
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> makeBoard(@Validated @RequestPart("meetBoard") RequestMeetBoardDTO meetBoard,
                                        @RequestPart(value = "images" , required = false) List<MultipartFile> images,
@@ -100,6 +103,7 @@ public class MeetBoardController implements MeetBoardControllerDocs{
         }
     }
 
+    @Override
     @DeleteMapping("{meetId}/{meetBoardId}")
     public ResponseEntity<?> deleteBoard(@PathVariable Long meetId, @PathVariable Long meetBoardId, @AuthenticationPrincipal UserDetails userDetails) {
         try {
@@ -111,7 +115,8 @@ public class MeetBoardController implements MeetBoardControllerDocs{
         }
     }
 
-    @PutMapping("{meetBoardId}")
+    @Override
+    @PutMapping("/{meetBoardId}")
     public ResponseEntity<?> updateBoard(
             @PathVariable Long meetBoardId,
             @Valid  @RequestPart("updateBoard") UpdateRequestMeetBoardDTO requestMeetBoardDTO,

@@ -48,6 +48,7 @@ public class MeetBoardCommentController implements   MeetBoardCommentControllerD
     }
 
     //댓글 삭제하는 API
+    @Override
     @DeleteMapping("/{meetBoardCommentId}")
     public ResponseEntity<?> deleteMeetBoardComment(@PathVariable Long meetBoardCommentId, @AuthenticationPrincipal UserDetails userDetails) {
         try {

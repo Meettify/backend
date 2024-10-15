@@ -102,11 +102,23 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST,"/api/v1/meets/{meetId}/members").hasAnyRole("USER", "ADMIN")
 
 
-
-
+                        .requestMatchers("/api/v1/meetBoards/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/v1/meetBoards/list/{meetId}").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET,"/api/v1/meetBoards/{meetBoardId}").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST,"/api/v1/meetBoards/").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE,"/api/v1/meetBoards/{meetId}/{meetBoardId}").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT,"/api/v1/meetBoards/{meetBoardId}").hasAnyRole("USER", "ADMIN")
 
 
                         .requestMatchers("/api/v1/meetBoards/**").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/api/v1/meetBoards/meets/{meetId}/boards/{meetBoardId}/comments").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE,"/api/v1/meetBoards/{meetBoardCommentId}").hasAnyRole("USER", "ADMIN")
+
+
+
+
+
+
                         .requestMatchers("/api/v1/search/**").permitAll()
 
 
