@@ -74,28 +74,28 @@ public class ItemRepositoryImpl implements CustomItemRepository {
         return PageableExecutionUtils.getPage(result, pageable, count::fetchOne);
     }
 
-    // 조건을 동적으로 처리하기 위해
     private BooleanExpression titleEq(String title) {
-        // likeIgnoreCase는 QueryDsl에서 문자열에 대한 대소문자를 무시하고 부분 일치 검색을 수행하는 메서드
-        return hasText(title) ? itemEntity.itemName.likeIgnoreCase("%" + title + "%") : null;
+        // title이 null인 경우, isNull() 사용
+        return title == null ? itemEntity.itemName.isNull() : itemEntity.itemName.likeIgnoreCase("%" + title + "%");
     }
 
-    // 상품 상태에 따른 검색
     private BooleanExpression statusEq(ItemStatus status) {
-        return hasText(String.valueOf(status)) ? itemEntity.itemStatus.eq(status) : null;
+        // status가 null인 경우, isNull() 사용
+        return status == null ? itemEntity.itemStatus.isNull() : itemEntity.itemStatus.eq(status);
     }
 
-    // 상품 카테고리별 검색
     private BooleanExpression categoryEq(Category category) {
-        return hasText(String.valueOf(category)) ? itemEntity.itemCategory.eq(category) : null;
+        // category가 null인 경우, isNull() 사용
+        return category == null ? itemEntity.itemCategory.isNull() : itemEntity.itemCategory.eq(category);
     }
+
 
     private BooleanBuilder priceEq(int startPrice, int endPrice) {
         BooleanBuilder builder = new BooleanBuilder();
 
         // 둘 다 0일 경우, 조건 없이 검색
         if (startPrice == 0 && endPrice == 0) {
-            return null; // 모든 상품 검색
+            return builder; // 모든 상품 검색
         }
 
         // 가격 시작 조건이 유효한 경우 추가
@@ -109,7 +109,7 @@ public class ItemRepositoryImpl implements CustomItemRepository {
         }
 
         // 조건이 없을 경우 null 반환
-        return builder.hasValue() ? builder : null;
+        return builder;
     }
 
     // 이상
