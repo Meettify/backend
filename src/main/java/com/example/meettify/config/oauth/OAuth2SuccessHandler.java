@@ -78,7 +78,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             // 소셜 로그인 정보를 반환
             SocialDTO responseMember = SocialDTO.changeDTO(findMember);
 
-            TokenDTO responseToken = TokenDTO.changeDTO(saveToken, token.getAccessToken());
+            TokenDTO responseToken = TokenDTO.changeDTO(saveToken, token.getAccessToken(), findMember.getMemberRole());
 
             //  body에 담는다.
             Map<String, Object> responseBody = new HashMap<>();

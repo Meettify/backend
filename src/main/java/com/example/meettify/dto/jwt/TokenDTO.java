@@ -1,5 +1,6 @@
 package com.example.meettify.dto.jwt;
 
+import com.example.meettify.dto.member.role.UserRole;
 import com.example.meettify.entity.jwt.TokenEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -24,15 +25,18 @@ public class TokenDTO {
     private String memberEmail;
     @Schema(description = "유저 번호")
     private Long memberId;
+    @Schema(description = "유저 권한")
+    private UserRole memberRole;
 
 
-    public static TokenDTO changeDTO(TokenEntity token, String accessToken) {
+    public static TokenDTO changeDTO(TokenEntity token, String accessToken, UserRole memberRole) {
         return TokenDTO.builder()
                 .grantType(token.getGrantType())
                 .accessToken(accessToken)
                 .refreshToken(token.getRefreshToken())
                 .memberEmail(token.getEmail())
                 .memberId(token.getMemberId())
+                .memberRole(memberRole)
                 .build();
     }
 }
