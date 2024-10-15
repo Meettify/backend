@@ -92,6 +92,7 @@ public class ItemRepositoryImpl implements CustomItemRepository {
             return PageableExecutionUtils.getPage(result, pageable, count::fetchOne);
         } catch (Exception e) {
             log.error("Index out of bounds while fetching items: "+ e.getMessage());
+            return new PageImpl<>(Collections.emptyList(), pageable, 0); // 빈 페이지 반환
         }
     }
 
