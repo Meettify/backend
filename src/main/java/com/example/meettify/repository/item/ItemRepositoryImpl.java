@@ -30,12 +30,16 @@ public class ItemRepositoryImpl implements CustomItemRepository {
 
     @Override
     public Page<ItemEntity> itemsSearch(ItemSearchCondition condition, Pageable pageable) {
+        BooleanBuilder builder = new BooleanBuilder()
+                .and(nameEq(condition.getName()))
+                .and(statusEq(condition.getStatus()))
+                .and(categoryEq(condition.getCategory()))
+                .and(priceEq(condition.getMinPrice(), condition.getMaxPrice()));
+
+
         JPAQuery<ItemEntity> content = queryFactory
                 .selectFrom(itemEntity)
-                .where(nameEq(condition.getName()),
-                        statusEq(condition.getStatus()),
-                        categoryEq(condition.getCategory()),
-                        priceEq(condition.getMinPrice(), condition.getMaxPrice()))
+                .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
 
@@ -43,10 +47,7 @@ public class ItemRepositoryImpl implements CustomItemRepository {
         JPAQuery<Long> count = queryFactory
                 .select(itemEntity.count())
                 .from(itemEntity)
-                .where(nameEq(condition.getName()),
-                        statusEq(condition.getStatus()),
-                        categoryEq(condition.getCategory()),
-                        priceEq(condition.getMinPrice(), condition.getMaxPrice()));
+                .where(builder);
 
         for (Sort.Order order : pageable.getSort()) {
             // PathBuilder는 주어진 엔티티의 동적인 경로를 생성하는데 사용된다.
@@ -89,24 +90,30 @@ public class ItemRepositoryImpl implements CustomItemRepository {
         return hasText(String.valueOf(category)) ? itemEntity.itemCategory.eq(category) : null;
     }
 
+    private BooleanBuilder priceEq(int startPrice, int endPrice) {
+        BooleanBuilder builder = new BooleanBuilder();
+
+        // 가격 시작 조건이 유효한 경우 추가
+        if (startPrice >= 0) { // 0 이상의 가격도 유효하다면 >= 0으로 수정
+            builder.and(priceGoe(startPrice));
+        }
+
+        // 가격 끝 조건이 유효한 경우 추가
+        if (endPrice >= 0) { // 0 이상의 가격도 유효하다면 >= 0으로 수정
+            builder.and(priceLoe(endPrice));
+        }
+
+        // 조건이 없을 경우 null 반환
+        return builder.hasValue() ? builder : null;
+    }
+
     // 이상
     private BooleanExpression priceGoe(int startPrice) {
-        return startPrice != 0 ? itemEntity.itemPrice.goe(startPrice) : null;
+        return itemEntity.itemPrice.goe(startPrice);
     }
 
     // 이하
     private BooleanExpression priceLoe(int endPrice) {
-        return endPrice != 0 ? itemEntity.itemPrice.loe(endPrice) : null;
-    }
-
-    private BooleanBuilder priceEq(int startPrice, int endPrice) {
-        BooleanBuilder builder = new BooleanBuilder();
-        if (startPrice != 0) {
-            builder.and(priceGoe(startPrice));
-        }
-        if (endPrice != 0) {
-            builder.and(priceLoe(endPrice));
-        }
-        return builder;
+        return itemEntity.itemPrice.loe(endPrice);
     }
 }

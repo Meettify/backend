@@ -106,7 +106,8 @@ public class ItemController implements ItemControllerDocs{
     // http://localhost:8080/api/v1/items/search?name=당&page=1&sort=itemId,asc&place=종로
     @Override
     @GetMapping("/search")
-    public ResponseEntity<?> searchItemsConditions(Pageable pageable, ItemSearchCondition condition) {
+    public ResponseEntity<?> searchItemsConditions(Pageable pageable,
+                                                   ItemSearchCondition condition) {
         try {
             log.info("condition : " + condition);
             Page<ResponseItemDTO> items = itemService.searchItems(condition, pageable);
