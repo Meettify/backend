@@ -85,8 +85,41 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/cart/{cartId}").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/v1/cart/").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/cart/{cartId}").hasAnyRole("USER", "ADMIN")
+
+                        //모임
                         .requestMatchers("/api/v1/meets/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/v1/meets/").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/v1/meets/{meetId}").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/v1/meets/{meetId}/role").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET,"/api/v1/meets/{meetId}/members").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET,"/api/v1/meets/myMeet").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT,"/api/v1/meets/admin/{meetId}/{meetMemberId}").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT,"/api/v1/meets/{meetId}/{meetMemberId}").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST,"/api/v1/meets/").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE,"/api/v1/meets/{meetId}").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET,"/api/v1/meets/{meetId}/members/edit-permission").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT,"/api/v1/meets/{meetId}/").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST,"/api/v1/meets/{meetId}/members").hasAnyRole("USER", "ADMIN")
+
+
                         .requestMatchers("/api/v1/meetBoards/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/v1/meetBoards/list/{meetId}").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET,"/api/v1/meetBoards/{meetBoardId}").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST,"/api/v1/meetBoards/").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE,"/api/v1/meetBoards/{meetId}/{meetBoardId}").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT,"/api/v1/meetBoards/{meetBoardId}").hasAnyRole("USER", "ADMIN")
+
+
+                        .requestMatchers("/api/v1/meetBoards/**").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/api/v1/meetBoards/meets/{meetId}/boards/{meetBoardId}/comments").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE,"/api/v1/meetBoards/{meetBoardCommentId}").hasAnyRole("USER", "ADMIN")
+
+
+
+                        .requestMatchers("/api/v1/search/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/v1/search").permitAll()
+
+
 
 
                         // Swagger 리소스에 대한 접근 허용

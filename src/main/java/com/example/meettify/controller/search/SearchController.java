@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class SearchController implements  SearchControllerDocs {
     private final SearchService searchService;
 
+    @Override
     @GetMapping
     public ResponseEntity<?> getSearch(SearchCondition searchCondition, @AuthenticationPrincipal UserDetails userDetails) {
         try {
