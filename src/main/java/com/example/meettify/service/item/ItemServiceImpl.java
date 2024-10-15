@@ -14,12 +14,14 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 import static java.util.Objects.requireNonNull;
@@ -151,10 +153,12 @@ public class ItemServiceImpl implements ItemService {
     public Page<ResponseItemDTO> searchItems(ItemSearchCondition condition, Pageable page) {
         try {
             Page<ItemEntity> itemsPage = itemRepository.itemsSearch(condition, page);
-            log.info("itemsPage: {}", itemsPage);
+            log.info("itemsPage: {}", itemsPage.getContent());
+            log.info("itemsPage.size: {}", itemsPage.getContent().size());
 
             if (itemsPage.isEmpty()) {
-                throw new EntityNotFoundException("조건에 만족하는 상품이 없습니다.");
+                // 데이터가 없는 경우 빈 페이지를 반환
+                return new PageImpl<>(Collections.emptyList(), page, 0);
             }
 
             return itemsPage.map(ResponseItemDTO::changeDTO);

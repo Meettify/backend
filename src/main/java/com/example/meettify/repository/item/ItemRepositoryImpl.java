@@ -13,65 +13,86 @@ import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collections;
 import java.util.List;
 
 import static com.example.meettify.entity.item.QItemEntity.itemEntity;
 import static org.springframework.util.StringUtils.hasText;
 
 @RequiredArgsConstructor
+@Log4j2
 public class ItemRepositoryImpl implements CustomItemRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
     public Page<ItemEntity> itemsSearch(ItemSearchCondition condition, Pageable pageable) {
-        BooleanBuilder builder = new BooleanBuilder()
-                .and(titleEq(condition.getTitle()))
-                .and(statusEq(condition.getStatus()))
-                .and(categoryEq(condition.getCategory()))
-                .and(priceEq(condition.getMinPrice(), condition.getMaxPrice()));
+        try {
+            BooleanBuilder builder = new BooleanBuilder()
+                    .and(titleEq(condition.getTitle()))
+                    .and(statusEq(condition.getStatus()))
+                    .and(categoryEq(condition.getCategory()))
+                    .and(priceEq(condition.getMinPrice(), condition.getMaxPrice()));
+
+            log.info("offset: {}, size: {}", pageable.getOffset(), pageable.getPageSize());
+
+            JPAQuery<ItemEntity> content = queryFactory
+                    .selectFrom(itemEntity)
+                    .where(builder)
+                    .offset(pageable.getOffset())
+                    .limit(pageable.getPageSize());
+
+            // count 쿼리 : 상품의 총 개수를 가져오기 위해서
+            JPAQuery<Long> count = queryFactory
+                    .select(itemEntity.count())
+                    .from(itemEntity)
+                    .where(builder);
+
+            log.info("count: {}", count);
 
 
-        JPAQuery<ItemEntity> content = queryFactory
-                .selectFrom(itemEntity)
-                .where(builder)
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize());
+            for (Sort.Order order : pageable.getSort()) {
+                // PathBuilder는 주어진 엔티티의 동적인 경로를 생성하는데 사용된다.
+                PathBuilder pathBuilder = new PathBuilder(
+                        // 엔티티의 타입 정보를 얻어옴
+                        itemEntity.getType(),
+                        // 엔티티의 메타데이터를 얻어온다.
+                        itemEntity.getMetadata());
+                // Order 객체에서 정의된 속성에 해당하는 동적 경로를 얻어온다.
+                // 예를 들어, 만약 order.getProperty()가 memberName이라면
+                // pathBuilder.get("memberName")은 엔티티의 memberName 속성에 대한 동적 경로를 반환
+                // 이 동적 경로는 QueryDsl에서 사용되어 정렬 조건을 만들 때 활용된다.
+                PathBuilder sort = pathBuilder.get(order.getProperty());
 
-        // count 쿼리 : 상품의 총 개수를 가져오기 위해서
-        JPAQuery<Long> count = queryFactory
-                .select(itemEntity.count())
-                .from(itemEntity)
-                .where(builder);
+                content.orderBy(
+                        new OrderSpecifier<>(
+                                order.isDescending() ? Order.DESC : Order.ASC,
+                                sort != null ? sort : itemEntity.itemId
+                        ));
+            }
+            List<ItemEntity> result = content.fetch();
 
-        for (Sort.Order order : pageable.getSort()) {
-            // PathBuilder는 주어진 엔티티의 동적인 경로를 생성하는데 사용된다.
-            PathBuilder pathBuilder = new PathBuilder(
-                    // 엔티티의 타입 정보를 얻어옴
-                    itemEntity.getType(),
-                    // 엔티티의 메타데이터를 얻어온다.
-                    itemEntity.getMetadata());
-            // Order 객체에서 정의된 속성에 해당하는 동적 경로를 얻어온다.
-            // 예를 들어, 만약 order.getProperty()가 memberName이라면
-            // pathBuilder.get("memberName")은 엔티티의 memberName 속성에 대한 동적 경로를 반환
-            // 이 동적 경로는 QueryDsl에서 사용되어 정렬 조건을 만들 때 활용된다.
-            PathBuilder sort = pathBuilder.get(order.getProperty());
+            // 결과 리스트의 크기를 체크하여 적절한 처리
+            if (result.isEmpty()) {
+                return new PageImpl<>(Collections.emptyList(), pageable, 0); // 빈 페이지 반환
+            }
 
-            content.orderBy(
-                    new OrderSpecifier<>(
-                            order.isDescending() ? Order.DESC : Order.ASC,
-                            sort != null ? sort : itemEntity.itemId
-                    ));
+            log.debug("Content query: {}", content); // 쿼리 로그 출력
+            log.debug("Count query: {}", count);     // 쿼리 로그 출력
+
+            // 페이지 시작이거나 컨텐츠의 사이즈가 페이지 사이즈보다 작거나
+            // 마지막 페이지일 때 카운트 쿼리를 호출하지 않는다.
+            return PageableExecutionUtils.getPage(result, pageable, count::fetchOne);
+        } catch (Exception e) {
+            log.error("Index out of bounds while fetching items: "+ e.getMessage());
         }
-        List<ItemEntity> result = content.fetch();
-        // 페이지 시작이거나 컨텐츠의 사이즈가 페이지 사이즈보다 작거나
-        // 마지막 페이지일 때 카운트 쿼리를 호출하지 않는다.
-        return PageableExecutionUtils.getPage(result, pageable, count::fetchOne);
     }
 
     private BooleanExpression titleEq(String title) {
