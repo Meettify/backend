@@ -25,9 +25,9 @@ public class UpdateMeetServiceDTO {
     private List<String> existingImageUrls; // 기존 이미지 URL 리스트 추가
     private Category category;
 
-    public static UpdateMeetServiceDTO makeServiceDTO(UpdateMeetDTO meet) {
+    public static UpdateMeetServiceDTO makeServiceDTO(Long meetId,UpdateMeetDTO meet) {
         return UpdateMeetServiceDTO.builder()
-                .meetId(meet.getMeetId())
+                .meetId(meetId)
                 .meetName(meet.getMeetName())
                 .meetDescription(meet.getMeetDescription())
                 .meetMaximum(meet.getMeetMaximum())

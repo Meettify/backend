@@ -19,9 +19,6 @@ import java.util.List;
 @Builder
 public class UpdateMeetDTO {
 
-    @Schema(description = "모임 번호", example = "1")
-    @NotNull(message = "모임 번호는 반드시 전달 받아야합니다.")
-    private Long meetId;
 
     @Schema(description = "모임 이름", example = "런닝 크루")
     @NotNull(message = "모임명은 필수입니다.")
