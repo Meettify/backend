@@ -154,6 +154,7 @@ public class ItemServiceImpl implements ItemService {
     public Page<ResponseItemDTO> searchItems(ItemSearchCondition condition, Pageable page) {
         try {
             long count = itemRepository.countItems(condition);
+            log.info("count: {}", count);
 
             // 요청한 페이지가 전체 아이템 수에 비해 유효한지 확인
             // 현재 요청된 페이지 번호(page.getPageNumber())가 전체 아이템 수를 페이지 사이즈로 나눈 값에 1을 더한 것보다 크거나 같은지 확인
@@ -166,6 +167,7 @@ public class ItemServiceImpl implements ItemService {
             Page<ItemEntity> itemsPage = itemRepository.itemsSearch(condition, page);
             log.info("itemsPage: {}", itemsPage.getContent());
             log.info("itemsPage.size: {}", itemsPage.getContent().size());
+            log.info("itemsPage.number: {}", itemsPage.getNumber());
 
             if (itemsPage.isEmpty()) {
                 // 데이터가 없는 경우 빈 페이지를 반환
