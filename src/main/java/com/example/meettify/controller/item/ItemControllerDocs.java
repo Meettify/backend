@@ -3,6 +3,8 @@ package com.example.meettify.controller.item;
 import com.example.meettify.dto.item.CreateItemDTO;
 import com.example.meettify.dto.item.ItemSearchCondition;
 import com.example.meettify.dto.item.UpdateItemDTO;
+import com.example.meettify.dto.item.status.ItemStatus;
+import com.example.meettify.dto.meet.category.Category;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Pageable;
@@ -34,5 +36,10 @@ public interface ItemControllerDocs {
     ResponseEntity<?> deleteItem(Long itemId, UserDetails userDetails);
 
     @Operation(summary = "상품 페이징", description = "여러 조건으로 상품을 페이징 처리해서 가져오는 API")
-    ResponseEntity<?> searchItemsConditions(Pageable pageable, ItemSearchCondition condition);
+    ResponseEntity<?> searchItemsConditions(Pageable pageable,
+                                            String title,
+                                            int minPrice,
+                                            int maxPrice,
+                                            Category category,
+                                            ItemStatus status);
 }

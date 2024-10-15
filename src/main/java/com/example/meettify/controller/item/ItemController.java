@@ -1,6 +1,8 @@
 package com.example.meettify.controller.item;
 
 import com.example.meettify.dto.item.*;
+import com.example.meettify.dto.item.status.ItemStatus;
+import com.example.meettify.dto.meet.category.Category;
 import com.example.meettify.service.item.ItemService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -107,10 +109,22 @@ public class ItemController implements ItemControllerDocs{
     @Override
     @GetMapping("/search")
     public ResponseEntity<?> searchItemsConditions(Pageable pageable,
-                                                   ItemSearchCondition condition) {
+                                                   @RequestParam(value = "title", required = false) String title,
+                                                   @RequestParam(value = "minPrice", required = false, defaultValue = "0") int minPrice,
+                                                   @RequestParam(value = "maxPrice", required = false, defaultValue = "0") int maxPrice,
+                                                   @RequestParam(value = "category", required = false) Category category,
+                                                   @RequestParam(value = "status", required = false)ItemStatus status
+                                                   ) {
         try {
-            log.info("condition : " + condition);
+            ItemSearchCondition condition = ItemSearchCondition.builder()
+                    .title(title)
+                    .minPrice(minPrice)
+                    .maxPrice(maxPrice)
+                    .category(category)
+                    .status(status)
+                    .build();
             Page<ResponseItemDTO> items = itemService.searchItems(condition, pageable);
+            log.info("condition : " + condition);
             log.info("상품 조회 {}", items);
 
             Map<String, Object> response = new HashMap<>();

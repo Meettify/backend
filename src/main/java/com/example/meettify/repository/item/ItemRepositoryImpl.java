@@ -31,7 +31,7 @@ public class ItemRepositoryImpl implements CustomItemRepository {
     @Override
     public Page<ItemEntity> itemsSearch(ItemSearchCondition condition, Pageable pageable) {
         BooleanBuilder builder = new BooleanBuilder()
-                .and(nameEq(condition.getName()))
+                .and(titleEq(condition.getTitle()))
                 .and(statusEq(condition.getStatus()))
                 .and(categoryEq(condition.getCategory()))
                 .and(priceEq(condition.getMinPrice(), condition.getMaxPrice()));
@@ -75,9 +75,9 @@ public class ItemRepositoryImpl implements CustomItemRepository {
     }
 
     // 조건을 동적으로 처리하기 위해
-    private BooleanExpression nameEq(String name) {
+    private BooleanExpression titleEq(String title) {
         // likeIgnoreCase는 QueryDsl에서 문자열에 대한 대소문자를 무시하고 부분 일치 검색을 수행하는 메서드
-        return hasText(name) ? itemEntity.itemName.likeIgnoreCase("%" + name + "%") : null;
+        return hasText(title) ? itemEntity.itemName.likeIgnoreCase("%" + title + "%") : null;
     }
 
     // 상품 상태에 따른 검색

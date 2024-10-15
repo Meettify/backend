@@ -19,11 +19,9 @@ import lombok.ToString;
 @AllArgsConstructor
 @Builder
 public class ItemSearchCondition {
-    private String name;
+    private String title;
     private Category category;
-    @Min(value = 0, message = "최소값의 최소 가격은 0원입니다.")
     private  int minPrice;
-    @Min(value = 0, message = "최대값의 최소 가격은 0원입니다.")
     private int maxPrice;
     private ItemStatus status;
 }
