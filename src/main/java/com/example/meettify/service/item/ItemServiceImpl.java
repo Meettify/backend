@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -152,6 +153,16 @@ public class ItemServiceImpl implements ItemService {
     @Transactional(readOnly = true)
     public Page<ResponseItemDTO> searchItems(ItemSearchCondition condition, Pageable page) {
         try {
+            long count = itemRepository.countItems(condition);
+
+            // 요청한 페이지가 전체 아이템 수에 비해 유효한지 확인
+            // 현재 요청된 페이지 번호(page.getPageNumber())가 전체 아이템 수를 페이지 사이즈로 나눈 값에 1을 더한 것보다 크거나 같은지 확인
+            // +1를 하는 이유는 페이지 번호가 0부터 시작하기 때문에 전체 페이지 수를 구할 때 마지막 페이지의 인덱스가 0이 아니라 1부터 시작하는 형태로 맞추기 위해서
+            if (page.getPageNumber() >= (count / page.getPageSize()) + 1) {
+                // 유효하지 않은 경우, 마지막 페이지로 설정
+                page = PageRequest.of((int) (count / page.getPageSize()), page.getPageSize());
+            }
+
             Page<ItemEntity> itemsPage = itemRepository.itemsSearch(condition, page);
             log.info("itemsPage: {}", itemsPage.getContent());
             log.info("itemsPage.size: {}", itemsPage.getContent().size());

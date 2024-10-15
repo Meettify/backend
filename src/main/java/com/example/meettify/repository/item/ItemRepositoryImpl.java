@@ -5,6 +5,7 @@ import com.example.meettify.dto.item.status.ItemStatus;
 import com.example.meettify.dto.meet.category.Category;
 import com.example.meettify.entity.item.ItemEntity;
 import com.example.meettify.entity.item.QItemEntity;
+import com.example.meettify.exception.item.ItemException;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
@@ -55,7 +56,7 @@ public class ItemRepositoryImpl implements CustomItemRepository {
                     .from(itemEntity)
                     .where(builder);
 
-            log.info("count: {}", count);
+            log.info("count: {}", count::fetchOne);
 
 
             for (Sort.Order order : pageable.getSort()) {
@@ -92,7 +93,7 @@ public class ItemRepositoryImpl implements CustomItemRepository {
             return PageableExecutionUtils.getPage(result, pageable, count::fetchOne);
         } catch (Exception e) {
             log.error("Index out of bounds while fetching items: "+ e.getMessage());
-            return new PageImpl<>(Collections.emptyList(), pageable, 0); // 빈 페이지 반환
+            throw new ItemException("상품을 조회하는데 실패했습니다. : " + e.getMessage());
         }
     }
 
@@ -139,5 +140,19 @@ public class ItemRepositoryImpl implements CustomItemRepository {
     // 이하
     private BooleanExpression priceLoe(int endPrice) {
         return itemEntity.itemPrice.loe(endPrice);
+    }
+
+    public long countItems(ItemSearchCondition condition) {
+        BooleanBuilder builder = new BooleanBuilder()
+                .and(titleEq(condition.getTitle()))
+                .and(statusEq(condition.getStatus()))
+                .and(categoryEq(condition.getCategory()))
+                .and(priceEq(condition.getMinPrice(), condition.getMaxPrice()));
+
+        return queryFactory
+                .select(itemEntity.count())
+                .from(itemEntity)
+                .where(builder)
+                .fetchOne();
     }
 }

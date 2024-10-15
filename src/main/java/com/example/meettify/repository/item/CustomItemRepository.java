@@ -12,4 +12,5 @@ import org.springframework.data.domain.Pageable;
 * */
 public interface CustomItemRepository {
     Page<ItemEntity> itemsSearch(ItemSearchCondition condition, Pageable pageable);
+    long countItems(ItemSearchCondition condition);
 }
