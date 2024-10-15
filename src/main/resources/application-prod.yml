@@ -33,6 +33,7 @@ spring:
         # LAZY 로딩 시 기본적으로 사용되는 배치 크기를 설정
         # fetch join 사용시 최적화
         default_batch_fetch_size: 100
+        use_sql_comments: true
 
   data:
     web:
@@ -141,3 +142,4 @@ info:
   app:
     name: meettify
     company: B.F
+
