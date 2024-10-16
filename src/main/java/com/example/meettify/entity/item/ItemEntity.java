@@ -39,6 +39,7 @@ public class ItemEntity extends BaseEntity {
     private String itemDetails;
 
     @Column(name = "item_status")
+    @Enumerated(EnumType.STRING)
     private ItemStatus itemStatus;
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -51,6 +52,7 @@ public class ItemEntity extends BaseEntity {
     private int itemCount;
 
     @Column(name = "item_category")
+    @Enumerated(EnumType.STRING)
     private Category itemCategory;
 
 

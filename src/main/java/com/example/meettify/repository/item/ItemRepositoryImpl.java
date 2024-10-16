@@ -98,7 +98,7 @@ public class ItemRepositoryImpl implements CustomItemRepository {
     }
 
     private BooleanExpression titleEq(String title) {
-        return (title == null || !hasText(title)) ? null : itemEntity.itemName.likeIgnoreCase("%" + title + "%");
+        return (!hasText(title)) ? null : itemEntity.itemName.likeIgnoreCase("%" + title + "%");
     }
 
     private BooleanExpression statusEq(ItemStatus status) {
