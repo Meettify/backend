@@ -13,12 +13,12 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @Log4j2
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/comment")
+@RequestMapping("/api/v1/{communityId}/comment")
 public class CommentController implements CommentControllerDocs{
     private final CommentService commentService;
 
     @Override
-    @PostMapping("/{communityId}")
+    @PostMapping("")
     public ResponseEntity<?> createComment(@PathVariable Long communityId,
                                            @RequestBody CreateCommentDTO comment,
                                            @AuthenticationPrincipal UserDetails userDetails) {
