@@ -27,7 +27,7 @@ public class ResponseMeetMemberDTO {
     public static ResponseMeetMemberDTO changeDTO(MeetMemberEntity meetMember) {
         return ResponseMeetMemberDTO.builder()
                 .meetMemberId(meetMember.getMeetMemberId())
-                .nickName(meetMember.getMeetEntity().getMeetName())
+                .nickName(meetMember.getMemberEntity().getNickName())
                 .meetRole(meetMember.getMeetRole())
                 .joinDate(meetMember.getJoinDate())
                 .build();
