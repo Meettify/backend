@@ -56,7 +56,7 @@ public class MeetEntity extends BaseEntity {
         // 변경 요구사항을 가지고 해당 메소드 실행
         this.meetName = updateMeetDTO.getMeetName() == null ? this.meetName : updateMeetDTO.getMeetName();
         this.meetCategory = updateMeetDTO.getCategory() == null ? this.meetCategory : updateMeetDTO.getCategory();
-        this.meetLocation = updateMeetDTO.getMeetLocation() == null ? this.meetDescription : updateMeetDTO.getMeetDescription();
+        this.meetLocation = updateMeetDTO.getMeetLocation() == null ? this.meetLocation : updateMeetDTO.getMeetLocation();
         // 새 이미지 -> 등록
         // 기존 이미지 -> 전달 받은 거 유지, 전달 안 받은 거 삭제
         this.meetMaximum = updateMeetDTO.getMeetMaximum() == null ? this.meetMaximum : updateMeetDTO.getMeetMaximum();
