@@ -23,6 +23,8 @@ public class ResponseCommentDTO {
     private String comment;
     @Schema(description = "답변 등록 시간")
     private LocalDateTime createdAt;
+    @Schema(description = "작성 닉네임")
+    private String nickName;
 
     // DTO로 변환
     public static ResponseCommentDTO changeDTO(CommentEntity comment) {
@@ -30,6 +32,7 @@ public class ResponseCommentDTO {
                 .commentId(comment.getCommentId())
                 .comment(comment.getComment())
                 .createdAt(comment.getRegTime())
+                .nickName(comment.getCreatedBy())
                 .build();
     }
 }

@@ -2,6 +2,7 @@ package com.example.meettify.controller.comment;
 
 import com.example.meettify.dto.comment.CreateCommentDTO;
 import com.example.meettify.dto.comment.ResponseCommentDTO;
+import com.example.meettify.dto.comment.UpdateCommentDTO;
 import com.example.meettify.service.comment.CommentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class CommentController implements CommentControllerDocs{
     private final CommentService commentService;
 
+    // 댓글 생성
     @Override
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
@@ -27,6 +29,22 @@ public class CommentController implements CommentControllerDocs{
         try {
             String email = userDetails.getUsername();
             ResponseCommentDTO response = commentService.createComment(communityId, comment, email);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @Override
+    @PutMapping("/{commentId}")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> updateComment(@PathVariable Long commentId,
+                                           @PathVariable Long communityId,
+                                           @RequestBody UpdateCommentDTO comment,
+                                           @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            String email = userDetails.getUsername();
+            ResponseCommentDTO response = commentService.updateComment(commentId, communityId, comment, email);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
