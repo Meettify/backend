@@ -82,7 +82,7 @@ public class CommentController implements CommentControllerDocs{
     }
 
     @Override
-    @GetMapping("/{commentId}")
+    @GetMapping("/{commentId}/commentList")
     public ResponseEntity<?> getComments(@PathVariable Long communityId, Pageable page) {
         try {
             Page<ResponseCommentDTO> comments = commentService.getComments(page, communityId);
