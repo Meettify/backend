@@ -1,7 +1,6 @@
 package com.example.meettify.service.notice;
 
 import com.example.meettify.dto.board.CreateServiceDTO;
-import com.example.meettify.dto.board.ResponseCommentDTO;
 import com.example.meettify.dto.board.ResponseNoticeDTO;
 import com.example.meettify.dto.board.UpdateServiceDTO;
 import com.example.meettify.entity.member.MemberEntity;

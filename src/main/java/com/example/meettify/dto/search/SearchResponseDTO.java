@@ -1,6 +1,6 @@
 package com.example.meettify.dto.search;
 
-import com.example.meettify.dto.board.ResponseCommentDTO;
+import com.example.meettify.dto.board.ResponseCommunityDTO;
 import com.example.meettify.dto.item.ResponseItemDTO;
 import com.example.meettify.dto.meet.MeetSummaryDTO;
 import lombok.*;
@@ -15,13 +15,13 @@ import java.util.List;
 public class SearchResponseDTO {
     List<MeetSummaryDTO> meetSummaryDTOList;
     List<ResponseItemDTO> responseItemDTOList;
-    List<ResponseCommentDTO> responseBoardList;
+    List<ResponseCommunityDTO> responseBoardList;
 
-    public static SearchResponseDTO changeDTO( List<MeetSummaryDTO> meetSummaryDTO, List<ResponseItemDTO> responseItemDTOList, List<ResponseCommentDTO> responseCommentDTOS){
+    public static SearchResponseDTO changeDTO( List<MeetSummaryDTO> meetSummaryDTO, List<ResponseItemDTO> responseItemDTOList, List<ResponseCommunityDTO> responseCommunityDTOS){
         return SearchResponseDTO.builder()
                 .meetSummaryDTOList(meetSummaryDTO)
                 .responseItemDTOList(responseItemDTOList)
-                .responseBoardList(responseCommentDTOS)
+                .responseBoardList(responseCommunityDTOS)
                 .build();
     }
 
