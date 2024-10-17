@@ -11,5 +11,7 @@ public interface CommentService {
     ResponseCommentDTO updateComment(Long communityId, Long commentId, UpdateCommentDTO comment, String email );
     // 댓글 삭제
     String deleteComment(Long commentId);
+    // 댓글 조회
+    ResponseCommentDTO getComment(Long commentId);
 
 }

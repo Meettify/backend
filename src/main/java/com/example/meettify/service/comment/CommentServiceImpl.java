@@ -84,4 +84,17 @@ public class CommentServiceImpl implements  CommentService{
             throw new CommentException("댓글 삭제하는데 실패했습니다.");
         }
     }
+
+    // 댓글 상세페이지
+    @Override
+    @Transactional(readOnly = true)
+    public ResponseCommentDTO getComment(Long commentId) {
+        try {
+            CommentEntity findComment = commentRepository.findById(commentId)
+                    .orElseThrow(() -> new CommentException("댓글 조회해씁니다."));
+            return ResponseCommentDTO.changeDTO(findComment);
+        } catch (Exception e) {
+            throw new CommentException("댓글 조회하는데 실패했습니다.");
+        }
+    }
 }

@@ -64,4 +64,15 @@ public class CommentController implements CommentControllerDocs{
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @Override
+    @GetMapping("/{commentId}")
+    public ResponseEntity<?> getComments(@PathVariable Long communityId) {
+        try {
+            ResponseCommentDTO response = commentService.getComment(communityId);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

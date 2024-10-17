@@ -17,4 +17,7 @@ public interface CommentControllerDocs {
 
     @Operation(summary = "댓글 삭제", description = "댓글 삭제하는 API")
     ResponseEntity<?> deleteComment(Long commentId);
+
+    @Operation(summary = "댓글 상세페이지", description = "댓글 조회 API")
+    ResponseEntity<?> getComments(Long communityId);
 }
