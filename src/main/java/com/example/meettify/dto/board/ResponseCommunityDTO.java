@@ -1,7 +1,6 @@
 package com.example.meettify.dto.board;
 
 import com.example.meettify.entity.community.CommunityEntity;
-import com.example.meettify.entity.notice.NoticeEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -15,7 +14,7 @@ import java.util.List;
 @ToString
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-public class ResponseCommentDTO {
+public class ResponseCommunityDTO {
     @Schema(description = "게시글 번호", example = "1")
     private Long boardId;
 
@@ -38,12 +37,12 @@ public class ResponseCommentDTO {
 
 
     // 커뮤니티 엔티티를 DTO로 변환하는 작업
-    public static ResponseCommentDTO changeCommunity(CommunityEntity community) {
+    public static ResponseCommunityDTO changeCommunity(CommunityEntity community) {
         List<ResponseBoardImgDTO> images = community.getImages().stream()
                 .map(ResponseBoardImgDTO::changeDTO)
                 .toList();
 
-        return ResponseCommentDTO.builder()
+        return ResponseCommunityDTO.builder()
                 .boardId(community.getCommunityId())
                 .title(community.getTitle())
                 .content(community.getContent())

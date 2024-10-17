@@ -38,7 +38,7 @@ public class CommunityController implements CommunityControllerDocs {
             String email = userDetails.getUsername();
             CreateServiceDTO changeServiceDTO = modelMapper.map(community, CreateServiceDTO.class);
             log.info("service DTO: {}", changeServiceDTO);
-            ResponseCommentDTO response = communityService.saveBoard(changeServiceDTO, files, email);
+            ResponseCommunityDTO response = communityService.saveBoard(changeServiceDTO, files, email);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -57,7 +57,7 @@ public class CommunityController implements CommunityControllerDocs {
             String email = userDetails.getUsername();
             log.info("기능 사용중인 email" + email);
             UpdateServiceDTO updateServiceDTO = modelMapper.map(community, UpdateServiceDTO.class);
-            ResponseCommentDTO response = communityService.updateBoard(communityId, updateServiceDTO, files);
+            ResponseCommunityDTO response = communityService.updateBoard(communityId, updateServiceDTO, files);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -69,7 +69,7 @@ public class CommunityController implements CommunityControllerDocs {
     @GetMapping("/{communityId}")
     public ResponseEntity<?> communityDetail(@PathVariable Long communityId) {
         try {
-            ResponseCommentDTO response = communityService.getBoard(communityId);
+            ResponseCommunityDTO response = communityService.getBoard(communityId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -92,7 +92,7 @@ public class CommunityController implements CommunityControllerDocs {
     public ResponseEntity<?> communityList(Pageable pageable) {
         try {
             // 검색하지 않을 때는 모든 글을 보여준다.
-            Page<ResponseCommentDTO> community = communityService.getBoards(pageable);
+            Page<ResponseCommunityDTO> community = communityService.getBoards(pageable);
             Map<String, Object> response = new HashMap<>();
             // 현재 페이지의 아이템 목록
             response.put("communities", community.getContent());
@@ -123,7 +123,7 @@ public class CommunityController implements CommunityControllerDocs {
                                              @RequestParam(value = "searchTitle") String searchTitle) {
         try {
             // 검색하지 않을 때는 모든 글을 보여준다.
-            Page<ResponseCommentDTO> community = communityService.getBoards(pageable);
+            Page<ResponseCommunityDTO> community = communityService.getBoards(pageable);
             Map<String, Object> response = new HashMap<>();
             // 현재 페이지의 아이템 목록
             response.put("communities", community.getContent());
