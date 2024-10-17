@@ -2,15 +2,11 @@ package com.example.meettify.service.community;
 
 import com.example.meettify.config.s3.S3ImageUploadService;
 import com.example.meettify.dto.board.CreateServiceDTO;
-import com.example.meettify.dto.board.ResponseBoardDTO;
+import com.example.meettify.dto.board.ResponseCommentDTO;
 import com.example.meettify.dto.board.ResponseBoardImgDTO;
 import com.example.meettify.dto.board.UpdateServiceDTO;
-import com.example.meettify.dto.item.ResponseItemDTO;
-import com.example.meettify.dto.item.ResponseItemImgDTO;
 import com.example.meettify.entity.community.CommunityEntity;
 import com.example.meettify.entity.community.CommunityImgEntity;
-import com.example.meettify.entity.item.ItemEntity;
-import com.example.meettify.entity.item.ItemImgEntity;
 import com.example.meettify.entity.member.MemberEntity;
 import com.example.meettify.exception.board.BoardException;
 import com.example.meettify.exception.item.ItemException;
@@ -41,9 +37,9 @@ public class CommunityServiceImpl implements CommunityService {
 
     // 커뮤니티 생성
     @Override
-    public ResponseBoardDTO saveBoard(CreateServiceDTO board,
-                                      List<MultipartFile> files,
-                                      String memberEmail) {
+    public ResponseCommentDTO saveBoard(CreateServiceDTO board,
+                                        List<MultipartFile> files,
+                                        String memberEmail) {
         try {
             if(board != null) {
                 // 회원 조회
@@ -58,7 +54,7 @@ public class CommunityServiceImpl implements CommunityService {
                 communityEntity.getImages().addAll(images);
                 // DB에 저장
                 CommunityEntity saveCommunity = communityRepository.save(communityEntity);
-                return ResponseBoardDTO.changeCommunity(saveCommunity);
+                return ResponseCommentDTO.changeCommunity(saveCommunity);
             }
             throw new BoardException("게시글 생성 요총서헝이 없습니다.");
         } catch (Exception e) {
@@ -80,9 +76,9 @@ public class CommunityServiceImpl implements CommunityService {
 
     // 커뮤니티 수정
     @Override
-    public ResponseBoardDTO updateBoard(Long communityId,
-                                        UpdateServiceDTO community,
-                                        List<MultipartFile> files) {
+    public ResponseCommentDTO updateBoard(Long communityId,
+                                          UpdateServiceDTO community,
+                                          List<MultipartFile> files) {
         try {
             CommunityEntity findCommunity = communityRepository.findById(communityId)
                     .orElseThrow(() -> new ItemException("Community not found with id: " + communityId));
@@ -114,7 +110,7 @@ public class CommunityServiceImpl implements CommunityService {
             // 새로운 이미지들 추가
             findCommunity.updateCommunity(community, images);
             CommunityEntity saveItem = communityRepository.save(findCommunity);
-            return ResponseBoardDTO.changeCommunity(saveItem);
+            return ResponseCommentDTO.changeCommunity(saveItem);
         } catch (Exception e) {
             log.error("Error updating item: ", e);
             throw new ItemException("Failed to update the item.");
@@ -124,12 +120,12 @@ public class CommunityServiceImpl implements CommunityService {
     // 커뮤니티 상세 페이지
     @Override
     @Transactional(readOnly = true)
-    public ResponseBoardDTO getBoard(Long communityId) {
+    public ResponseCommentDTO getBoard(Long communityId) {
         try {
             CommunityEntity findCommunity = communityRepository.findById(communityId)
                     .orElseThrow(() -> new BoardException("Community not found with id: " + communityId));
             log.info("findCommunity: {}", findCommunity);
-            return ResponseBoardDTO.changeCommunity(findCommunity);
+            return ResponseCommentDTO.changeCommunity(findCommunity);
         } catch (Exception e) {
             log.error("Error retrieving community: ", e.getMessage());
             throw new BoardException("상세 페이지를 조회하는데 실패했습니다.");
@@ -160,12 +156,12 @@ public class CommunityServiceImpl implements CommunityService {
     // 페이징 처리해서 보여줄 커뮤니티 게시글
     @Override
     @Transactional(readOnly = true)
-    public Page<ResponseBoardDTO> getBoards(Pageable pageable) {
+    public Page<ResponseCommentDTO> getBoards(Pageable pageable) {
         try {
             Page<CommunityEntity> findAllCommunity = communityRepository.findAll(pageable);
             log.info("조회된 커뮤니티 수 : {}", findAllCommunity.getTotalElements());
             log.info("조회된 커뮤니티 : {}", findAllCommunity);
-            return findAllCommunity.map(ResponseBoardDTO::changeCommunity);
+            return findAllCommunity.map(ResponseCommentDTO::changeCommunity);
         } catch (Exception e) {
             log.error("Error retrieving community: ", e.getMessage());
             throw new BoardException("커뮤니티 글을 가져오는데 실패했습니다. : " + e.getMessage());
@@ -174,12 +170,12 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<ResponseBoardDTO> searchTitle(Pageable pageable, String searchTitle) {
+    public Page<ResponseCommentDTO> searchTitle(Pageable pageable, String searchTitle) {
         try {
             Page<CommunityEntity> findAllByTitle = communityRepository.findBySearchTitle(pageable, searchTitle);
             log.info("조회된 커뮤니티 수 : {}", findAllByTitle.getTotalElements());
             log.info("조회된 커뮤니티 : {}", findAllByTitle);
-            return findAllByTitle.map(ResponseBoardDTO::changeCommunity);
+            return findAllByTitle.map(ResponseCommentDTO::changeCommunity);
         } catch (Exception e) {
             log.error("Error retrieving community: ", e.getMessage());
             throw new BoardException("커뮤니티 글을 가져오는데 실패했습니다. : " + e.getMessage());
