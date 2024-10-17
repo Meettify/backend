@@ -1,7 +1,6 @@
 package com.example.meettify.repository.search;
 
 import com.example.meettify.dto.search.SearchCondition;
-import com.example.meettify.dto.search.SearchEntityDTO;
 import com.example.meettify.entity.community.CommunityEntity;
 import com.example.meettify.entity.community.QCommunityEntity;
 import com.example.meettify.entity.item.ItemEntity;
@@ -15,6 +14,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashMap;
 import java.util.List;
 import static org.springframework.util.StringUtils.hasText;
 
@@ -26,7 +26,7 @@ public class SearchCustomRepositoryImpl {
     private final JPAQueryFactory queryFactory;
 
     // 통합 검색 메서드
-    public SearchEntityDTO searchAll(SearchCondition searchCondition) {
+    public HashMap<String,List> searchAll(SearchCondition searchCondition) {
 
         QMeetImageEntity meetImages = QMeetImageEntity.meetImageEntity;
         QItemImgEntity itemImages =  QItemImgEntity.itemImgEntity;
@@ -55,9 +55,14 @@ public class SearchCustomRepositoryImpl {
                 .limit(5)
                 .fetch();
 
+         HashMap<String,List> response = new HashMap<String, List>();
+
+         response.put("meet",meetResults);
+        response.put("item",itemResults);
+        response.put("community",communityResults);
 
         // 결과를 SearchResponseDTO에 매핑하여 반환
-        return SearchEntityDTO.changeDTO(meetResults, itemResults, communityResults);
+        return response;
     }
 
     // MeetEntity 필터링 조건
