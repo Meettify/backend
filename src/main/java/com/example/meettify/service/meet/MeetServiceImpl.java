@@ -191,6 +191,14 @@ public class MeetServiceImpl implements MeetService {
         MeetEntity meet = meetRepository.findById(meetId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 모임이 존재하지 않습니다."));
 
+        // 현재 인원수 구하기
+        Long currCount  = meetMemberRepository.findMeetMembersWithMeetAndMember(meetId).stream()
+                .filter(e-> e.getMeetRole() == MeetRole.ADMIN || e.getMeetRole() == MeetRole.MEMBER ).count();
+
+        if (currCount >= meet.getMeetMaximum()) {
+            throw new MeetException("인원수가 다 차서 더 이상 인원을 받을 수 없습니다. \n현재인원 : "+currCount+" \n맥스인원 : "+meet.getMeetMaximum());
+        }
+
         // MeetMemberEntity에 새로운 가입 요청 저장
         MeetMemberEntity meetMember = MeetMemberEntity.builder()
                 .meetEntity(meet)
