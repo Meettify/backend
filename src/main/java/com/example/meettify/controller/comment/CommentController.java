@@ -35,6 +35,7 @@ public class CommentController implements CommentControllerDocs{
         }
     }
 
+    // 댓글 수정
     @Override
     @PutMapping("/{commentId}")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
@@ -45,6 +46,19 @@ public class CommentController implements CommentControllerDocs{
         try {
             String email = userDetails.getUsername();
             ResponseCommentDTO response = commentService.updateComment(commentId, communityId, comment, email);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // 댓글 삭제
+    @Override
+    @DeleteMapping("/{commentId}")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> deleteComment(@PathVariable Long commentId) {
+        try {
+            String response = commentService.deleteComment(commentId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

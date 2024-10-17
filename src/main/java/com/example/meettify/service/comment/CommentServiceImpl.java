@@ -67,4 +67,21 @@ public class CommentServiceImpl implements  CommentService{
             throw new CommentException("댓글 수정하는데 실패했습니다. : " + e.getMessage());
         }
     }
+
+    // 댓글 삭제
+    @Override
+    public String deleteComment(Long commentId) {
+        try {
+            CommentEntity findComment = commentRepository.findById(commentId)
+                    .orElseThrow(() -> new CommentException("댓글을 찾지 못했습니다."));
+
+            if(findComment != null) {
+                commentRepository.deleteById(commentId);
+                return "댓글 삭제 성공";
+            }
+            throw new CommentException("댓글이 존재하지 않습니다. 잘못된 id를 보냈습니다.");
+        } catch (Exception e) {
+            throw new CommentException("댓글 삭제하는데 실패했습니다.");
+        }
+    }
 }
