@@ -13,6 +13,8 @@ import com.example.meettify.repository.community.CommunityRepository;
 import com.example.meettify.repository.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -95,6 +97,17 @@ public class CommentServiceImpl implements  CommentService{
             return ResponseCommentDTO.changeDTO(findComment);
         } catch (Exception e) {
             throw new CommentException("댓글 조회하는데 실패했습니다.");
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ResponseCommentDTO> getComments(Pageable page, Long communityId) {
+        try {
+            Page<CommentEntity> findAllComment = commentRepository.findAll(page, communityId);
+            return findAllComment.map(ResponseCommentDTO::changeDTO);
+        } catch (Exception e) {
+            throw new CommentException("상품을 페이징 처리해서 가져오는데 실패했습니다.");
         }
     }
 }

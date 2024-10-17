@@ -36,7 +36,7 @@ public class NoticeController implements NoticeControllerDocs {
             String email = userDetails.getUsername();
             CreateServiceDTO changeServiceNotice = modelMapper.map(notice, CreateServiceDTO.class);
             log.info("service DTO: {}", changeServiceNotice);
-            ResponseBoardDTO response = noticeService.saveBoard(changeServiceNotice, email);
+            ResponseNoticeDTO response = noticeService.saveBoard(changeServiceNotice, email);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -54,7 +54,7 @@ public class NoticeController implements NoticeControllerDocs {
             String email = userDetails.getUsername();
             UpdateServiceDTO changeServiceNotice = modelMapper.map(notice, UpdateServiceDTO.class);
             log.info("service DTO: {}", changeServiceNotice);
-            ResponseBoardDTO response = noticeService.updateBoard(noticeId, changeServiceNotice);
+            ResponseNoticeDTO response = noticeService.updateBoard(noticeId, changeServiceNotice);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -66,7 +66,7 @@ public class NoticeController implements NoticeControllerDocs {
     @GetMapping("/{noticeId}")
     public ResponseEntity<?> noticeDetail(@PathVariable Long noticeId) {
         try {
-            ResponseBoardDTO response = noticeService.getNotice(noticeId);
+            ResponseNoticeDTO response = noticeService.getNotice(noticeId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -91,7 +91,7 @@ public class NoticeController implements NoticeControllerDocs {
     @GetMapping("/noticeList")
     public ResponseEntity<?> noticeList(@PageableDefault(sort = "noticeId", direction = Sort.Direction.DESC)Pageable pageable) {
         try {
-            Page<ResponseBoardDTO> notice = noticeService.getAllNotice(pageable);
+            Page<ResponseNoticeDTO> notice = noticeService.getAllNotice(pageable);
             Map<String, Object> response = new HashMap<>();
             // 현재 페이지의 아이템 목록
             response.put("communities",notice.getContent());

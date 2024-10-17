@@ -1,21 +1,18 @@
 package com.example.meettify.dto.board;
 
-import com.example.meettify.entity.community.CommunityEntity;
 import com.example.meettify.entity.notice.NoticeEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-public class ResponseBoardDTO {
+public class ResponseNoticeDTO {
     @Schema(description = "게시글 번호", example = "1")
     private Long boardId;
 
@@ -32,30 +29,9 @@ public class ResponseBoardDTO {
     @Schema(description = "게시글 작성 시간")
     private LocalDateTime regTime;
 
-    @Schema(description = "게시글 이미지")
-    @Builder.Default
-    private List<ResponseBoardImgDTO> images = new ArrayList<>();
-
-
-    // 커뮤니티 엔티티를 DTO로 변환하는 작업
-    public static ResponseBoardDTO changeCommunity(CommunityEntity community) {
-        List<ResponseBoardImgDTO> images = community.getImages().stream()
-                .map(ResponseBoardImgDTO::changeDTO)
-                .toList();
-
-        return ResponseBoardDTO.builder()
-                .boardId(community.getCommunityId())
-                .title(community.getTitle())
-                .content(community.getContent())
-                .nickName(community.getMember().getNickName())
-                .regTime(community.getRegTime())
-                .images(images)
-                .build();
-    }
-
     // 공지사항 엔티티를 DTO로 변환하는 작업
-    public static ResponseBoardDTO changeNotice(NoticeEntity notice) {
-        return ResponseBoardDTO.builder()
+    public static ResponseNoticeDTO changeNotice(NoticeEntity notice) {
+        return ResponseNoticeDTO.builder()
                 .boardId(notice.getNoticeId())
                 .title(notice.getTitle())
                 .content(notice.getContent())

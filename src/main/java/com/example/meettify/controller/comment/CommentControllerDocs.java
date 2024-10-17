@@ -4,6 +4,7 @@ import com.example.meettify.dto.comment.CreateCommentDTO;
 import com.example.meettify.dto.comment.UpdateCommentDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -19,5 +20,8 @@ public interface CommentControllerDocs {
     ResponseEntity<?> deleteComment(Long commentId);
 
     @Operation(summary = "댓글 상세페이지", description = "댓글 조회 API")
-    ResponseEntity<?> getComments(Long communityId);
+    ResponseEntity<?> getComment(Long communityId);
+
+    @Operation(summary = "댓글 페이징 조회", description = "댓글 페이징 조회 API")
+    ResponseEntity<?> getComments(Long communityId, Pageable pageable);
 }

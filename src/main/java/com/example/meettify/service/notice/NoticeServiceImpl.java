@@ -1,7 +1,8 @@
 package com.example.meettify.service.notice;
 
 import com.example.meettify.dto.board.CreateServiceDTO;
-import com.example.meettify.dto.board.ResponseBoardDTO;
+import com.example.meettify.dto.board.ResponseCommentDTO;
+import com.example.meettify.dto.board.ResponseNoticeDTO;
 import com.example.meettify.dto.board.UpdateServiceDTO;
 import com.example.meettify.entity.member.MemberEntity;
 import com.example.meettify.entity.notice.NoticeEntity;
@@ -27,12 +28,12 @@ public class NoticeServiceImpl implements NoticeService{
 
     // 공지 생셩
     @Override
-    public ResponseBoardDTO saveBoard(CreateServiceDTO notice, String adminEmail) {
+    public ResponseNoticeDTO saveBoard(CreateServiceDTO notice, String adminEmail) {
         try {
             MemberEntity findAdmin = memberRepository.findByMemberEmail(adminEmail);
             NoticeEntity noticeEntity = NoticeEntity.changeEntity(notice, findAdmin);
             NoticeEntity saveNotice = noticeRepository.save(noticeEntity);
-            return ResponseBoardDTO.changeNotice(saveNotice);
+            return ResponseNoticeDTO.changeNotice(saveNotice);
         } catch (Exception e) {
             log.error("공지사항 등록하는데 실패했습니다. {}", e.getMessage());
             throw new BoardException("공지사항 등록하는데 실패했습니다. : " + e.getMessage());
@@ -41,14 +42,14 @@ public class NoticeServiceImpl implements NoticeService{
 
     // 공지 수정
     @Override
-    public ResponseBoardDTO updateBoard(Long noticeId, UpdateServiceDTO notice) {
+    public ResponseNoticeDTO updateBoard(Long noticeId, UpdateServiceDTO notice) {
         try {
             NoticeEntity findNotice = noticeRepository.findById(noticeId)
                     .orElseThrow(() -> new BoardException("공지사항이 존재하지 않습니다."));
             // 공지 수정
             findNotice.updateNotice(notice);
             NoticeEntity saveNotice = noticeRepository.save(findNotice);
-            return ResponseBoardDTO.changeNotice(saveNotice);
+            return ResponseNoticeDTO.changeNotice(saveNotice);
         } catch (Exception e) {
             log.error("공지사항 수정하는데 실패했습니다. {}", e.getMessage());
             throw new BoardException("공지사항 수정하는데 실패했습니다. : " + e.getMessage());
@@ -58,13 +59,13 @@ public class NoticeServiceImpl implements NoticeService{
     // 공지 상세 페이지
     @Override
     @Transactional(readOnly = true)
-    public ResponseBoardDTO getNotice(Long noticeId) {
+    public ResponseNoticeDTO getNotice(Long noticeId) {
         try {
             NoticeEntity findNotice = noticeRepository.findById(noticeId)
                     .orElseThrow(() -> new BoardException("공지사항이 존재 하지 않습니다."));
-            ResponseBoardDTO responseBoardDTO = ResponseBoardDTO.changeNotice(findNotice);
-            log.info("responseBoardDTO: {}", responseBoardDTO);
-            return responseBoardDTO;
+            ResponseNoticeDTO responseCommentDTO = ResponseNoticeDTO.changeNotice(findNotice);
+            log.info("responseBoardDTO: {}", responseCommentDTO);
+            return responseCommentDTO;
         } catch (Exception e) {
             throw new BoardException("공지사항 조회하는데 실패했습니다. " + e.getMessage());
         }
@@ -89,12 +90,12 @@ public class NoticeServiceImpl implements NoticeService{
     // 공지사항 페이징
     @Override
     @Transactional(readOnly = true)
-    public Page<ResponseBoardDTO> getAllNotice(Pageable pageable) {
+    public Page<ResponseNoticeDTO> getAllNotice(Pageable pageable) {
         try {
             Page<NoticeEntity> findAllNotice = noticeRepository.findAll(pageable);
             log.info("조회된 공지사항 수 : {}", findAllNotice.getTotalElements());
             log.info("조회된 공지사항 : {}", findAllNotice);
-            return findAllNotice.map(ResponseBoardDTO::changeNotice);
+            return findAllNotice.map(ResponseNoticeDTO::changeNotice);
         } catch (Exception e) {
             throw new BoardException("공지사항을 조회하는데 실패했습니다. : " + e.getMessage());
         }
