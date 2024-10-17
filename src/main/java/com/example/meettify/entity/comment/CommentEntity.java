@@ -2,6 +2,7 @@ package com.example.meettify.entity.comment;
 
 import com.example.meettify.config.auditing.entity.BaseEntity;
 import com.example.meettify.dto.comment.CreateCommentDTO;
+import com.example.meettify.dto.comment.UpdateCommentDTO;
 import com.example.meettify.entity.community.CommunityEntity;
 import com.example.meettify.entity.member.MemberEntity;
 import jakarta.persistence.*;
@@ -42,5 +43,10 @@ public class CommentEntity extends BaseEntity {
                 .member(member)
                 .community(community)
                 .build();
+    }
+
+    // 수정
+    public void updateComment(UpdateCommentDTO comment) {
+        this.comment = comment.getComment();
     }
 }
