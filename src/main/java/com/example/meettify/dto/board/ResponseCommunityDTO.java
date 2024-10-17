@@ -35,6 +35,9 @@ public class ResponseCommunityDTO {
     @Builder.Default
     private List<ResponseBoardImgDTO> images = new ArrayList<>();
 
+    @Schema(description = "조회수")
+    private int viewCount;
+
 
     // 커뮤니티 엔티티를 DTO로 변환하는 작업
     public static ResponseCommunityDTO changeCommunity(CommunityEntity community) {
@@ -49,6 +52,7 @@ public class ResponseCommunityDTO {
                 .nickName(community.getMember().getNickName())
                 .regTime(community.getRegTime())
                 .images(images)
+                .viewCount(community.getViewCount())
                 .build();
     }
 }

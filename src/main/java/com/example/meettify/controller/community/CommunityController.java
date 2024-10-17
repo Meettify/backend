@@ -123,7 +123,7 @@ public class CommunityController implements CommunityControllerDocs {
                                              @RequestParam(value = "searchTitle") String searchTitle) {
         try {
             // 검색하지 않을 때는 모든 글을 보여준다.
-            Page<ResponseCommunityDTO> community = communityService.getBoards(pageable);
+            Page<ResponseCommunityDTO> community = communityService.searchTitle(pageable, searchTitle);
             Map<String, Object> response = new HashMap<>();
             // 현재 페이지의 아이템 목록
             response.put("communities", community.getContent());
