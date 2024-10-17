@@ -33,12 +33,16 @@ public class CommunityEntity extends BaseEntity {
     @Builder.Default
     private List<CommunityImgEntity> images = new ArrayList<>();
 
+    @Column(columnDefinition = "default 0", nullable = false)
+    private int viewCount;
+
     // 엔티티 생성
     public static CommunityEntity createEntity(CreateServiceDTO board, MemberEntity member) {
         return CommunityEntity.builder()
                 .title(board.getTitle())
                 .content(board.getContent())
                 .member(member)
+                .viewCount(0)
                 .build();
     }
 
@@ -60,11 +64,13 @@ public class CommunityEntity extends BaseEntity {
         }
     }
 
+    // 남겨줄 이미지 아이디를 받은거와 다른 거만 삭제
     public void remainImgId(List<Long> remainImgId) {
         Set<Long> remainImgIdSet = new HashSet<>(remainImgId); // O(1) 조회를 위한 Set 사용
         this.images.removeIf(img -> !remainImgIdSet.contains(img.getItemImgId()));
     }
 
+    // 이미지 초기화
     public void removeImg() {
         this.images = new ArrayList<>();
     }

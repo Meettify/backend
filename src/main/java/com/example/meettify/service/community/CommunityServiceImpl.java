@@ -119,12 +119,17 @@ public class CommunityServiceImpl implements CommunityService {
 
     // 커뮤니티 상세 페이지
     @Override
-    @Transactional(readOnly = true)
     public ResponseCommunityDTO getBoard(Long communityId) {
         try {
+            // 조회수 증가 (데이터베이스에 바로 반영)
+            communityRepository.updateView(communityId);
+
+            // 조회수 증가 후 다시 엔티티 조회
             CommunityEntity findCommunity = communityRepository.findById(communityId)
                     .orElseThrow(() -> new BoardException("Community not found with id: " + communityId));
             log.info("findCommunity: {}", findCommunity);
+
+            // 조회수는 이미 증가했으므로 엔티티에서 바로 조회 가능
             return ResponseCommunityDTO.changeCommunity(findCommunity);
         } catch (Exception e) {
             log.error("Error retrieving community: ", e.getMessage());

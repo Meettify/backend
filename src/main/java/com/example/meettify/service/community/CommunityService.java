@@ -31,4 +31,5 @@ public interface CommunityService {
 
     // 커뮤니티 제목 검색
     Page<ResponseCommunityDTO> searchTitle(Pageable pageable, String searchTitle);
+
 }
