@@ -70,13 +70,6 @@ services:
       timeout: 10s
       retries: 3
 
-  k6:
-    image: grafana/k6:latest
-    platform: linux/amd64
-    command: ["run", "/test/script.js"]  # 테스트 스크립트 경로
-    restart: always
-    container_name: k6  # 컨테이너 이름 고정
-
   nginx:
     image: nginx:latest
     container_name: nginx
