@@ -110,6 +110,7 @@ services:
       JWT_SECRET: ${JWT_SECRET}  # JWT 비밀 키
       REDIS_HOST: redis  # Redis 서비스 이름으로 설정
       REDIS_PORT: 6379  # Redis 포트
+      WEBHOOK: ${WEBHOOK}
     depends_on:
       - mysql  # MySQL 서비스에 의존
       - redis  # Redis 서비스에 의존

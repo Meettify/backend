@@ -143,3 +143,6 @@ info:
     name: meettify
     company: B.F
 
+slack:
+  webhook: ${WEBHOOK}
+
