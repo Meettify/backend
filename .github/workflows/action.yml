@@ -188,7 +188,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
-          timeout: 600 # 타임아웃을 10분으로 설정
+          timeout: "10m" # 타임아웃을 10분으로 설정
           script: |
             nohup /home/ubuntu/monitor.sh &
 
