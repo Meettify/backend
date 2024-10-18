@@ -9,6 +9,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+
   mysql:
     image: mysql:8.0
     container_name: mysql
@@ -22,6 +23,11 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql  # 데이터 지속성을 위한 볼륨
     restart: always
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   prometheus:
     image: prom/prometheus:latest
@@ -38,6 +44,11 @@ services:
       - --web.console.libraries=/usr/share/prometheus/console_libraries
       - --web.console.templates=/usr/share/proemtheus/consoles
       - --web.enable-admin-api
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9090/" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   grafana:
     image: grafana/grafana:latest
@@ -53,7 +64,11 @@ services:
       - GF_SECURITY_ADMIN_USER=admin # grafana 사용자 이름
       - GF_SECURITY_ADMIN_PASSWORD=admin # grafana 사용자 비밀번호
       - GF_USERS_ALLOW_SIGN_UP=false
-
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:3000" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   k6:
     image: grafana/k6:latest
@@ -77,7 +92,11 @@ services:
       - api
       - grafana
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
-
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   certbot:
     image: certbot/certbot:latest
@@ -86,7 +105,11 @@ services:
       - ./data/certbot/conf:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://nginx:80"]  # Nginx에 연결된 URL로 변경
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   api:
     build:

@@ -179,3 +179,15 @@ jobs:
             # 최신 이미지 가져와서 컨테이너 실행
             docker-compose pull
             docker-compose up -d --build
+
+      # 14. EC2에 SSH 접속해서 모니터링 스크립트 시작
+      - name: SSH to EC2 and start monitoring script
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PUBLIC_IP }}
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            nohup /home/ubuntu/monitor.sh &
+

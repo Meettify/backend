@@ -14,16 +14,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.List;
-
-import static java.util.Collections.singletonList;
 /*
 *   worker  : 유요한
 *   work    : 이 클래스는 HttpServletRequest 정보와 예외 정보를 수집하여 슬랙 메시지를 구성하고,
@@ -33,7 +25,7 @@ import static java.util.Collections.singletonList;
 
 @Aspect
 @Component
-@Profile(value = {"local", "prod"})
+@Profile(value = {"prod"})
 @RequiredArgsConstructor
 @Log4j2
 public class SlackNotificationAspect {
