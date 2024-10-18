@@ -22,7 +22,7 @@ import static com.slack.api.model.block.composition.BlockCompositions.plainText;
 @RequiredArgsConstructor
 @Log4j2
 public class SlackUtil {
-    @Value("${slack.webhook.url}")
+    @Value("${slack.webhook}")
     private String webhookUrl;
     private static final String NEW_LINE = "\n";
     private static final String DOUBLE_NEW_LINE = "\n\n";
