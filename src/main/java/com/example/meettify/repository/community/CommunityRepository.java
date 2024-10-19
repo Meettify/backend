@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 public interface CommunityRepository extends JpaRepository<CommunityEntity, Long> {
     // 커뮤니티 페이징 처리
     @Query(value = "select c from communities c" +
@@ -25,8 +27,15 @@ public interface CommunityRepository extends JpaRepository<CommunityEntity, Long
     countQuery = "select count(c) from communities c where (:searchTitle is null or c.title like %:searchTitle%)")
     Page<CommunityEntity> findBySearchTitle(Pageable pageable, @Param("searchTitle") String searchTitle);
 
+//    @Modifying
+//    @Transactional
+//    @Query("update communities c set c.viewCount = c.viewCount + 1 where c.communityId = :communityId")
+//    int updateView(@Param("communityId") Long communityId);
+
     @Modifying
-    @Transactional
-    @Query("update communities c set c.viewCount = c.viewCount + 1 where c.communityId = :communityId")
-    int updateView(@Param("communityId") Long communityId);
+    @Query("UPDATE communities c SET c.viewCount = c.viewCount + :increment WHERE c.communityId = :communityId")
+    void incrementViewCount(@Param("communityId") Long communityId, @Param("increment") int increment);
+
+    @Query("SELECT c.communityId FROM communities c")
+    List<Long> findAllCommunityIds();
 }

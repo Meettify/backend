@@ -55,4 +55,21 @@ public class ResponseCommunityDTO {
                 .viewCount(community.getViewCount())
                 .build();
     }
+
+    // 조회수를 레디스와 합쳐서 최신화한 다음 반환
+    public static ResponseCommunityDTO communityDetail(CommunityEntity community, int viewCount) {
+        List<ResponseBoardImgDTO> images = community.getImages().stream()
+                .map(ResponseBoardImgDTO::changeDTO)
+                .toList();
+
+        return ResponseCommunityDTO.builder()
+                .boardId(community.getCommunityId())
+                .title(community.getTitle())
+                .content(community.getContent())
+                .nickName(community.getMember().getNickName())
+                .regTime(community.getRegTime())
+                .images(images)
+                .viewCount(viewCount)
+                .build();
+    }
 }

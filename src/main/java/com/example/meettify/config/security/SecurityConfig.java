@@ -66,17 +66,17 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/v1/members/").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/members/{memberId}").hasAnyRole("USER", "ADMIN")
                         // 공지사항
-                        .requestMatchers("/api/v1/notice/*").permitAll()
+                        .requestMatchers("/api/v1/notice/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/notice").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/notice/{noticeId}").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/notice/{noticeId}").hasRole("ADMIN")
                         // 상품
-                        .requestMatchers("/api/v1/items/*").permitAll()
+                        .requestMatchers("/api/v1/items/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/items").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/items/{itemId}").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/items/{itemId}").hasRole("ADMIN")
                         // 커뮤니티
-                        .requestMatchers("/api/v1/community/*").permitAll()
+                        .requestMatchers("/api/v1/community/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/community").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/community/{communityId}").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/community/{communityId}").hasAnyRole("USER", "ADMIN")
@@ -130,7 +130,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/logistics").permitAll()
 
                         // prometheus & grafana
-                        .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/monitor/**").permitAll()
                         .requestMatchers("/prometheus").permitAll()
                         .requestMatchers("/grafana").permitAll()
                 );

@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -15,7 +16,9 @@ import java.io.IOException;
 import java.nio.channels.AcceptPendingException;
 import java.nio.file.AccessDeniedException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -23,6 +26,8 @@ import java.util.List;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public static final String HEADER_AUTHORIZATION = "Authorization";
     private final JwtProvider jwtProvider;
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();  // AntPathMatcher 사용
+
 
 
     @Override
@@ -32,6 +37,40 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         HttpServletRequest httpServletRequest = request;
+        String method = request.getMethod();
+        String requestURI = request.getRequestURI();
+
+        // 허용된 경로와 메서드 조합을 정의
+        Map<String, List<String>> publicPaths = new HashMap<>();
+        publicPaths.put("/api/v1/members/**", Arrays.asList("GET", "POST"));
+        publicPaths.put("/api/v1/notice/**", List.of("GET"));
+        publicPaths.put("/api/v1/items/**", List.of("GET"));
+        publicPaths.put("/api/v1/community/**", List.of("GET"));
+        publicPaths.put("/api/v1/meets/**", List.of("GET"));
+        publicPaths.put("/api/v1/search/**", List.of("GET"));
+        publicPaths.put("/", List.of("GET"));
+        publicPaths.put("/**", List.of("GET"));
+        publicPaths.put("/swagger-resources/**", List.of("GET"));
+        publicPaths.put("/swagger-ui/**", List.of("GET"));
+        publicPaths.put("/v3/api-docs/**", List.of("GET"));
+        publicPaths.put("/api/swagger-config", List.of("GET"));
+        publicPaths.put("/api/logistics", List.of("GET"));
+        publicPaths.put("/monitor/**", List.of("GET"));
+        publicPaths.put("/prometheus", List.of("GET"));
+        publicPaths.put("/grafana", List.of("GET"));
+
+        // 허용된 경로와 메서드 조합을 통해 검증
+        for (Map.Entry<String, List<String>> entry : publicPaths.entrySet()) {
+            String pathPattern = entry.getKey();
+            List<String> allowedMethods = entry.getValue();
+
+            // AntPathMatcher를 사용한 경로 매칭 및 메서드 검증
+            if (pathMatcher.match(pathPattern, requestURI) && allowedMethods.contains(method)) {
+                // 허용된 경로 및 메서드에 해당하면 필터 제외
+                filterChain.doFilter(request, response);
+                return;
+            }
+        }
 
         // request에서 JWT를 추출
         // 요청 헤더에서 토큰을 추출하는 역할

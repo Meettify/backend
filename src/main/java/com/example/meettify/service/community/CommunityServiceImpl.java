@@ -1,5 +1,7 @@
 package com.example.meettify.service.community;
 
+import com.example.meettify.config.cookie.CookieUtils;
+import com.example.meettify.config.redis.RedisService;
 import com.example.meettify.config.s3.S3ImageUploadService;
 import com.example.meettify.dto.board.CreateServiceDTO;
 import com.example.meettify.dto.board.ResponseCommunityDTO;
@@ -12,10 +14,13 @@ import com.example.meettify.exception.board.BoardException;
 import com.example.meettify.exception.item.ItemException;
 import com.example.meettify.repository.community.CommunityRepository;
 import com.example.meettify.repository.member.MemberRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,6 +39,8 @@ public class CommunityServiceImpl implements CommunityService {
     private final CommunityRepository communityRepository;
     private final MemberRepository memberRepository;
     private final S3ImageUploadService s3ImageUploadService;
+    private final RedisService redisService;
+    private final ScheduledTasks scheduledTasks;
 
     // 커뮤니티 생성
     @Override
@@ -119,24 +126,57 @@ public class CommunityServiceImpl implements CommunityService {
 
     // 커뮤니티 상세 페이지
     @Override
-    public ResponseCommunityDTO getBoard(Long communityId) {
+    @Transactional(readOnly = true)
+    public ResponseCommunityDTO getBoard(Long communityId,
+                                         HttpServletRequest request,
+                                         HttpServletResponse response) {
         try {
-            // 조회수 증가 (데이터베이스에 바로 반영)
-            communityRepository.updateView(communityId);
+            String viewCountCookieValue = CookieUtils.getViewCountCookieValue(request, response);
+
+            if(!redisService.isExistInSet(viewCountCookieValue, communityId)) {
+                increaseViewCountAsync("viewCount_community" + communityId);
+                redisService.addToSet(viewCountCookieValue, communityId);
+            }
 
             // 조회수 증가 후 다시 엔티티 조회
             CommunityEntity findCommunity = communityRepository.findById(communityId)
                     .orElseThrow(() -> new BoardException("Community not found with id: " + communityId));
             log.info("findCommunity: {}", findCommunity);
 
+            // 데이터베이스에서 조회한 조회수
+            int dbViewCount = findCommunity.getViewCount();
+            // Redis에서 조회수 가져오기
+            Integer redisViewCount = null;
+            try {
+                redisViewCount = redisService.getViewCount("viewCount_community" + communityId);
+            } catch (Exception e) {
+                log.error("Error retrieving view count from Redis for communityId {}: {}", communityId, e.getMessage());
+                // Redis 오류 발생 시 기본 조회수를 사용
+            }
+            // 조회수 합산
+            int totalViewCount = dbViewCount + (redisViewCount != null ? redisViewCount : 0);
+
+
             // 조회수는 이미 증가했으므로 엔티티에서 바로 조회 가능
-            return ResponseCommunityDTO.changeCommunity(findCommunity);
+            return ResponseCommunityDTO.communityDetail(findCommunity, totalViewCount);
         } catch (Exception e) {
             log.error("Error retrieving community: ", e.getMessage());
             throw new BoardException("상세 페이지를 조회하는데 실패했습니다.");
         }
     }
 
+    // 이 메서드는 Redis에 비동기적으로 조회수를 증가시킵니다.
+    // 이를 통해 사용자 요청 처리 시간에 영향을 주지 않고, 조회수를 빠르게 업데이트할 수 있습니다.
+    @Async
+    public void increaseViewCountAsync(String viewCountKey) {
+        try {
+            redisService.increaseData(viewCountKey);
+        } catch (Exception e) {
+            log.error("Error increasing view count in Redis for key {}: {}", viewCountKey, e.getMessage());
+        }
+    }
+
+    // 커뮤니티 삭제
     @Override
     public String deleteBoard(Long communityId) {
         try {
@@ -173,6 +213,7 @@ public class CommunityServiceImpl implements CommunityService {
         }
     }
 
+    // 커뮤니티 제목 검색
     @Override
     @Transactional(readOnly = true)
     public Page<ResponseCommunityDTO> searchTitle(Pageable pageable, String searchTitle) {

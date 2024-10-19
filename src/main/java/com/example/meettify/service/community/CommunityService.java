@@ -3,6 +3,8 @@ package com.example.meettify.service.community;
 import com.example.meettify.dto.board.CreateServiceDTO;
 import com.example.meettify.dto.board.ResponseCommunityDTO;
 import com.example.meettify.dto.board.UpdateServiceDTO;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,7 +23,9 @@ public interface CommunityService {
                                      List<MultipartFile> files);
 
     // 커뮤니티 상세 페이지
-    ResponseCommunityDTO getBoard(Long communityId);
+    ResponseCommunityDTO getBoard(Long communityId,
+                                  HttpServletRequest request,
+                                  HttpServletResponse response);
 
     // 커뮤니티 삭제
     String deleteBoard(Long communityId);
