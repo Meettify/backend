@@ -2,6 +2,8 @@ package com.example.meettify.controller.community;
 
 import com.example.meettify.dto.board.*;
 import com.example.meettify.service.community.CommunityService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
@@ -67,10 +69,12 @@ public class CommunityController implements CommunityControllerDocs {
     // 커뮤니티 조회
     @Override
     @GetMapping("/{communityId}")
-    public ResponseEntity<?> communityDetail(@PathVariable Long communityId) {
+    public ResponseEntity<?> communityDetail(@PathVariable Long communityId,
+                                             HttpServletRequest request,
+                                             HttpServletResponse response) {
         try {
-            ResponseCommunityDTO response = communityService.getBoard(communityId);
-            return ResponseEntity.ok(response);
+            ResponseCommunityDTO responseCommunity = communityService.getBoard(communityId, request, response);
+            return ResponseEntity.ok(responseCommunity);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
