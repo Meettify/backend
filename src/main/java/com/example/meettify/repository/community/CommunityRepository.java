@@ -32,8 +32,9 @@ public interface CommunityRepository extends JpaRepository<CommunityEntity, Long
 //    @Query("update communities c set c.viewCount = c.viewCount + 1 where c.communityId = :communityId")
 //    int updateView(@Param("communityId") Long communityId);
 
-    @Modifying
+    @Modifying(clearAutomatically=true, flushAutomatically = true)
     @Query("UPDATE communities c SET c.viewCount = c.viewCount + :increment WHERE c.communityId = :communityId")
+    @Transactional
     void incrementViewCount(@Param("communityId") Long communityId, @Param("increment") int increment);
 
     @Query("SELECT c.communityId FROM communities c")
