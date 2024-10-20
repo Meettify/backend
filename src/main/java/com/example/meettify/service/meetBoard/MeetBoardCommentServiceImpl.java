@@ -2,17 +2,12 @@ package com.example.meettify.service.meetBoard;
 
 
 import com.example.meettify.dto.meet.MeetRole;
-import com.example.meettify.dto.meetBoard.MeetBoardCommentPermissionDTO;
-import com.example.meettify.dto.meetBoard.MeetBoardCommentServiceDTO;
-import com.example.meettify.dto.meetBoard.MeetBoardPermissionDTO;
-import com.example.meettify.dto.meetBoard.ResponseMeetBoardCommentDTO;
+import com.example.meettify.dto.meetBoard.*;
 import com.example.meettify.dto.member.role.UserRole;
-import com.example.meettify.entity.meet.MeetEntity;
 import com.example.meettify.entity.meet.MeetMemberEntity;
 import com.example.meettify.entity.meetBoard.MeetBoardCommentEntity;
 import com.example.meettify.entity.meetBoard.MeetBoardEntity;
 import com.example.meettify.entity.member.MemberEntity;
-import com.example.meettify.exception.meet.MeetException;
 import com.example.meettify.exception.meetBoard.MeetBoardException;
 import com.example.meettify.exception.meetBoardComment.MeetBoardCommentException;
 import com.example.meettify.repository.meet.MeetMemberRepository;
@@ -38,7 +33,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class MeetBoardCommentServiceImpl implements MeetBoardCommentService {
     private final MemberRepository memberRepository;
     private final MeetMemberRepository meetMemberRepository;
-    private final MeetRepository meetRepository;
     private final MeetBoardRepository meetBoardRepository;
     private final MeetBoardCommentRepository meetBoardCommentRepository;
 
@@ -70,7 +64,7 @@ public class MeetBoardCommentServiceImpl implements MeetBoardCommentService {
         MeetBoardCommentEntity savedComment = meetBoardCommentRepository.save(newComment);
 
         // 6. 저장된 댓글을 Response DTO로 변환하여 반환
-        return ResponseMeetBoardCommentDTO.changeDTO(savedComment);
+        return ResponseMeetBoardCommentDTO.changeDTO(savedComment,getPermission(email,savedComment.getCommentId()));
     } catch (EntityNotFoundException e) {
         throw new MeetBoardCommentException(e.getMessage());
     }
@@ -88,30 +82,7 @@ public class MeetBoardCommentServiceImpl implements MeetBoardCommentService {
         }
     }
 
-    @Override
-    public boolean isEditable(String email, Long meetBoardCommentId) {
-        try {
-            // 1. 댓글을 찾아서 작성자 확인
-            MeetBoardCommentEntity comment = meetBoardCommentRepository.findById(meetBoardCommentId)
-                    .orElseThrow(() -> new MeetException("댓글이 없습니다."));
 
-            // 2. 작성자 정보 확인 (email과 MemberEntity의 email을 비교)
-            boolean isAuthor = comment.getMemberEntity().getMemberEmail().equals(email);
-
-            // 3. MeetMemberEntity에서 관리자인지 확인 (MeetBoardEntity -> MeetEntity -> MeetMemberEntity)
-            MeetEntity meet = comment.getMeetBoardEntity().getMeetEntity();
-            MeetMemberEntity meetMember = meetMemberRepository.findByEmailAndMeetId(email, meet.getMeetId())
-                    .orElseThrow(() -> new MeetException("삭제 요청한 회원은 멤버가 아닙니다."));
-
-            boolean isAdmin = meetMember.getMeetRole().equals(MeetRole.ADMIN);
-
-            // 4. 작성자이거나 관리자인 경우 true 반환
-            return isAuthor || isAdmin;
-
-        } catch (Exception e) {
-            throw new MeetBoardCommentException(e.getMessage());
-        }
-    }
 
     @Override
     public MeetBoardCommentPermissionDTO getPermission(String email, Long meetBoardCommentId) {
@@ -140,6 +111,20 @@ public class MeetBoardCommentServiceImpl implements MeetBoardCommentService {
             }
 
             return MeetBoardCommentPermissionDTO.of(false, false); // 삭제만 가능
+        } catch (Exception e) {
+            throw new MeetBoardException(e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseMeetBoardCommentDTO updateComment(Long meetBoardCommentId, UpdateMeetBoardCommentDTO updateMeetBoardCommentDTO, String email) {
+        try {
+            MeetBoardCommentEntity findComment = meetBoardCommentRepository.findById(meetBoardCommentId).orElseThrow(() -> new MeetBoardCommentException("수정하려는 댓글이 없습니다."));
+            findComment.updateContent(updateMeetBoardCommentDTO.getComment());
+            MeetBoardCommentEntity updateComment = meetBoardCommentRepository.save(findComment);
+            ResponseMeetBoardCommentDTO response = ResponseMeetBoardCommentDTO.changeDTO(updateComment, getPermission(email, updateComment.getCommentId()));
+            log.info("수정된 댓글 {} ", response);
+            return response;
         } catch (Exception e) {
             throw new MeetBoardException(e.getMessage());
         }
