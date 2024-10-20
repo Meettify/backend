@@ -1,10 +1,7 @@
 package com.example.meettify.service.meetBoard;
 
 
-import com.example.meettify.dto.meetBoard.MeetBoardCommentPermissionDTO;
-import com.example.meettify.dto.meetBoard.MeetBoardCommentServiceDTO;
-import com.example.meettify.dto.meetBoard.MeetBoardPermissionDTO;
-import com.example.meettify.dto.meetBoard.ResponseMeetBoardCommentDTO;
+import com.example.meettify.dto.meetBoard.*;
 
 /*
  *   worker : 조영흔
@@ -17,8 +14,7 @@ public interface MeetBoardCommentService {
 
     String deleteComment(Long meetBoardCommentId);
 
-    boolean isEditable(String username, Long meetBoardCommentId);
-
     MeetBoardCommentPermissionDTO getPermission(String email, Long meetBoardCommentId);
 
+    ResponseMeetBoardCommentDTO updateComment(Long meetBoardCommentId, UpdateMeetBoardCommentDTO updateMeetBoardCommentDTO,String email);
 }
