@@ -37,14 +37,6 @@ public class ResponseMeetBoardCommentDTO {
     }
 
 
-    public static ResponseMeetBoardCommentDTO changeDTO(MeetBoardCommentEntity meetBoardCommentEntity) {
-        return ResponseMeetBoardCommentDTO.builder()
-                .commentId(meetBoardCommentEntity.getCommentId())
-                .parentComment(meetBoardCommentEntity.getParentComment() != null ? meetBoardCommentEntity.getParentComment().getCommentId() : null)
-                .commentNickName(meetBoardCommentEntity.getMemberEntity().getNickName())
-                .content(meetBoardCommentEntity.getContent())
-                .postDate(meetBoardCommentEntity.getPostDate())
-                .build();
-    }
+
 
 }
