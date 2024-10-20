@@ -113,6 +113,10 @@ logging:
     root: info
 
 management:
+  server:
+    tomcat:
+      mbeanregistry:
+        enabled: true
   info:
     java:
       enabled: true
@@ -122,6 +126,8 @@ management:
       enabled: true
 
   endpoint:
+    logfile:
+      external-file: ./logs/my.log
     shutdown:
       enabled: true
     health:
@@ -134,8 +140,9 @@ management:
   endpoints:
     web:
       exposure:
-        include: "*"
+        include: ["prometheus", "logfile"]
       base-path: /monitor
+
 
 server:
   tomcat:
