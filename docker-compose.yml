@@ -152,7 +152,7 @@ services:
     restart: always
     volumes:
       - ./logs:/app/logs  # 로그 파일을 저장할 디렉토리
-      - ./log4j2.xml:/app/log4j2.xml  # Log4j2 설정 파일을 마운트
+      - ./src/main/resources/log4j2.xml:/var/log4j2.xml  # Log4j2 설정 파일을 마운트
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "mysql"]  # MySQL 서비스 상태 확인
       interval: 10s  # 상태 확인 간격
