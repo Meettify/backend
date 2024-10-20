@@ -35,7 +35,10 @@ dependencies {
     // Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
     // rest api를 사용할 수 있게함
-    implementation 'org.springframework.boot:spring-boot-starter-web'
+    // Web starter에서 기본 포함된 Logback 제거
+    implementation('org.springframework.boot:spring-boot-starter-web') {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    }
     // Actuator
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     // prometheus
