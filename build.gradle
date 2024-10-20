@@ -35,10 +35,7 @@ dependencies {
     // Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
     // rest api를 사용할 수 있게함
-    // Web starter에서 기본 포함된 Logback 제거
-    implementation('org.springframework.boot:spring-boot-starter-web') {
-        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
-    }
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     // Actuator
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     // prometheus
@@ -82,10 +79,6 @@ dependencies {
     implementation 'com.slack.api:slack-api-client:1.28.0'
     implementation 'com.slack.api:slack-app-backend:1.28.0'
     implementation 'com.slack.api:slack-api-model:1.28.0'
-    // log4j
-    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
-    implementation "org.apache.logging.log4j:log4j-api:2.14.1"
-    implementation 'org.apache.logging.log4j:log4j-core:2.17.1'
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
