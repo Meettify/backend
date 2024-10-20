@@ -1,0 +1,18 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://roki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: logging
+    static_configs:
+      - targets:
+          - meettify.store
+        labels:
+          job: logging
+          __path__: /var/lib/docker/containers/*/*.log  # 도커 로그 파일 경로
