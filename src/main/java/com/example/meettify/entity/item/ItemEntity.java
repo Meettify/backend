@@ -6,6 +6,7 @@ import com.example.meettify.dto.item.UpdateItemDTO;
 import com.example.meettify.dto.item.UpdateItemServiceDTO;
 import com.example.meettify.dto.item.status.ItemStatus;
 import com.example.meettify.dto.meet.category.Category;
+import com.example.meettify.exception.stock.OutOfStockException;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -96,9 +97,25 @@ public class ItemEntity extends BaseEntity {
             }
         }
     }
-
+    // 남길 이미지와 맞지 않는 이미지 삭제
     public void remainImgId(List<Long> remainImgId) {
         Set<Long> remainImgIdSet = new HashSet<>(remainImgId); // O(1) 조회를 위한 Set 사용
         this.images.removeIf(img -> !remainImgIdSet.contains(img.getItemImgId()));
+    }
+
+    // 상품 재고 확인
+    public void checkItemStock(int cartItemCount) {
+        if(this.itemId == null) {
+            throw new OutOfStockException("상품이 존재하지 않습니다.");
+        }
+
+        if(this.itemStatus == ItemStatus.SOLD_OUT) {
+            throw new OutOfStockException("상품이 품절입니다.");
+        }
+
+        if(this.itemCount < cartItemCount) {
+            throw new OutOfStockException("재고가 부족합니다. 요청 수량 : " + cartItemCount +
+                    " 재고 : " + this.itemCount);
+        }
     }
 }
