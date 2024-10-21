@@ -3,16 +3,10 @@ package com.example.meettify.config.slack;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import net.gpedro.integrations.slack.SlackApi;
-import net.gpedro.integrations.slack.SlackAttachment;
-import net.gpedro.integrations.slack.SlackField;
-import net.gpedro.integrations.slack.SlackMessage;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.env.Environment;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 

@@ -8,6 +8,9 @@ import com.example.meettify.entity.member.MemberEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 /*
  *   worker  : 유요한
@@ -34,14 +37,25 @@ public class CommentEntity extends BaseEntity {
     @JoinColumn(name = "community_id")
     private CommunityEntity community;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private CommentEntity parent;
+
+    @OneToMany(mappedBy = "parent", orphanRemoval = true)
+    @Builder.Default
+    @OrderBy("commentId asc ")
+    private List<CommentEntity> children = new ArrayList<>();
+
     // 생성
     public static CommentEntity saveComment(CreateCommentDTO comment,
                                             MemberEntity member,
-                                            CommunityEntity community) {
+                                            CommunityEntity community,
+                                            CommentEntity parentComment) {
         return CommentEntity.builder()
                 .comment(comment.getComment())
                 .member(member)
                 .community(community)
+                .parent(parentComment)
                 .build();
     }
 
@@ -49,4 +63,6 @@ public class CommentEntity extends BaseEntity {
     public void updateComment(UpdateCommentDTO comment) {
         this.comment = comment.getComment();
     }
+
+
 }

@@ -16,4 +16,6 @@ import lombok.*;
 public class CreateCommentDTO {
     @Schema(description = "댓글 등록")
     private String comment;
+    @Schema(description = "부모 댓글 번호")
+    private Long commentParentId;
 }
