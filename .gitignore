@@ -56,3 +56,6 @@ nginx/nginx.conf
 
 ### docker-compose ###
 docker-compose-local.yml
+
+### grafana ###
+grafana/grafana.db
