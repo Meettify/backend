@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /*
  *   worker  : 유요한
@@ -25,6 +27,7 @@ public class ResponseCommentDTO {
     private LocalDateTime createdAt;
     @Schema(description = "작성 닉네임")
     private String nickName;
+    private List<ResponseCommentDTO> children = new ArrayList<>();  // 자식 댓글 리스트
 
     // DTO로 변환
     public static ResponseCommentDTO changeDTO(CommentEntity comment) {
@@ -34,5 +37,10 @@ public class ResponseCommentDTO {
                 .createdAt(comment.getRegTime())
                 .nickName(comment.getCreatedBy())
                 .build();
+    }
+
+    // 부모 댓글 ID 반환
+    public Long getParentId() {
+        return children != null  ? this.commentId : null;
     }
 }

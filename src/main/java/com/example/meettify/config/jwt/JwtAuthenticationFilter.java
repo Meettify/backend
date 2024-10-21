@@ -46,8 +46,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         publicPaths.put("/api/v1/notice/**", List.of("GET"));
         publicPaths.put("/api/v1/items/**", List.of("GET"));
         publicPaths.put("/api/v1/community/**", List.of("GET"));
-        publicPaths.put("/api/v1/meets/**", List.of("GET"));
-        publicPaths.put("/api/v1/search/**", List.of("GET"));
         publicPaths.put("/", List.of("GET"));
         publicPaths.put("/**", List.of("GET"));
         publicPaths.put("/swagger-resources/**", List.of("GET"));
