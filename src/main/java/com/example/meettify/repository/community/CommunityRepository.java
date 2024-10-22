@@ -14,29 +14,29 @@ import java.util.List;
 public interface CommunityRepository extends JpaRepository<CommunityEntity, Long> {
     // 커뮤니티 페이징 처리
     @Query(value = "select c from communities c" +
-    " join fetch c.member " +
-    " order by c.communityId desc ",
-    countQuery = "select count(c) from communities c")
+            " join fetch c.member " +
+            " order by c.communityId desc ",
+            countQuery = "select count(c) from communities c")
     Page<CommunityEntity> findAll(Pageable pageable);
 
     // 커뮤니티 검색
     @Query(value = "select c from communities c" +
-    " join fetch c.member" +
-    " where (:searchTitle is null or c.title like %:searchTitle%)" +
-    " order by c.communityId desc ",
-    countQuery = "select count(c) from communities c where (:searchTitle is null or c.title like %:searchTitle%)")
+            " join fetch c.member" +
+            " where (:searchTitle is null or c.title like %:searchTitle%)" +
+            " order by c.communityId desc ",
+            countQuery = "select count(c) from communities c where (:searchTitle is null or c.title like %:searchTitle%)")
     Page<CommunityEntity> findBySearchTitle(Pageable pageable, @Param("searchTitle") String searchTitle);
 
-//    @Modifying
-//    @Transactional
-//    @Query("update communities c set c.viewCount = c.viewCount + 1 where c.communityId = :communityId")
-//    int updateView(@Param("communityId") Long communityId);
-
-    @Modifying(clearAutomatically=true, flushAutomatically = true)
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE communities c SET c.viewCount = c.viewCount + :increment WHERE c.communityId = :communityId")
     @Transactional
     void incrementViewCount(@Param("communityId") Long communityId, @Param("increment") int increment);
 
     @Query("SELECT c.communityId FROM communities c")
     List<Long> findAllCommunityIds();
+
+    @Query("select c from communities c" +
+            " join fetch c.member" +
+            " where c.communityId = :communityId")
+    CommunityEntity findByCommunityId(@Param("communityId") Long communityId);
 }
