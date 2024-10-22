@@ -1,8 +1,6 @@
 package com.example.meettify.controller.cart;
 
-import com.example.meettify.dto.cart.RequestCartDTO;
-import com.example.meettify.dto.cart.RequestCartServiceDTO;
-import com.example.meettify.dto.cart.ResponseCartDTO;
+import com.example.meettify.dto.cart.*;
 import com.example.meettify.service.cart.CartService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -11,6 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -46,6 +47,23 @@ public class CartController implements CartControllerDocs{
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("장바구니 상품 삭제 실패 : " + e.getMessage());
+        }
+    }
+
+    // 장바구니 상품 수정
+    @Override
+    @PutMapping("/{cartId}")
+    public ResponseEntity<?> updateCart(@PathVariable Long cartId,
+                                        @RequestBody List<UpdateCartItemDTO> carts,
+                                        @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            String email = userDetails.getUsername();
+            List<UpdateCartServiceDTO> serviceDTOS = carts.stream().map(cart -> modelMapper.map(cart, UpdateCartServiceDTO.class))
+                    .collect(Collectors.toList());
+            ResponseCartDTO response = cartService.updateCartItem(cartId, serviceDTOS, email);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("장바구니 수정 실패 : " + e.getMessage());
         }
     }
 }
