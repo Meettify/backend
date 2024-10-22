@@ -41,13 +41,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String requestURI = request.getRequestURI();
 
         // 허용된 경로와 메서드 조합을 정의
+        // 해당 경로는 토큰검사를 하지 않음
         Map<String, List<String>> publicPaths = new HashMap<>();
         publicPaths.put("/api/v1/members/**", Arrays.asList("GET", "POST"));
         publicPaths.put("/api/v1/notice/**", List.of("GET"));
         publicPaths.put("/api/v1/items/**", List.of("GET"));
         publicPaths.put("/api/v1/community/**", List.of("GET"));
         publicPaths.put("/", List.of("GET"));
-        publicPaths.put("/**", List.of("GET"));
         publicPaths.put("/swagger-resources/**", List.of("GET"));
         publicPaths.put("/swagger-ui/**", List.of("GET"));
         publicPaths.put("/v3/api-docs/**", List.of("GET"));
