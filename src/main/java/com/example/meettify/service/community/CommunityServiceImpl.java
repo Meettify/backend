@@ -61,7 +61,7 @@ public class CommunityServiceImpl implements CommunityService {
                 communityEntity.getImages().addAll(images);
                 // DB에 저장
                 CommunityEntity saveCommunity = communityRepository.save(communityEntity);
-                return ResponseCommunityDTO.changeCommunity(saveCommunity);
+                return ResponseCommunityDTO.changeSaveCommunity(saveCommunity, findMember.getNickName());
             }
             throw new BoardException("게시글 생성 요총서헝이 없습니다.");
         } catch (Exception e) {
@@ -85,10 +85,14 @@ public class CommunityServiceImpl implements CommunityService {
     @Override
     public ResponseCommunityDTO updateBoard(Long communityId,
                                             UpdateServiceDTO community,
-                                            List<MultipartFile> files) {
+                                            List<MultipartFile> files,
+                                            String memberEmail) {
         try {
+            // 커뮤니티 조회
             CommunityEntity findCommunity = communityRepository.findById(communityId)
                     .orElseThrow(() -> new ItemException("Community not found with id: " + communityId));
+            // 회원 조회
+            MemberEntity findMember = memberRepository.findByMemberEmail(memberEmail);
 
             // 만약 남겨야 할 이미지 ID가 비어있다면, 모든 이미지를 삭제
             if (community.getRemainImgId().isEmpty()) {
@@ -139,8 +143,7 @@ public class CommunityServiceImpl implements CommunityService {
             }
 
             // 조회수 증가 후 다시 엔티티 조회
-            CommunityEntity findCommunity = communityRepository.findById(communityId)
-                    .orElseThrow(() -> new BoardException("Community not found with id: " + communityId));
+            CommunityEntity findCommunity = communityRepository.findByCommunityId(communityId);
             log.info("findCommunity: {}", findCommunity);
 
             // 데이터베이스에서 조회한 조회수

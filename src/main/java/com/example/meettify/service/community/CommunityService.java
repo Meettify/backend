@@ -20,7 +20,8 @@ public interface CommunityService {
     // 커뮤니티 수정
     ResponseCommunityDTO updateBoard(Long communityId,
                                      UpdateServiceDTO board,
-                                     List<MultipartFile> files);
+                                     List<MultipartFile> files,
+                                     String memberEmail);
 
     // 커뮤니티 상세 페이지
     ResponseCommunityDTO getBoard(Long communityId,

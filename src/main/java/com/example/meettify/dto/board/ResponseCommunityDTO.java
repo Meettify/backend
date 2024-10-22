@@ -39,6 +39,21 @@ public class ResponseCommunityDTO {
     private int viewCount;
 
 
+    public static ResponseCommunityDTO changeSaveCommunity(CommunityEntity community, String nickName) {
+        List<ResponseBoardImgDTO> images = community.getImages().stream()
+                .map(ResponseBoardImgDTO::changeDTO)
+                .toList();
+
+        return ResponseCommunityDTO.builder()
+                .boardId(community.getCommunityId())
+                .title(community.getTitle())
+                .content(community.getContent())
+                .nickName(nickName)
+                .regTime(community.getRegTime())
+                .images(images)
+                .viewCount(community.getViewCount())
+                .build();
+    }
     // 커뮤니티 엔티티를 DTO로 변환하는 작업
     public static ResponseCommunityDTO changeCommunity(CommunityEntity community) {
         List<ResponseBoardImgDTO> images = community.getImages().stream()
