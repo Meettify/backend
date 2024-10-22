@@ -40,7 +40,7 @@ public class MeetController implements  MeetControllerDocs{
                                          @AuthenticationPrincipal UserDetails userDetails) {
         try {
             log.info("condition : " + condition);
-            Page<MeetSummaryDTO> meets = meetService.meetsSearch(condition, pageable,userDetails.getUsername());
+            Page<MeetSummaryDTO> meets = meetService.meetsSearch(condition, pageable,(userDetails != null ? userDetails.getUsername() : ""));
                     log.info("상품 조회 {}", meets);
 
 
@@ -69,7 +69,7 @@ public class MeetController implements  MeetControllerDocs{
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             log.error("Error fetching meet list", e);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 모임 리스트 요청입니다");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 모임 리스트 요청입니다 message : "+e.getMessage());
         }
     }
 
