@@ -7,9 +7,11 @@ import com.example.meettify.dto.member.MemberServiceDTO;
 import com.example.meettify.dto.member.UpdateMemberServiceDTO;
 import com.example.meettify.dto.member.ResponseMemberDTO;
 import com.example.meettify.dto.member.role.UserRole;
+import com.example.meettify.entity.cart.CartEntity;
 import com.example.meettify.entity.jwt.TokenEntity;
 import com.example.meettify.entity.member.MemberEntity;
 import com.example.meettify.exception.member.MemberException;
+import com.example.meettify.repository.cart.CartRepository;
 import com.example.meettify.repository.jwt.TokenRepository;
 import com.example.meettify.repository.member.MemberRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -31,6 +33,7 @@ import java.util.List;
  *   worker  : 유요한
  *   work    : 유저 기능을 하는 서비스 클래스
  *   date    : 2024/09/19
+ *   update  : 2024/10/21
  * */
 
 @Log4j2
@@ -43,6 +46,7 @@ public class MemberServiceImpl implements MemberService {
     private final JwtProvider jwtProvider;
     private final TokenRepository tokenRepository;
     private final LoginAttemptConfig loginAttemptConfig;
+    private final CartRepository cartRepository;
 
     // 회원가입
     @Override
@@ -54,7 +58,8 @@ public class MemberServiceImpl implements MemberService {
 
             MemberEntity saveMember = memberRepository.save(memberEntity);
             ResponseMemberDTO response = ResponseMemberDTO.changeDTO(saveMember);
-
+            // 장바구니 생성
+            CartEntity.createCart(saveMember);
             log.info("response : {}", response);
             return response;
         } catch (Exception e) {
@@ -188,6 +193,11 @@ public class MemberServiceImpl implements MemberService {
 
             // 회원이 비어있지 않고 넘어온 Id가 DB에 등록된 id가 일치할 때
             if(findMember.getMemberId().equals(memberId)) {
+                // 장바구니 조회
+                CartEntity findCart = cartRepository.findByMemberMemberId(memberId);
+                // 장바구니 삭제
+                cartRepository.deleteById(findCart.getCartId());
+                // 회원 삭제
                 memberRepository.deleteById(memberId);
                 return "회원 탈퇴 완료";
             }
