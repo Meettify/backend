@@ -1,9 +1,7 @@
 package com.example.meettify.config.connect;
 
-import com.example.meettify.config.log.MdcLoggingInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
@@ -15,10 +13,5 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .allowedHeaders("Authorization", "Content-Type")
                 .allowCredentials(true)
                 .allowedMethods("GET", "POST", "PUT", "DELETE");
-    }
-
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new MdcLoggingInterceptor());
     }
 }
