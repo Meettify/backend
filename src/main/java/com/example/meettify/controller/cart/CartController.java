@@ -10,10 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,5 +35,17 @@ public class CartController implements CartControllerDocs{
         }
     }
 
-
+    // 장바구니 상품 삭제
+    @Override
+    @DeleteMapping("/{cartItemId}")
+    public ResponseEntity<?> removeCart(@PathVariable Long cartItemId,
+                                        @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            String email = userDetails.getUsername();
+            String response = cartService.deleteCartItem(cartItemId, email);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("장바구니 상품 삭제 실패 : " + e.getMessage());
+        }
+    }
 }
