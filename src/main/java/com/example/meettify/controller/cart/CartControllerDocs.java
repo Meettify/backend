@@ -8,6 +8,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 @Tag(name = "장바구니", description = "장바구니 API")
 public interface CartControllerDocs {
-    @Operation(summary = "장바구니 생성", description = "장바구니 생성하는 API")
+    @Operation(summary = "장바구니에 상품담기", description = "장바구니에 상품 담는 API")
     ResponseEntity<?> addCart(RequestCartDTO cart, UserDetails userDetails);
+
+    @Operation(summary = "장바구니 상품 삭제", description = "장바구니 상품 삭제하는 API")
+    ResponseEntity<?> removeCart(Long cartItemId, UserDetails userDetails);
 }

@@ -51,4 +51,10 @@ public class CartEntity extends BaseEntity {
         this.totalCount = totalCount + cartItem.getCartCount();
         this.cartItems.add(cartItem);
     }
+
+    // 장바구니 삭제시 totalCount 초기화
+    public void resetCount(int count) {
+        this.totalCount = totalCount - count;
+    }
+
 }

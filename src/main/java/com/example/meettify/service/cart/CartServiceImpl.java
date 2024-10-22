@@ -74,4 +74,35 @@ public class CartServiceImpl implements CartService{
             throw new CartException("장바구니에 상품을 담는데 실패했습니다. : " + e.getMessage());
         }
     }
+
+    // 장바구니 상품 삭제
+    @Override
+    public String deleteCartItem(Long cartItemId, String email) {
+        try {
+            // 회원 조회
+            MemberEntity findMember = memberRepository.findByMemberEmail(email);
+            if (findMember == null) {
+                throw new MemberException("해당 유저가 존재하지 않습니다.");
+            }
+
+            // 장바구니 조회
+            CartEntity findCart = cartRepository.findByMemberMemberId(findMember.getMemberId());
+            if (findCart == null || !findCart.getMember().equals(findMember)) {
+                throw new MemberException("해당 유저의 장바구니가 아닙니다.");
+            }
+
+            // 장바구니 상품 조회
+            CartItemEntity findCartItem = cartItemRepository.findById(cartItemId)
+                    .orElseThrow(() -> new CartException("장바구니 상품이 존재하지 않습니다."));
+
+            // 장바구니에서 상품 수량 차감
+            findCart.resetCount(findCartItem.getCartCount());
+
+            // 장바구니 상품 삭제
+            cartItemRepository.deleteById(cartItemId);
+            return "장바구니에서 상품을 삭제했습니다.";
+        } catch (Exception e) {
+            throw new CartException("장바구니 상품을 삭제하는데 실패했습니다. : " + e.getMessage());
+        }
+    }
 }
