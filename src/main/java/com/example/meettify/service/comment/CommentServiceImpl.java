@@ -72,6 +72,10 @@ public class CommentServiceImpl implements  CommentService{
             CommunityEntity findCommunity = communityRepository.findById(commentId)
                     .orElseThrow(() -> new BoardException("커뮤니티 글이 없습니다."));
 
+            if(findCommunity == null) {
+                throw new BoardException("커뮤니티 글이 존재하지 않습니다.");
+            }
+
             CommentEntity findComment = commentRepository.findById(commentId)
                     .orElseThrow(() -> new CommentException("댓글이 없습니다."));
             // 댓글 수정

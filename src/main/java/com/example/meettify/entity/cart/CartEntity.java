@@ -37,8 +37,8 @@ public class CartEntity extends BaseEntity {
     private List<CartItemEntity> cartItems = new ArrayList<>();
 
     // 장바구니 생성
-    public static CartEntity createCart(MemberEntity member) {
-        return CartEntity.builder()
+    public static void createCart(MemberEntity member) {
+        CartEntity.builder()
                 .member(member)
                 .cartItems(new ArrayList<>())
                 .build();
@@ -53,8 +53,9 @@ public class CartEntity extends BaseEntity {
     }
 
     // 장바구니 삭제시 totalCount 초기화
-    public void resetCount(int count) {
-        this.totalCount = totalCount - count;
+    public void changeCount(int count) {
+        this.totalCount = Math.max(0, totalCount - count);  // 최소 0으로 유지
     }
+
 
 }
