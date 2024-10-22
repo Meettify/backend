@@ -46,4 +46,22 @@ public class ResponseCartDTO {
                 .cartItems(responseCartItem)
                 .build();
     }
+
+    // 수정시 반환할 DTO
+    public static ResponseCartDTO changeUpdateDTO(CartEntity cart,
+                                                  String email,
+                                                  List<CartItemEntity> cartItems) {
+        // CartItemEntity 리스트를 ResponseCartItemDTO 리스트로 변환
+        List<ResponseCartItemDTO> responseCartItems = cartItems.stream()
+                .map(cartItem -> ResponseCartItemDTO.changeDTO(cartItem, cartItem.getItem()))  // 각 CartItemEntity를 DTO로 변환
+                .collect(Collectors.toList());  // 결과를 리스트로 수집
+
+        // 변환된 리스트를 포함하여 ResponseCartDTO를 반환
+        return ResponseCartDTO.builder()
+                .cartId(cart.getCartId())
+                .memberEmail(email)
+                .totalCount(cart.getTotalCount())
+                .cartItems(responseCartItems)  // 변환된 DTO 리스트 추가
+                .build();
+    }
 }
