@@ -15,6 +15,7 @@ import com.example.meettify.repository.item.ItemRepository;
 import com.example.meettify.repository.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /*
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @RequiredArgsConstructor
 @Log4j2
+@Service
 public class CartServiceImpl implements CartService{
     private final CartRepository cartRepository;
     private final ItemRepository itemRepository;
