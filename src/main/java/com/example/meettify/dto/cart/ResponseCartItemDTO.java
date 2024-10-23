@@ -29,8 +29,18 @@ public class ResponseCartItemDTO {
         return ResponseCartItemDTO.builder()
                 .cartItemId(cartItem.getCartItemId())
                 .itemPrice(item.getItemPrice())
-                .itemCount(item.getItemCount())
+                .itemCount(cartItem.getCartCount())
                 .item(responseItem)
+                .build();
+    }
+
+    // 조회시 보내줄 DTO
+    public static ResponseCartItemDTO changeDetailDTO(CartItemEntity cartItem) {
+        return ResponseCartItemDTO.builder()
+                .cartItemId(cartItem.getCartItemId())
+                .itemPrice(cartItem.getItem().getItemPrice())
+                .itemCount(cartItem.getCartCount())
+                .item(ResponseItemDTO.changeDTO(cartItem.getItem()))
                 .build();
     }
 }

@@ -159,7 +159,20 @@ public class CartServiceImpl implements CartService{
             // 수정된 장바구니 정보를 반환
             return ResponseCartDTO.changeUpdateDTO(saveCart, email, findAllCartItems);
         } catch (Exception e) {
-            throw new CartException("상품을 수정하는데 실패했습니다. : " + e.getMessage());
+            throw new CartException("장바구니 상품을 수정하는데 실패했습니다. : " + e.getMessage());
+        }
+    }
+
+    // 장바구니 조회
+    @Override
+    @Transactional(readOnly = true)
+    public ResponseCartDTO cartDetail(Long cartId) {
+        try {
+            CartEntity findCart = cartRepository.findByCartId(cartId);
+            log.info("findCart = {}", findCart);
+            return ResponseCartDTO.changeDetailDTO(findCart);
+        } catch (Exception e) {
+            throw new CartException("장바구니 조회하는데 실패했습니다. : " + e.getMessage());
         }
     }
 }

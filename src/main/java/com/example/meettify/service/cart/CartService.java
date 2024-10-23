@@ -13,4 +13,6 @@ public interface CartService {
     String deleteCartItem(Long cartItemId, String email);
     // 장바구니 수정
     ResponseCartDTO updateCartItem(Long cartId, List<UpdateCartServiceDTO> carts, String email);
+    // 장바구니 조회
+    ResponseCartDTO cartDetail(Long cartId);
 }

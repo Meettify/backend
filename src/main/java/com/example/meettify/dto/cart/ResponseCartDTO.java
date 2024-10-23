@@ -64,4 +64,18 @@ public class ResponseCartDTO {
                 .cartItems(responseCartItems)  // 변환된 DTO 리스트 추가
                 .build();
     }
+
+    // 조회시 반환해줄 DTO
+    public static ResponseCartDTO changeDetailDTO(CartEntity cart) {
+        List<ResponseCartItemDTO> cartItem = cart.getCartItems().stream()
+                .map(ResponseCartItemDTO::changeDetailDTO)
+                .collect(Collectors.toList());
+
+        return ResponseCartDTO.builder()
+                .cartId(cart.getCartId())
+                .memberEmail(cart.getMember().getMemberEmail())
+                .totalCount(cart.getTotalCount())
+                .cartItems(cartItem)
+                .build();
+    }
 }
