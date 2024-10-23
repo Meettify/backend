@@ -19,4 +19,7 @@ public interface CartControllerDocs {
 
     @Operation(summary = "장바구니 상품 수정", description = "장바구니 상품 수정하는 API")
     ResponseEntity<?> updateCart(Long cartId, List<UpdateCartItemDTO> cart, UserDetails userDetails);
+
+    @Operation(summary = "장바구니 조회", description = "장바구니 조회 API")
+    ResponseEntity<?> getCart(Long cartId, UserDetails userDetails);
 }

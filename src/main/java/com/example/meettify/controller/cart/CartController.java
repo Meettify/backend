@@ -66,4 +66,17 @@ public class CartController implements CartControllerDocs{
             return ResponseEntity.badRequest().body("장바구니 수정 실패 : " + e.getMessage());
         }
     }
+
+    @Override
+    @GetMapping("/{cartId}")
+    public ResponseEntity<?> getCart(@PathVariable Long cartId,
+                                     @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            String email = userDetails.getUsername();
+            ResponseCartDTO response = cartService.cartDetail(cartId, email);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("장바구니 조회 실패 : " + e.getMessage());
+        }
+    }
 }

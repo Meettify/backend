@@ -14,4 +14,5 @@ public interface CartItemRepository extends JpaRepository<CartItemEntity, Long> 
             " join fetch c.item" +
             " where c.cart.cartId = :cartId")
     List<CartItemEntity> findAllByCartCartId(@Param("cartId") Long cartId);
+
 }
