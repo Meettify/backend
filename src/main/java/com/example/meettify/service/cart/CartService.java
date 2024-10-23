@@ -14,5 +14,5 @@ public interface CartService {
     // 장바구니 수정
     ResponseCartDTO updateCartItem(Long cartId, List<UpdateCartServiceDTO> carts, String email);
     // 장바구니 조회
-    ResponseCartDTO cartDetail(Long cartId);
+    ResponseCartDTO cartDetail(Long cartId, String email);
 }

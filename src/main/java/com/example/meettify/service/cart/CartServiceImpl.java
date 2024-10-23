@@ -166,11 +166,18 @@ public class CartServiceImpl implements CartService{
     // 장바구니 조회
     @Override
     @Transactional(readOnly = true)
-    public ResponseCartDTO cartDetail(Long cartId) {
+    public ResponseCartDTO cartDetail(Long cartId, String email) {
         try {
+            // 회원 조회
+            MemberEntity findMember = memberRepository.findByMemberEmail(email);
+            // 장바구니 조회
             CartEntity findCart = cartRepository.findByCartId(cartId);
             log.info("findCart = {}", findCart);
-            return ResponseCartDTO.changeDetailDTO(findCart);
+
+            if (findCart.getMember().getMemberId().equals(findMember.getMemberId())) {
+                return ResponseCartDTO.changeDetailDTO(findCart);
+            }
+            throw new MemberException("해당 유저의 장바구니가 아닙니다.");
         } catch (Exception e) {
             throw new CartException("장바구니 조회하는데 실패했습니다. : " + e.getMessage());
         }
