@@ -13,6 +13,12 @@ import org.springframework.util.StopWatch;
 
 import java.util.concurrent.TimeUnit;
 
+
+/*
+ *   worker : 유요한
+ *   work   : 시간 메트릭을 모으는 클래스
+ *   date   : 2024/10/24
+ * */
 @Log4j2
 @Component
 @Aspect

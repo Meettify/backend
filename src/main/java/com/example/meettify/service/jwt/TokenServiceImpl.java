@@ -1,6 +1,7 @@
 package com.example.meettify.service.jwt;
 
 import com.example.meettify.config.jwt.JwtProvider;
+import com.example.meettify.config.metric.TimeTrace;
 import com.example.meettify.dto.jwt.TokenDTO;
 import com.example.meettify.dto.member.role.UserRole;
 import com.example.meettify.entity.jwt.TokenEntity;
@@ -23,6 +24,7 @@ import java.util.List;
 @Transactional
 @RequiredArgsConstructor
 @Log4j2
+@TimeTrace
 public class TokenServiceImpl implements TokenService{
     private final TokenRepository tokenRepository;
     private final MemberRepository memberRepository;

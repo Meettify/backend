@@ -2,6 +2,7 @@ package com.example.meettify.service.member;
 
 import com.example.meettify.config.jwt.JwtProvider;
 import com.example.meettify.config.login.LoginAttemptConfig;
+import com.example.meettify.config.metric.TimeTrace;
 import com.example.meettify.dto.jwt.TokenDTO;
 import com.example.meettify.dto.member.MemberServiceDTO;
 import com.example.meettify.dto.member.UpdateMemberServiceDTO;
@@ -40,6 +41,7 @@ import java.util.List;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@TimeTrace
 public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;

@@ -1,5 +1,6 @@
 package com.example.meettify.service.comment;
 
+import com.example.meettify.config.metric.TimeTrace;
 import com.example.meettify.dto.comment.CreateCommentDTO;
 import com.example.meettify.dto.comment.ResponseCommentDTO;
 import com.example.meettify.dto.comment.UpdateCommentDTO;
@@ -28,6 +29,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Service
 @Log4j2
+@TimeTrace
 public class CommentServiceImpl implements  CommentService{
     private final CommentRepository commentRepository;
     private final CommunityRepository communityRepository;

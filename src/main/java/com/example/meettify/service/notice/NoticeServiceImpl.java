@@ -1,5 +1,6 @@
 package com.example.meettify.service.notice;
 
+import com.example.meettify.config.metric.TimeTrace;
 import com.example.meettify.dto.board.CreateServiceDTO;
 import com.example.meettify.dto.board.ResponseNoticeDTO;
 import com.example.meettify.dto.board.UpdateServiceDTO;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @ToString
 @RequiredArgsConstructor
 @Service
+@TimeTrace
 public class NoticeServiceImpl implements NoticeService{
     private final MemberRepository memberRepository;
     private final NoticeRepository noticeRepository;

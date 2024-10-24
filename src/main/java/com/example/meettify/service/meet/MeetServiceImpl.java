@@ -1,5 +1,6 @@
 package com.example.meettify.service.meet;
 
+import com.example.meettify.config.metric.TimeTrace;
 import com.example.meettify.config.s3.S3ImageUploadService;
 import com.example.meettify.dto.item.ResponseItemDTO;
 import com.example.meettify.dto.meet.*;
@@ -45,6 +46,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@TimeTrace
 public class MeetServiceImpl implements MeetService {
     private final ModelMapper modelMapper;
     private final MeetRepository meetRepository;
