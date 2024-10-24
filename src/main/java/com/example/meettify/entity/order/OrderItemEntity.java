@@ -6,7 +6,7 @@ import com.example.meettify.entity.item.ItemEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Entity(name = "orders")
+@Entity(name = "order_items")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
