@@ -118,4 +118,9 @@ public class ItemEntity extends BaseEntity {
                     " 재고 : " + this.itemCount);
         }
     }
+
+    // 재고 감소
+    public void minusItemStock(int count) {
+        this.itemCount = this.itemCount - count;
+    }
 }

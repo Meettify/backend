@@ -64,15 +64,27 @@ public class OrderServiceImpl implements OrderService{
 
                     // 주문 상품 생성
                     OrderItemEntity orderItemEntity = OrderItemEntity.saveOrder(findItem, null, order.getItemCount(), findItem.getItemPrice());
+                    // 주문할 상품 개수만큼 해당 상품의 재고 수량을 감소
+                    findItem.minusItemStock(order.getItemCount());
+                    // 재고 수량 상품 디비에 저장
+                    // 상품과 주문은 양방향 연관관계가 아니기 때문에 직접 처리해서 저장
+                    itemRepository.save(findItem);
                     orderItemEntities.add(orderItemEntity);
                 } else {
                     // 장바구니에 있는 경우
                     int orderPrice = findCartItem.getItem().getItemPrice() * order.getItemCount();
                     totalPrice += orderPrice;
+                    // 주문할 상품 개수만큼 해당 상품의 재고 수량을 감소
+                    findCartItem.getItem().minusItemStock(order.getItemCount());
+                    // 재고 수량 상품 디비에 저장
+                    // 상품과 주문은 양방향 연관관계가 아니기 때문에 직접 처리해서 저장
+                    itemRepository.save(findCartItem.getItem());
 
                     // 주문 상품 생성
                     OrderItemEntity orderItemEntity = OrderItemEntity.saveOrder(findCartItem.getItem(), null, order.getItemCount(), findCartItem.getItem().getItemPrice());
                     orderItemEntities.add(orderItemEntity);
+                    // 주문 성공 후 장바구니에서 삭제
+                    cartItemRepository.delete(findCartItem);
                 }
             }
 
