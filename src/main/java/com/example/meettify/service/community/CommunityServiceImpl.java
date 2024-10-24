@@ -1,6 +1,7 @@
 package com.example.meettify.service.community;
 
 import com.example.meettify.config.cookie.CookieUtils;
+import com.example.meettify.config.metric.TimeTrace;
 import com.example.meettify.config.redis.RedisService;
 import com.example.meettify.config.s3.S3ImageUploadService;
 import com.example.meettify.dto.board.CreateServiceDTO;
@@ -35,6 +36,7 @@ import static java.util.Objects.requireNonNull;
 @Transactional
 @RequiredArgsConstructor
 @Log4j2
+@TimeTrace
 public class CommunityServiceImpl implements CommunityService {
     private final CommunityRepository communityRepository;
     private final MemberRepository memberRepository;

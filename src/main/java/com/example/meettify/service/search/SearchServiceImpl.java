@@ -1,6 +1,7 @@
 package com.example.meettify.service.search;
 
 
+import com.example.meettify.config.metric.TimeTrace;
 import com.example.meettify.dto.board.ResponseCommunityDTO;
 import com.example.meettify.dto.item.ResponseItemDTO;
 import com.example.meettify.dto.meet.MeetSummaryDTO;
@@ -22,8 +23,9 @@ import java.util.*;
 
 @Log4j2
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
+@TimeTrace
 public class SearchServiceImpl implements SearchService {
     private final MemberRepository memberRepository;
     private final MeetMemberRepository meetMemberRepository;

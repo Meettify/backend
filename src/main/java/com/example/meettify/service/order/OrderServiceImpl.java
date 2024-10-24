@@ -1,5 +1,6 @@
 package com.example.meettify.service.order;
 
+import com.example.meettify.config.metric.TimeTrace;
 import com.example.meettify.dto.member.AddressDTO;
 import com.example.meettify.dto.order.RequestOrderServiceDTO;
 import com.example.meettify.dto.order.ResponseOrderDTO;
@@ -31,6 +32,7 @@ import java.util.List;
 @Log4j2
 @RequiredArgsConstructor
 @Service
+@TimeTrace
 public class OrderServiceImpl implements OrderService{
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;

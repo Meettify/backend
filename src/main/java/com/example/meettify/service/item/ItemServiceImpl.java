@@ -1,5 +1,6 @@
 package com.example.meettify.service.item;
 
+import com.example.meettify.config.metric.TimeTrace;
 import com.example.meettify.config.s3.S3ImageUploadService;
 import com.example.meettify.dto.item.*;
 import com.example.meettify.entity.item.ItemEntity;
@@ -32,6 +33,7 @@ import static java.util.Objects.requireNonNull;
 @RequiredArgsConstructor
 @Log4j2
 @Service
+@TimeTrace
 public class ItemServiceImpl implements ItemService {
     private final MemberRepository memberRepository;
     private final ItemRepository itemRepository;

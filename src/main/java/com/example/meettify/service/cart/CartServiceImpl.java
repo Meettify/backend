@@ -1,5 +1,6 @@
 package com.example.meettify.service.cart;
 
+import com.example.meettify.config.metric.TimeTrace;
 import com.example.meettify.dto.cart.RequestCartServiceDTO;
 import com.example.meettify.dto.cart.ResponseCartDTO;
 import com.example.meettify.dto.cart.ResponseCartItemDTO;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Log4j2
 @Service
+@TimeTrace
 public class CartServiceImpl implements CartService{
     private final CartRepository cartRepository;
     private final ItemRepository itemRepository;
