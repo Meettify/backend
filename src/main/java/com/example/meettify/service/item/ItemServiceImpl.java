@@ -10,12 +10,13 @@ import com.example.meettify.exception.member.MemberException;
 import com.example.meettify.repository.item.ItemImgRepository;
 import com.example.meettify.repository.item.ItemRepository;
 import com.example.meettify.repository.member.MemberRepository;
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +37,7 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final ItemImgRepository itemImgRepository;
     private final S3ImageUploadService s3ImageUploadService;
+    private final MeterRegistry meterRegistry;
 
 
     // 상품 등록 메서드
@@ -49,6 +51,12 @@ public class ItemServiceImpl implements ItemService {
                 List<ItemImgEntity> imagesEntity = ItemImgEntity.createEntityList(itemImages, itemEntity);
                 itemEntity.getImages().addAll(imagesEntity);
                 ItemEntity saveItem = itemRepository.save(itemEntity);
+
+                // 상품 등록 후 재고 수량 Gauge 등록
+                Gauge.builder("item.stock", saveItem, ItemEntity::getItemStock)
+                        .tag("item_id", String.valueOf(saveItem.getItemId()))
+                        .register(meterRegistry);
+
                 return ResponseItemDTO.changeDTO(saveItem);
             }
             throw new MemberException("회원이 존재하지 않습니다.");

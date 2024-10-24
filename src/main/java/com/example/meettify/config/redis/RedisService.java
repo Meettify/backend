@@ -8,6 +8,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;
 
+/*
+ *   worker : 유요한
+ *   work   : RedisService 클래스는 Redis와 통신하여 데이터를 저장하고 조작하는 여러 기능을 제공하는 서비스 계층
+ *   date   : 2024/10/20
+ * */
 @RequiredArgsConstructor
 @Service
 @Log4j2
@@ -24,9 +29,12 @@ public class RedisService {
     public void addToSet(String key, Long communityId) {
         // 키가 없다면 (set이 없다면)
         if(!redisTemplate.hasKey(key)) {
-            // set 생성
+            // Redis의 Set 자료구조를 이용해 주어진 communityId를 Set에 추가합니다.
+            // redisTemplate.opsForValue().increment(key)를 사용하여 지정된 키의 값을 증분시킵니다.
+            // 값이 없을 경우 Redis는 0부터 시작해 1을 더합니다.
             redisTemplate.opsForSet().add(key, String.valueOf(communityId));
             // 만료 기간 설정
+            // 만료 기간은 TimeUtils 클래스에서 제공하는 시간을 이용해 자정까지의 초 단위 시간을 구해 설정
             redisTemplate.expire(key, TimeUtils.getRemainingTimeUntilMidnight(), TimeUnit.SECONDS);
             log.info("Created new set for key {} with communityId {}", key, communityId);
         } else  {
@@ -35,6 +43,7 @@ public class RedisService {
             log.info("Added communityId {} to existing set for key {}", communityId, key);
         }
     }
+    // 주어진 communityId가 Redis에 저장된 Set 안에 있는지 확인하는 기능을 제공
     public boolean isExistInSet(String key, Long communityId) {
         return Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(key, String.valueOf(communityId)));
     }

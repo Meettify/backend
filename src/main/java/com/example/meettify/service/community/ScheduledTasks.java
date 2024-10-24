@@ -10,6 +10,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/*
+ *   worker : 유요한
+ *   work   : 매일 정각에 레디스에서 조회수를 가져와서 디비에 쿼리를 보내주는 클라스
+ *   date   : 2024/10/20
+ * */
 @EnableScheduling
 @Component
 @RequiredArgsConstructor
