@@ -37,9 +37,6 @@ public class OrderServiceImpl implements OrderService{
     private final MemberRepository memberRepository;
     private final CartItemRepository cartItemRepository;
     private final ItemRepository itemRepository;
-    private final MeterRegistry meterRegistry;
-    // 주문 수를 카운트할 Counter 정의
-    private Counter orderCounter;
 
     // 주문하기
     @Override
@@ -104,8 +101,6 @@ public class OrderServiceImpl implements OrderService{
 
             OrderEntity saveOrder = orderRepository.save(orderEntity); // 주문 저장
 
-            // 주문 수 카운터 증가
-            orderCounter.increment();
             return ResponseOrderDTO.changeDTO(saveOrder, address);
 
         } catch (Exception e) {

@@ -37,7 +37,6 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final ItemImgRepository itemImgRepository;
     private final S3ImageUploadService s3ImageUploadService;
-    private final MeterRegistry meterRegistry;
 
 
     // 상품 등록 메서드
@@ -51,11 +50,6 @@ public class ItemServiceImpl implements ItemService {
                 List<ItemImgEntity> imagesEntity = ItemImgEntity.createEntityList(itemImages, itemEntity);
                 itemEntity.getImages().addAll(imagesEntity);
                 ItemEntity saveItem = itemRepository.save(itemEntity);
-
-                // 상품 등록 후 재고 수량 Gauge 등록
-                Gauge.builder("item.stock", saveItem, ItemEntity::getItemStock)
-                        .tag("item_id", String.valueOf(saveItem.getItemId()))
-                        .register(meterRegistry);
 
                 return ResponseItemDTO.changeDTO(saveItem);
             }
