@@ -19,6 +19,7 @@ import com.example.meettify.repository.order.OrderItemRepository;
 import com.example.meettify.repository.order.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import java.util.List;
 @Transactional
 @Log4j2
 @RequiredArgsConstructor
+@Service
 public class OrderServiceImpl implements OrderService{
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
