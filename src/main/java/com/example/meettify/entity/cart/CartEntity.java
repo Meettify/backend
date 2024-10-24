@@ -44,7 +44,7 @@ public class CartEntity extends BaseEntity {
                 .build();
     }
 
-    // 장바구니 생성
+    // 장바구니 상품 추가
     public void saveCart(CartItemEntity cartItem,
                          MemberEntity member) {
         this.member = member;
@@ -52,9 +52,14 @@ public class CartEntity extends BaseEntity {
         this.cartItems.add(cartItem);
     }
 
-    // 장바구니 삭제시 totalCount 초기화
-    public void changeCount(int count) {
+    // 장바구니 삭제시 totalCount 빼기
+    public void minusCount(int count) {
         this.totalCount = Math.max(0, totalCount - count);  // 최소 0으로 유지
+    }
+
+    // 장바구니 총 개수 수정
+    public void changeCount(int count) {
+        this.totalCount = count;
     }
 
 

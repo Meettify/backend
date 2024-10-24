@@ -56,16 +56,14 @@ public class CartServiceImpl implements CartService{
                 log.info("장바구니 확인 {}" , findCart);
 
                 // 장바구니 상품 조회
-                CartItemEntity findCartItem = cartItemRepository.findByCartCartId(findCart.getCartId());
-                log.info("장바구니 상품 확인 {}" , findCartItem);
+                CartItemEntity findCartItem = cartItemRepository.findByItem_ItemId(cart.getItemId());
 
                 // 기존에 장바구니에 상품이 있어서 추가
-                if(findCartItem != null) {
-                    // 기존에 상품이 있으니까 거기에 더해주기
-                    findCartItem.addCartPlus(cart);
-                } else {
+                if(findCartItem == null) {
                     // 기존에 상품이 없으니 새롭게 추가
                     findCartItem = CartItemEntity.addCartItem(cart, findCart, findItem);
+                } else {
+                    throw new CartException("기존에 장바구니에 담았습니다.");
                 }
                 // 장바구니에 장바구니 상품 담기
                 findCart.getCartItems().add(findCartItem);
@@ -106,7 +104,7 @@ public class CartServiceImpl implements CartService{
                     .orElseThrow(() -> new CartException("장바구니 상품이 존재하지 않습니다."));
 
             // 장바구니에서 상품 수량 차감
-            findCart.changeCount(findCartItem.getCartCount());
+            findCart.minusCount(findCartItem.getCartCount());
 
             // 장바구니 상품 삭제
             cartItemRepository.deleteById(cartItemId);
