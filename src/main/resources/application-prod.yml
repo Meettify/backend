@@ -136,7 +136,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: ["prometheus", "logfile"]
+        include: ["prometheus", "logfile", "metrics"]
       base-path: /monitor
 
 
