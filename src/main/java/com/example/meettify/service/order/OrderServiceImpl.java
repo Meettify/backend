@@ -17,6 +17,8 @@ import com.example.meettify.repository.item.ItemRepository;
 import com.example.meettify.repository.member.MemberRepository;
 import com.example.meettify.repository.order.OrderItemRepository;
 import com.example.meettify.repository.order.OrderRepository;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -35,6 +37,9 @@ public class OrderServiceImpl implements OrderService{
     private final MemberRepository memberRepository;
     private final CartItemRepository cartItemRepository;
     private final ItemRepository itemRepository;
+    private final MeterRegistry meterRegistry;
+    // 주문 수를 카운트할 Counter 정의
+    private Counter orderCounter;
 
     // 주문하기
     @Override
@@ -98,6 +103,9 @@ public class OrderServiceImpl implements OrderService{
             }
 
             OrderEntity saveOrder = orderRepository.save(orderEntity); // 주문 저장
+
+            // 주문 수 카운터 증가
+            orderCounter.increment();
             return ResponseOrderDTO.changeDTO(saveOrder, address);
 
         } catch (Exception e) {

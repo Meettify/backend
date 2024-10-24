@@ -123,4 +123,9 @@ public class ItemEntity extends BaseEntity {
     public void minusItemStock(int count) {
         this.itemCount = this.itemCount - count;
     }
+
+    // 재고 수량
+    public int getItemStock() {
+        return this.itemCount;
+    }
 }
