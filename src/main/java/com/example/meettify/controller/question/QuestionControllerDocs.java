@@ -1,6 +1,7 @@
 package com.example.meettify.controller.question;
 
 import com.example.meettify.dto.board.CreateBoardDTO;
+import com.example.meettify.dto.board.UpdateQuestionDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
@@ -10,4 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 public interface QuestionControllerDocs {
     @Operation(summary = "문의하기", description = "문의하는 API")
     ResponseEntity<?> saveQuestion(CreateBoardDTO question, UserDetails userDetails);
+
+    @Operation(summary = "문의 수정", description = "문의 수정 API")
+    ResponseEntity<?> updateQuestion(Long questionId, UpdateQuestionDTO question, UserDetails userDetails);
 }

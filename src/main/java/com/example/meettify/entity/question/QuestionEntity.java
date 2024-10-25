@@ -2,6 +2,7 @@ package com.example.meettify.entity.question;
 
 import com.example.meettify.config.auditing.entity.BaseEntity;
 import com.example.meettify.dto.board.CreateBoardDTO;
+import com.example.meettify.dto.board.UpdateQuestionDTO;
 import com.example.meettify.entity.member.MemberEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -32,5 +33,11 @@ public class QuestionEntity extends BaseEntity {
                 .content(question.getContent())
                 .member(member)
                 .build();
+    }
+
+    // 수정하기
+    public void updateQuestion(UpdateQuestionDTO question) {
+        this.title = question.getTitle();
+        this.content = question.getContent();
     }
 }
