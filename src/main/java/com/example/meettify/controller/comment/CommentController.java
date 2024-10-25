@@ -73,9 +73,9 @@ public class CommentController implements CommentControllerDocs{
 
     @Override
     @GetMapping("/{commentId}")
-    public ResponseEntity<?> getComment(@PathVariable Long communityId) {
+    public ResponseEntity<?> getComment(@PathVariable Long commentId) {
         try {
-            ResponseCommentDTO response = commentService.getComment(communityId);
+            ResponseCommentDTO response = commentService.getComment(commentId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             throw new CommentException(e.getMessage());
