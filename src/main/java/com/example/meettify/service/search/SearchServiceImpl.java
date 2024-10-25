@@ -25,14 +25,13 @@ import java.util.*;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-@TimeTrace
 public class SearchServiceImpl implements SearchService {
     private final MemberRepository memberRepository;
     private final MeetMemberRepository meetMemberRepository;
     private final SearchCustomRepositoryImpl searchCustomRepository;
 
 
-
+    @TimeTrace
     public SearchResponseDTO searchResponseDTO(SearchCondition searchCondition,String email) {
 
 

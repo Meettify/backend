@@ -36,7 +36,6 @@ import static java.util.Objects.requireNonNull;
 @Transactional
 @RequiredArgsConstructor
 @Log4j2
-@TimeTrace
 public class CommunityServiceImpl implements CommunityService {
     private final CommunityRepository communityRepository;
     private final MemberRepository memberRepository;
@@ -46,6 +45,7 @@ public class CommunityServiceImpl implements CommunityService {
 
     // 커뮤니티 생성
     @Override
+    @TimeTrace
     public ResponseCommunityDTO saveBoard(CreateServiceDTO board,
                                           List<MultipartFile> files,
                                           String memberEmail) {
@@ -85,6 +85,7 @@ public class CommunityServiceImpl implements CommunityService {
 
     // 커뮤니티 수정
     @Override
+    @TimeTrace
     public ResponseCommunityDTO updateBoard(Long communityId,
                                             UpdateServiceDTO community,
                                             List<MultipartFile> files,
@@ -133,6 +134,7 @@ public class CommunityServiceImpl implements CommunityService {
     // 커뮤니티 상세 페이지
     @Override
     @Transactional(readOnly = true)
+    @TimeTrace
     public ResponseCommunityDTO getBoard(Long communityId,
                                          HttpServletRequest request,
                                          HttpServletResponse response) {
@@ -183,6 +185,7 @@ public class CommunityServiceImpl implements CommunityService {
 
     // 커뮤니티 삭제
     @Override
+    @TimeTrace
     public String deleteBoard(Long communityId) {
         try {
             CommunityEntity findCommunity = communityRepository.findById(communityId)
@@ -206,6 +209,7 @@ public class CommunityServiceImpl implements CommunityService {
     // 페이징 처리해서 보여줄 커뮤니티 게시글
     @Override
     @Transactional(readOnly = true)
+    @TimeTrace
     public Page<ResponseCommunityDTO> getBoards(Pageable pageable) {
         try {
             Page<CommunityEntity> findAllCommunity = communityRepository.findAll(pageable);
@@ -221,6 +225,7 @@ public class CommunityServiceImpl implements CommunityService {
     // 커뮤니티 제목 검색
     @Override
     @Transactional(readOnly = true)
+    @TimeTrace
     public Page<ResponseCommunityDTO> searchTitle(Pageable pageable, String searchTitle) {
         try {
             Page<CommunityEntity> findAllByTitle = communityRepository.findBySearchTitle(pageable, searchTitle);

@@ -3,6 +3,7 @@ package com.example.meettify.controller.comment;
 import com.example.meettify.dto.comment.CreateCommentDTO;
 import com.example.meettify.dto.comment.ResponseCommentDTO;
 import com.example.meettify.dto.comment.UpdateCommentDTO;
+import com.example.meettify.exception.comment.CommentException;
 import com.example.meettify.service.comment.CommentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -36,7 +37,7 @@ public class CommentController implements CommentControllerDocs{
             ResponseCommentDTO response = commentService.createComment(communityId, comment, email);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            throw new CommentException(e.getMessage());
         }
     }
 
@@ -53,7 +54,7 @@ public class CommentController implements CommentControllerDocs{
             ResponseCommentDTO response = commentService.updateComment(commentId, communityId, comment, email);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            throw new CommentException(e.getMessage());
         }
     }
 
@@ -66,7 +67,7 @@ public class CommentController implements CommentControllerDocs{
             String response = commentService.deleteComment(commentId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            throw new CommentException(e.getMessage());
         }
     }
 
@@ -77,7 +78,7 @@ public class CommentController implements CommentControllerDocs{
             ResponseCommentDTO response = commentService.getComment(communityId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            throw new CommentException(e.getMessage());
         }
     }
 
@@ -107,7 +108,7 @@ public class CommentController implements CommentControllerDocs{
             return ResponseEntity.ok().body(response);
 
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            throw new CommentException(e.getMessage());
         }
     }
 }

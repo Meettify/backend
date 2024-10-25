@@ -4,6 +4,7 @@ import com.example.meettify.dto.member.AddressDTO;
 import com.example.meettify.dto.order.RequestOrderDTO;
 import com.example.meettify.dto.order.RequestOrderServiceDTO;
 import com.example.meettify.dto.order.ResponseOrderDTO;
+import com.example.meettify.exception.order.OrderException;
 import com.example.meettify.service.order.OrderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -42,7 +43,7 @@ public class OrderController implements OrderControllerDocs{
             ResponseOrderDTO response = orderService.saveOrder(serviceDTOS, email, address);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            throw new OrderException(e.getMessage());
         }
     }
 }

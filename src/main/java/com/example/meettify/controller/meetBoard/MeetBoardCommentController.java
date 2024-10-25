@@ -5,6 +5,8 @@ import com.example.meettify.dto.meetBoard.MeetBoardCommentServiceDTO;
 import com.example.meettify.dto.meetBoard.RequestMeetBoardCommentDTO;
 import com.example.meettify.dto.meetBoard.ResponseMeetBoardCommentDTO;
 import com.example.meettify.dto.meetBoard.UpdateMeetBoardCommentDTO;
+import com.example.meettify.exception.board.BoardException;
+import com.example.meettify.exception.comment.CommentException;
 import com.example.meettify.service.meetBoard.MeetBoardCommentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -44,7 +46,7 @@ public class MeetBoardCommentController implements   MeetBoardCommentControllerD
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             log.error("예외 : " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            throw new CommentException(e.getMessage());
         }
     }
 
@@ -63,7 +65,7 @@ public class MeetBoardCommentController implements   MeetBoardCommentControllerD
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             log.error("예외 : " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            throw new CommentException(e.getMessage());
         }
     }
 
@@ -85,7 +87,7 @@ public class MeetBoardCommentController implements   MeetBoardCommentControllerD
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
         } catch (Exception e) {
             log.error("예외 : " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            throw new CommentException(e.getMessage());
         }
     }
 }

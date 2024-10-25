@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Log4j2
 @Service
-@TimeTrace
 public class CartServiceImpl implements CartService{
     private final CartRepository cartRepository;
     private final ItemRepository itemRepository;
@@ -42,6 +41,7 @@ public class CartServiceImpl implements CartService{
 
     // 장바구니에 상품 추가
     @Override
+    @TimeTrace
     public ResponseCartDTO addCartItem(RequestCartServiceDTO cart, String email) {
         try {
             // 회원 조회
@@ -87,6 +87,7 @@ public class CartServiceImpl implements CartService{
 
     // 장바구니 상품 삭제
     @Override
+    @TimeTrace
     public String deleteCartItem(Long cartItemId, String email) {
         try {
             // 회원 조회
@@ -118,6 +119,7 @@ public class CartServiceImpl implements CartService{
 
     // 장바구니 상품 수정
     @Override
+    @TimeTrace
     public ResponseCartDTO updateCartItem(Long cartId,
                                           List<UpdateCartServiceDTO> carts,
                                           String email) {
@@ -166,6 +168,7 @@ public class CartServiceImpl implements CartService{
     // 장바구니 조회
     @Override
     @Transactional(readOnly = true)
+    @TimeTrace
     public ResponseCartDTO cartDetail(Long cartId, String email) {
         try {
             // 회원 조회

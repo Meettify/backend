@@ -41,7 +41,6 @@ import java.util.List;
 @Service
 @Transactional
 @RequiredArgsConstructor
-@TimeTrace
 public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
@@ -128,7 +127,7 @@ public class MemberServiceImpl implements MemberService {
                 }
                 // 비밀번호가 틀린 경우 실패 처리
                 loginAttemptConfig.loginFailed(email);
-                throw new BadCredentialsException("비밀번호가 일치하지 않습니다.");
+                throw new MemberException("비밀번호가 일치하지 않습니다.");
             }
             throw new EntityNotFoundException(String.format("회원이 존재하지 않습니다. 이메일: %s", email));
         } catch (Exception e) {

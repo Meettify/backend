@@ -22,13 +22,13 @@ import org.springframework.transaction.annotation.Transactional;
 @ToString
 @RequiredArgsConstructor
 @Service
-@TimeTrace
 public class NoticeServiceImpl implements NoticeService{
     private final MemberRepository memberRepository;
     private final NoticeRepository noticeRepository;
 
     // 공지 생셩
     @Override
+    @TimeTrace
     public ResponseNoticeDTO saveBoard(CreateServiceDTO notice, String adminEmail) {
         try {
             MemberEntity findAdmin = memberRepository.findByMemberEmail(adminEmail);
@@ -43,6 +43,7 @@ public class NoticeServiceImpl implements NoticeService{
 
     // 공지 수정
     @Override
+    @TimeTrace
     public ResponseNoticeDTO updateBoard(Long noticeId, UpdateServiceDTO notice) {
         try {
             NoticeEntity findNotice = noticeRepository.findById(noticeId)
@@ -59,6 +60,7 @@ public class NoticeServiceImpl implements NoticeService{
 
     // 공지 상세 페이지
     @Override
+    @TimeTrace
     @Transactional(readOnly = true)
     public ResponseNoticeDTO getNotice(Long noticeId) {
         try {
@@ -74,6 +76,7 @@ public class NoticeServiceImpl implements NoticeService{
 
     // 공지사항 삭제
     @Override
+    @TimeTrace
     public String deleteNotice(Long noticeId) {
         try {
             NoticeEntity findNotice = noticeRepository.findById(noticeId)
@@ -91,6 +94,7 @@ public class NoticeServiceImpl implements NoticeService{
     // 공지사항 페이징
     @Override
     @Transactional(readOnly = true)
+    @TimeTrace
     public Page<ResponseNoticeDTO> getAllNotice(Pageable pageable) {
         try {
             Page<NoticeEntity> findAllNotice = noticeRepository.findAll(pageable);

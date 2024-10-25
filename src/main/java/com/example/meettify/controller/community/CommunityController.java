@@ -1,6 +1,7 @@
 package com.example.meettify.controller.community;
 
 import com.example.meettify.dto.board.*;
+import com.example.meettify.exception.board.BoardException;
 import com.example.meettify.service.community.CommunityService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -43,7 +44,7 @@ public class CommunityController implements CommunityControllerDocs {
             ResponseCommunityDTO response = communityService.saveBoard(changeServiceDTO, files, email);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            throw new BoardException(e.getMessage());
         }
     }
 
@@ -62,7 +63,7 @@ public class CommunityController implements CommunityControllerDocs {
             ResponseCommunityDTO response = communityService.updateBoard(communityId, updateServiceDTO, files, email);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            throw new BoardException(e.getMessage());
         }
     }
 
@@ -76,10 +77,11 @@ public class CommunityController implements CommunityControllerDocs {
             ResponseCommunityDTO responseCommunity = communityService.getBoard(communityId, request, response);
             return ResponseEntity.ok(responseCommunity);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            throw new BoardException(e.getMessage());
         }
     }
 
+    // 커뮤니티 삭제
     @Override
     @DeleteMapping("/{communityId}")
     public ResponseEntity<?> deleteCommunity(Long communityId) {
@@ -87,7 +89,7 @@ public class CommunityController implements CommunityControllerDocs {
             String response = communityService.deleteBoard(communityId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            throw new BoardException(e.getMessage());
         }
     }
 
@@ -117,7 +119,7 @@ public class CommunityController implements CommunityControllerDocs {
 
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            throw new BoardException(e.getMessage());
         }
     }
 
@@ -148,7 +150,7 @@ public class CommunityController implements CommunityControllerDocs {
 
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            throw new BoardException(e.getMessage());
         }
     }
 }

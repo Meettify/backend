@@ -12,5 +12,5 @@ import org.springframework.security.core.userdetails.UserDetails;
 public interface SearchControllerDocs {
 
     @Operation(summary = "상품 + 모임을 검색하는 API", description = "모임과 상품에 대한 키워드를 받아서 검색을 진행한다.")
-    public ResponseEntity<?> getSearch(SearchCondition searchCondition, @AuthenticationPrincipal UserDetails userDetails);
+    public ResponseEntity<?> getSearch(SearchCondition searchCondition, @AuthenticationPrincipal UserDetails userDetails) throws Exception;
 }

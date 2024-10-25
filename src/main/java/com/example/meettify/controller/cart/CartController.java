@@ -1,6 +1,7 @@
 package com.example.meettify.controller.cart;
 
 import com.example.meettify.dto.cart.*;
+import com.example.meettify.exception.cart.CartException;
 import com.example.meettify.service.cart.CartService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -32,7 +33,7 @@ public class CartController implements CartControllerDocs{
             ResponseCartDTO response = cartService.addCartItem(serviceDTO, email);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("장바구니 담는 요청 실패 : " + e.getMessage());
+            throw new CartException(e.getMessage());
         }
     }
 
@@ -46,7 +47,7 @@ public class CartController implements CartControllerDocs{
             String response = cartService.deleteCartItem(cartItemId, email);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("장바구니 상품 삭제 실패 : " + e.getMessage());
+            throw new CartException(e.getMessage());
         }
     }
 
@@ -63,7 +64,7 @@ public class CartController implements CartControllerDocs{
             ResponseCartDTO response = cartService.updateCartItem(cartId, serviceDTOS, email);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("장바구니 수정 실패 : " + e.getMessage());
+            throw new CartException(e.getMessage());
         }
     }
 
@@ -76,7 +77,7 @@ public class CartController implements CartControllerDocs{
             ResponseCartDTO response = cartService.cartDetail(cartId, email);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("장바구니 조회 실패 : " + e.getMessage());
+            throw new CartException(e.getMessage());
         }
     }
 }
