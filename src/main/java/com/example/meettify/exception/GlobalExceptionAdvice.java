@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 /*
  *   worker : 유요한
@@ -40,6 +41,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class GlobalExceptionAdvice {
     private final SlackUtil slackUtil;
+    private final LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 
     // 표준 응답 형식을 위한 내부 클래스
     @Getter
@@ -61,7 +63,7 @@ public class GlobalExceptionAdvice {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setError("회원 에러 발생");
         errorResponse.setMessage(e.getMessage());
-        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setTimestamp(now); // 오류 발생 시간
         errorResponse.setPath(request.getRequestURI()); // 요청된 경로
         errorResponse.setMethod(request.getMethod()); // 요청 메서드
 
@@ -78,7 +80,7 @@ public class GlobalExceptionAdvice {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setError("게시글 에러 발생");
         errorResponse.setMessage(e.getMessage());
-        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setTimestamp(now); // 오류 발생 시간
         errorResponse.setPath(request.getRequestURI()); // 요청된 경로
         errorResponse.setMethod(request.getMethod()); // 요청 메서드
 
@@ -95,7 +97,7 @@ public class GlobalExceptionAdvice {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setError("모임 에러 발생");
         errorResponse.setMessage(e.getMessage());
-        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setTimestamp(now); // 오류 발생 시간
         errorResponse.setPath(request.getRequestURI()); // 요청된 경로
         errorResponse.setMethod(request.getMethod()); // 요청 메서드
 
@@ -112,7 +114,7 @@ public class GlobalExceptionAdvice {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setError("댓글 에러 발생");
         errorResponse.setMessage(e.getMessage());
-        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setTimestamp(now); // 오류 발생 시간
         errorResponse.setPath(request.getRequestURI()); // 요청된 경로
         errorResponse.setMethod(request.getMethod()); // 요청 메서드
 
@@ -129,7 +131,7 @@ public class GlobalExceptionAdvice {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setError("상품 에러 발생");
         errorResponse.setMessage(e.getMessage());
-        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setTimestamp(now); // 오류 발생 시간
         errorResponse.setPath(request.getRequestURI()); // 요청된 경로
         errorResponse.setMethod(request.getMethod()); // 요청 메서드
 
@@ -146,7 +148,7 @@ public class GlobalExceptionAdvice {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setError("장바구니 에러 발생");
         errorResponse.setMessage(e.getMessage());
-        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setTimestamp(now); // 오류 발생 시간
         errorResponse.setPath(request.getRequestURI()); // 요청된 경로
         errorResponse.setMethod(request.getMethod()); // 요청 메서드
 
@@ -163,7 +165,7 @@ public class GlobalExceptionAdvice {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setError("주문 에러 발생");
         errorResponse.setMessage(e.getMessage());
-        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setTimestamp(now); // 오류 발생 시간
         errorResponse.setPath(request.getRequestURI()); // 요청된 경로
         errorResponse.setMethod(request.getMethod()); // 요청 메서드
 
@@ -180,7 +182,7 @@ public class GlobalExceptionAdvice {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setError("데이터 검증 에러 발생");
         errorResponse.setMessage(e.getMessage());
-        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setTimestamp(now); // 오류 발생 시간
         errorResponse.setPath(request.getRequestURI()); // 요청된 경로
         errorResponse.setMethod(request.getMethod()); // 요청 메서드
 
@@ -197,7 +199,7 @@ public class GlobalExceptionAdvice {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setError("세션 만료 에러 발생");
         errorResponse.setMessage(e.getMessage());
-        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setTimestamp(now); // 오류 발생 시간
         errorResponse.setPath(request.getRequestURI()); // 요청된 경로
         errorResponse.setMethod(request.getMethod()); // 요청 메서드
 
@@ -214,7 +216,7 @@ public class GlobalExceptionAdvice {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setError("파일 업로드 에러 발생");
         errorResponse.setMessage(e.getMessage());
-        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setTimestamp(now); // 오류 발생 시간
         errorResponse.setPath(request.getRequestURI()); // 요청된 경로
         errorResponse.setMethod(request.getMethod()); // 요청 메서드
 
@@ -231,7 +233,7 @@ public class GlobalExceptionAdvice {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setError("파일 다운로드 에러 발생");
         errorResponse.setMessage(e.getMessage());
-        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setTimestamp(now); // 오류 발생 시간
         errorResponse.setPath(request.getRequestURI()); // 요청된 경로
         errorResponse.setMethod(request.getMethod()); // 요청 메서드
 
@@ -248,7 +250,7 @@ public class GlobalExceptionAdvice {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setError("외부 서비스 에러 발생");
         errorResponse.setMessage(e.getMessage());
-        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setTimestamp(now); // 오류 발생 시간
         errorResponse.setPath(request.getRequestURI()); // 요청된 경로
         errorResponse.setMethod(request.getMethod()); // 요청 메서드
 
@@ -265,7 +267,7 @@ public class GlobalExceptionAdvice {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setError("재고부족 에러 발생");
         errorResponse.setMessage(e.getMessage());
-        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setTimestamp(now); // 오류 발생 시간
         errorResponse.setPath(request.getRequestURI()); // 요청된 경로
         errorResponse.setMethod(request.getMethod()); // 요청 메서드
 
@@ -282,7 +284,7 @@ public class GlobalExceptionAdvice {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setError("존재하지 않는 리소스에 접근해서 에러 발생");
         errorResponse.setMessage(e.getMessage());
-        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setTimestamp(now); // 오류 발생 시간
         errorResponse.setPath(request.getRequestURI()); // 요청된 경로
         errorResponse.setMethod(request.getMethod()); // 요청 메서드
 
@@ -301,7 +303,7 @@ public class GlobalExceptionAdvice {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setError("허용되지 않는 HTTP 메서드 에러 발생");
         errorResponse.setMessage(e.getMessage());
-        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setTimestamp(now); // 오류 발생 시간
         errorResponse.setPath(request.getRequestURI()); // 요청된 경로
         errorResponse.setMethod(request.getMethod()); // 요청 메서드
 
@@ -319,7 +321,7 @@ public class GlobalExceptionAdvice {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setError("잘못된 요청 에러 발생");
         errorResponse.setMessage(e.getMessage());
-        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setTimestamp(now); // 오류 발생 시간
         errorResponse.setPath(request.getRequestURI()); // 요청된 경로
         errorResponse.setMethod(request.getMethod()); // 요청 메서드
 
@@ -337,7 +339,7 @@ public class GlobalExceptionAdvice {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setError("응답 시간 에러 발생(오래걸려서 TimeOut)");
         errorResponse.setMessage(e.getMessage());
-        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setTimestamp(now); // 오류 발생 시간
         errorResponse.setPath(request.getRequestURI()); // 요청된 경로
         errorResponse.setMethod(request.getMethod()); // 요청 메서드
 
@@ -354,7 +356,7 @@ public class GlobalExceptionAdvice {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setError("에러 발생");
         errorResponse.setMessage(e.getMessage());
-        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setTimestamp(now); // 오류 발생 시간
         errorResponse.setPath(request.getRequestURI()); // 요청된 경로
         errorResponse.setMethod(request.getMethod()); // 요청 메서드
 
