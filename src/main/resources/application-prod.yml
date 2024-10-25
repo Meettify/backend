@@ -1,4 +1,6 @@
 spring:
+  jackson:
+    time-zone: 'Asia/Seoul'
   #multipart upload파일 용량설정
   #default : 1MB
   servlet:
