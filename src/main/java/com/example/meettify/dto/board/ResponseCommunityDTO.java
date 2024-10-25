@@ -68,6 +68,7 @@ public class ResponseCommunityDTO {
                 .regTime(community.getRegTime())
                 .images(images)
                 .viewCount(community.getViewCount())
+                .regTime(community.getRegTime())
                 .build();
     }
 
@@ -85,6 +86,7 @@ public class ResponseCommunityDTO {
                 .regTime(community.getRegTime())
                 .images(images)
                 .viewCount(viewCount)
+                .regTime(community.getRegTime())
                 .build();
     }
 }
