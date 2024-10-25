@@ -83,6 +83,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     // micrometer
     implementation 'io.micrometer:micrometer-core'
+    implementation("org.springframework.boot:spring-boot-starter-aop")
 }
 
 tasks.named('bootBuildImage') {

@@ -2,6 +2,7 @@ package com.example.meettify.controller.member;
 
 import com.example.meettify.dto.jwt.TokenDTO;
 import com.example.meettify.dto.member.*;
+import com.example.meettify.exception.member.MemberException;
 import com.example.meettify.service.member.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -39,7 +40,7 @@ public class MemberController implements MemberControllerDocs{
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             log.error("예외 : " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            throw new MemberException(e.getMessage());
         }
     }
 
@@ -66,7 +67,7 @@ public class MemberController implements MemberControllerDocs{
             TokenDTO response = memberService.login(email, memberPw);
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            throw new MemberException(e.getMessage());
         }
     }
 
@@ -83,7 +84,7 @@ public class MemberController implements MemberControllerDocs{
             ResponseMemberDTO reponse = memberService.update(updateMemberServiceDTO, email);
             return ResponseEntity.ok().body(reponse);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            throw new MemberException(e.getMessage());
         }
     }
 
@@ -98,10 +99,11 @@ public class MemberController implements MemberControllerDocs{
             String response = memberService.removeUser(memberId, email);
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            throw new MemberException(e.getMessage());
         }
     }
 
+    // 회원 조히
     @Override
     @GetMapping("/{memberId}")
     public ResponseEntity<?> getMember(@PathVariable Long memberId) {
@@ -109,7 +111,7 @@ public class MemberController implements MemberControllerDocs{
             ResponseMemberDTO response = memberService.getMember(memberId);
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            throw new MemberException(e.getMessage());
         }
     }
 }

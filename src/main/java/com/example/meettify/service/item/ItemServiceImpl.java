@@ -33,7 +33,6 @@ import static java.util.Objects.requireNonNull;
 @RequiredArgsConstructor
 @Log4j2
 @Service
-@TimeTrace
 public class ItemServiceImpl implements ItemService {
     private final MemberRepository memberRepository;
     private final ItemRepository itemRepository;
@@ -43,6 +42,7 @@ public class ItemServiceImpl implements ItemService {
 
     // 상품 등록 메서드
     @Override
+    @TimeTrace
     public ResponseItemDTO createItem(CreateItemServiceDTO item, List<MultipartFile> files, String memberEmail) {
         try {
             MemberEntity findMember = memberRepository.findByMemberEmail(memberEmail);
@@ -74,6 +74,7 @@ public class ItemServiceImpl implements ItemService {
 
     // 상품 수정 메서드
     @Override
+    @TimeTrace
     public ResponseItemDTO updateItem(Long itemId,
                                       UpdateItemServiceDTO updateItemDTO,
                                       List<MultipartFile> files) {
@@ -118,6 +119,7 @@ public class ItemServiceImpl implements ItemService {
     // 상품 조회 메서드
     @Override
     @Transactional(readOnly = true)
+    @TimeTrace
     public ResponseItemDTO getItem(Long itemId) {
         try {
             ItemEntity findItem = itemRepository.findById(itemId)
@@ -134,6 +136,7 @@ public class ItemServiceImpl implements ItemService {
 
     // 상품 삭제 메서드
     @Override
+    @TimeTrace
     public String deleteItem(Long itemId) {
         try {
             ItemEntity findItem = itemRepository.findById(itemId)
@@ -155,18 +158,9 @@ public class ItemServiceImpl implements ItemService {
     // 여러 상품을 페이징 처리해서 가져오는 메서드 : 여러 조건 검색 가능
     @Override
     @Transactional(readOnly = true)
+    @TimeTrace
     public Page<ResponseItemDTO> searchItems(ItemSearchCondition condition, Pageable page) {
         try {
-//            long count = itemRepository.countItems(condition);
-//            log.info("count: {}", count);
-//
-//            // 요청한 페이지가 전체 아이템 수에 비해 유효한지 확인
-//            // 현재 요청된 페이지 번호(page.getPageNumber())가 전체 아이템 수를 페이지 사이즈로 나눈 값에 1을 더한 것보다 크거나 같은지 확인
-//            // +1를 하는 이유는 페이지 번호가 0부터 시작하기 때문에 전체 페이지 수를 구할 때 마지막 페이지의 인덱스가 0이 아니라 1부터 시작하는 형태로 맞추기 위해서
-//            if (page.getPageNumber() >= (count / page.getPageSize()) + 1) {
-//                // 유효하지 않은 경우, 마지막 페이지로 설정
-//                page = PageRequest.of((int) (count / page.getPageSize()), page.getPageSize());
-//            }
 
             Page<ItemEntity> itemsPage = itemRepository.itemsSearch(condition, page);
             log.info("itemsPage: {}", itemsPage.getContent());

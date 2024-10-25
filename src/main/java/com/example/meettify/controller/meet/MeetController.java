@@ -3,6 +3,7 @@ package com.example.meettify.controller.meet;
 
 import com.example.meettify.dto.meet.*;
 import com.example.meettify.dto.meetBoard.MeetBoardSummaryDTO;
+import com.example.meettify.exception.meet.MeetException;
 import com.example.meettify.service.meet.MeetService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -69,7 +70,7 @@ public class MeetController implements  MeetControllerDocs{
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             log.error("Error fetching meet list", e);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 모임 리스트 요청입니다 message : "+e.getMessage());
+            throw new MeetException(e.getMessage());
         }
     }
 
@@ -97,7 +98,7 @@ public class MeetController implements  MeetControllerDocs{
                     .meetRole(meetRole)
                     .build());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("게시글 상세조회 실패 : "+e.getMessage());
+            throw new MeetException(e.getMessage());
         }
     }
 
@@ -114,7 +115,7 @@ public class MeetController implements  MeetControllerDocs{
             MeetRole response = meetService.getMeetRole(meetId, userDetails.getUsername());
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 모임 권한 조회입니다.");
+            throw new MeetException(e.getMessage());
         }
     }
 
@@ -130,7 +131,7 @@ public class MeetController implements  MeetControllerDocs{
             List<ResponseMeetMemberDTO> meetMemberList = meetService.getMeetMemberList(meetId);
             return ResponseEntity.status(HttpStatus.OK).body(meetMemberList);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 모임 리스트 조회입니다.");
+            throw new MeetException(e.getMessage());
         }
     }
 
@@ -146,7 +147,7 @@ public class MeetController implements  MeetControllerDocs{
             List<MyMeetResponseDTO> meetResponseDTOS = meetService.getMyMeet(email);
             return ResponseEntity.status(HttpStatus.OK).body(meetResponseDTOS);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 가입한 모임 리스트 조회입니다.");
+            throw new MeetException(e.getMessage());
         }
     }
 
@@ -156,7 +157,7 @@ public class MeetController implements  MeetControllerDocs{
     public ResponseEntity<?> updateMeetMemberRole(@PathVariable Long meetId,
                                                   @PathVariable Long meetMemberId,
                                                   @RequestBody @Valid UpdateRoleRequestDTO request, // DTO 사용
-                                                  @AuthenticationPrincipal UserDetails userDetails) {
+                                                  @AuthenticationPrincipal UserDetails userDetails) throws IllegalAccessException {
         try {
             // 관리자 권한 확인 로직 추가
             if (!(meetService.getMeetRole(meetId, userDetails.getUsername()) == MeetRole.ADMIN)) {
@@ -166,9 +167,9 @@ public class MeetController implements  MeetControllerDocs{
             MeetRole updatedRole = meetService.updateRole(meetMemberId, request.getNewRole());
             return ResponseEntity.status(HttpStatus.OK).body(updatedRole.name());
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 Role 값입니다.");
+            throw new IllegalAccessException(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 모임 회원에 대한 접근입니다.");
+            throw new MeetException(e.getMessage());
         }
     }
 
@@ -191,7 +192,7 @@ public class MeetController implements  MeetControllerDocs{
             MeetRole UpdatedRole = meetService.updateRole(meetMemberId, MeetRole.DORMANT);
             return ResponseEntity.status(HttpStatus.OK).body(UpdatedRole.name());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("모임 탈퇴 중 오류가 발생했습니다." +e.getMessage());
+            throw new MeetException("모임 탈퇴 중 오류가 발생했습니다." + e.getMessage());
         }
     }
 
@@ -215,7 +216,7 @@ public class MeetController implements  MeetControllerDocs{
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             log.error("예외 : " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            throw new MeetException(e.getMessage());
         }
     }
 
@@ -230,7 +231,7 @@ public class MeetController implements  MeetControllerDocs{
             String response = meetService.removeMeet(meetId, email);
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            throw new MeetException(e.getMessage());
         }
     }
 
@@ -248,7 +249,7 @@ public class MeetController implements  MeetControllerDocs{
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("권한 없음");
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            throw new MeetException(e.getMessage());
         }
     }
 
@@ -273,7 +274,7 @@ public class MeetController implements  MeetControllerDocs{
                 return ResponseEntity.ok().body(response);
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            throw new MeetException(e.getMessage());
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body("권한 없음");
     }
@@ -297,7 +298,7 @@ public class MeetController implements  MeetControllerDocs{
             meetService.applyToJoinMeet(meetId, userEmail);
             return ResponseEntity.ok().body("가입 신청이 완료되었습니다.");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("오류 발생: " + e.getMessage());
+            throw new MeetException(e.getMessage());
         }
     }
 }

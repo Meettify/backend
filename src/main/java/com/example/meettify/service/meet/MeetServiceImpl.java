@@ -46,7 +46,6 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @RequiredArgsConstructor
-@TimeTrace
 public class MeetServiceImpl implements MeetService {
     private final ModelMapper modelMapper;
     private final MeetRepository meetRepository;

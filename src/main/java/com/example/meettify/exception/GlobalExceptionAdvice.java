@@ -1,6 +1,7 @@
 package com.example.meettify.exception;
 
-import com.example.meettify.config.slack.SlackNotification;
+import com.example.meettify.config.slack.RequestInfo;
+import com.example.meettify.config.slack.SlackUtil;
 import com.example.meettify.exception.board.BoardException;
 import com.example.meettify.exception.cart.CartException;
 import com.example.meettify.exception.comment.CommentException;
@@ -8,164 +9,359 @@ import com.example.meettify.exception.externalService.ExternalServiceException;
 import com.example.meettify.exception.file.FileDownloadException;
 import com.example.meettify.exception.file.FileUploadException;
 import com.example.meettify.exception.item.ItemException;
+import com.example.meettify.exception.meet.MeetException;
 import com.example.meettify.exception.member.MemberException;
 import com.example.meettify.exception.order.OrderException;
 import com.example.meettify.exception.sessionExpire.SessionExpiredException;
 import com.example.meettify.exception.stock.OutOfStockException;
+import com.example.meettify.exception.not_found.ResourceNotFoundException;
+import com.example.meettify.exception.timeout.RequestTimeoutException;
 import com.example.meettify.exception.validation.DataValidationException;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.*;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.time.LocalDateTime;
 
 /*
  *   worker : 유요한
  *   work   : 전역으로 발생한 예외를 처리해줄 수 있는 Class를 생성
  *   date   : 2024/09/19
- *   update : 2024/10/18
+ *   update : 2024/10/25
  * */
+@Log4j2
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class GlobalExceptionAdvice {
+    private final SlackUtil slackUtil;
+
     // 표준 응답 형식을 위한 내부 클래스
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
+    @Log4j2
+    @Setter
     private static class ErrorResponse {
         private String error;
         private String message;
+        private LocalDateTime timestamp; // 오류 발생 시간
+        private String path;     // 요청된 경로
+        private String method;   // 요청 메서드
     }
 
-    // 전체적인 예외처리
-    @ExceptionHandler(Exception.class)
-    @SlackNotification
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<ErrorResponse> handleException(Exception e) {
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse("Internal Server Error", e.getMessage()));
-    }
-
-    // 유저 관련 발생하는 예외처리
+    // 회원 관련 예외 처리
     @ExceptionHandler(MemberException.class)
-    @SlackNotification
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ErrorResponse> handleMemberException(MemberException e) {
+    public ResponseEntity<ErrorResponse> handleMemberException(MemberException e, HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setError("회원 에러 발생");
+        errorResponse.setMessage(e.getMessage());
+        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setPath(request.getRequestURI()); // 요청된 경로
+        errorResponse.setMethod(request.getMethod()); // 요청 메서드
+
+        slackUtil.sendAlert(e, new RequestInfo(request)); // Slack 알림 전송
+
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse("Member Error", e.getMessage()));
+                .body(errorResponse);
     }
 
-    // 게시글 관련 발생하는 예외처리
+    // 게시판 관련 예외 처리
     @ExceptionHandler(BoardException.class)
-    @SlackNotification
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ErrorResponse> handleBoardException(BoardException e) {
+    public ResponseEntity<ErrorResponse> handleBoardException(BoardException e, HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setError("게시글 에러 발생");
+        errorResponse.setMessage(e.getMessage());
+        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setPath(request.getRequestURI()); // 요청된 경로
+        errorResponse.setMethod(request.getMethod()); // 요청 메서드
+
+        slackUtil.sendAlert(e, new RequestInfo(request)); // Slack 알림 전송
+
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse("Board Error", e.getMessage()));
+                .body(errorResponse);
     }
 
-    // 댓글 관련 예외처리
+    // 모임 관련 예외 처리
+    @ExceptionHandler(MeetException.class)
+    public ResponseEntity<ErrorResponse> handleBoardException(MeetException e, HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setError("모임 에러 발생");
+        errorResponse.setMessage(e.getMessage());
+        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setPath(request.getRequestURI()); // 요청된 경로
+        errorResponse.setMethod(request.getMethod()); // 요청 메서드
+
+        slackUtil.sendAlert(e, new RequestInfo(request)); // Slack 알림 전송
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(errorResponse);
+    }
+
+    // 댓글 관련 예외 처리
     @ExceptionHandler(CommentException.class)
-    @SlackNotification
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ErrorResponse> handleCommentException(CommentException e) {
+    public ResponseEntity<ErrorResponse> handleCommentException(CommentException e, HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setError("댓글 에러 발생");
+        errorResponse.setMessage(e.getMessage());
+        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setPath(request.getRequestURI()); // 요청된 경로
+        errorResponse.setMethod(request.getMethod()); // 요청 메서드
+
+        slackUtil.sendAlert(e, new RequestInfo(request)); // Slack 알림 전송
+
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse("Comment Error", e.getMessage()));
+                .body(errorResponse);
     }
 
-    // 상품 관련 예외처리
+    // 상품 관련 예외 처리
     @ExceptionHandler(ItemException.class)
-    @SlackNotification
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ErrorResponse> handleItemException(ItemException e) {
+    public ResponseEntity<ErrorResponse> handleItemException(ItemException e, HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setError("상품 에러 발생");
+        errorResponse.setMessage(e.getMessage());
+        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setPath(request.getRequestURI()); // 요청된 경로
+        errorResponse.setMethod(request.getMethod()); // 요청 메서드
+
+        slackUtil.sendAlert(e, new RequestInfo(request)); // Slack 알림 전송
+
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse("Item Error", e.getMessage()));
+                .body(errorResponse);
     }
 
-    // 장바구니 관련 예외처리
+    // 장바구니 관련 예외 처리
     @ExceptionHandler(CartException.class)
-    @SlackNotification
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ErrorResponse> handleCartException(CartException e) {
+    public ResponseEntity<ErrorResponse> handleCartException(CartException e, HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setError("장바구니 에러 발생");
+        errorResponse.setMessage(e.getMessage());
+        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setPath(request.getRequestURI()); // 요청된 경로
+        errorResponse.setMethod(request.getMethod()); // 요청 메서드
+
+        slackUtil.sendAlert(e, new RequestInfo(request)); // Slack 알림 전송
+
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse("Cart Error", e.getMessage()));
+                .body(errorResponse);
     }
 
-    // 주문 관련 예외처리
+    // 주문 관련 예외 처리
     @ExceptionHandler(OrderException.class)
-    @SlackNotification
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ErrorResponse> handleOrderException(OrderException e) {
+    public ResponseEntity<ErrorResponse> handleOrderException(OrderException e, HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setError("주문 에러 발생");
+        errorResponse.setMessage(e.getMessage());
+        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setPath(request.getRequestURI()); // 요청된 경로
+        errorResponse.setMethod(request.getMethod()); // 요청 메서드
+
+        slackUtil.sendAlert(e, new RequestInfo(request)); // Slack 알림 전송
+
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse("Order Error", e.getMessage()));
+                .body(errorResponse);
     }
 
-    // 검증 오류 예외처리
+    // 데이터 검증 예외 처리
     @ExceptionHandler(DataValidationException.class)
-    @SlackNotification
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ErrorResponse> handleDataValidationException(DataValidationException e) {
+    public ResponseEntity<ErrorResponse> handleDataValidationException(DataValidationException e, HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setError("데이터 검증 에러 발생");
+        errorResponse.setMessage(e.getMessage());
+        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setPath(request.getRequestURI()); // 요청된 경로
+        errorResponse.setMethod(request.getMethod()); // 요청 메서드
+
+        slackUtil.sendAlert(e, new RequestInfo(request)); // Slack 알림 전송
+
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse("Validation Error", e.getMessage()));
+                .body(errorResponse);
     }
 
-    // 세션 만료 관련 예외처리
+    // 세션 만료 예외 처리
     @ExceptionHandler(SessionExpiredException.class)
-    @SlackNotification
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ResponseEntity<ErrorResponse> handleSessionExpiredException(SessionExpiredException e) {
+    public ResponseEntity<ErrorResponse> handleSessionExpiredException(SessionExpiredException e, HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setError("세션 만료 에러 발생");
+        errorResponse.setMessage(e.getMessage());
+        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setPath(request.getRequestURI()); // 요청된 경로
+        errorResponse.setMethod(request.getMethod()); // 요청 메서드
+
+        slackUtil.sendAlert(e, new RequestInfo(request)); // Slack 알림 전송
+
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
-                .body(new ErrorResponse("Session Expired", e.getMessage()));
+                .body(errorResponse);
     }
 
-    // 파일 업로드 예외처리
+    // 파일 업로드 예외 처리
     @ExceptionHandler(FileUploadException.class)
-    @SlackNotification
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<ErrorResponse> handleFileUploadException(FileUploadException e) {
+    public ResponseEntity<ErrorResponse> handleFileUploadException(FileUploadException e, HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setError("파일 업로드 에러 발생");
+        errorResponse.setMessage(e.getMessage());
+        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setPath(request.getRequestURI()); // 요청된 경로
+        errorResponse.setMethod(request.getMethod()); // 요청 메서드
+
+        slackUtil.sendAlert(e, new RequestInfo(request)); // Slack 알림 전송
+
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse("File Upload Error", e.getMessage()));
+                .body(errorResponse);
     }
 
-    // 파일 다운로드 예외처리
+    // 파일 다운로드 예외 처리
     @ExceptionHandler(FileDownloadException.class)
-    @SlackNotification
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<ErrorResponse> handleFileDownloadException(FileDownloadException e) {
+    public ResponseEntity<ErrorResponse> handleFileDownloadException(FileDownloadException e, HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setError("파일 다운로드 에러 발생");
+        errorResponse.setMessage(e.getMessage());
+        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setPath(request.getRequestURI()); // 요청된 경로
+        errorResponse.setMethod(request.getMethod()); // 요청 메서드
+
+        slackUtil.sendAlert(e, new RequestInfo(request)); // Slack 알림 전송
+
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse("File Download Error", e.getMessage()));
+                .body(errorResponse);
     }
 
-    // 외부 서비스 예외처리
+    // 외부 서비스 예외 처리
     @ExceptionHandler(ExternalServiceException.class)
-    @SlackNotification
-    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
-    public ResponseEntity<ErrorResponse> handleExternalServiceException(ExternalServiceException e) {
+    public ResponseEntity<ErrorResponse> handleExternalServiceException(ExternalServiceException e, HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setError("외부 서비스 에러 발생");
+        errorResponse.setMessage(e.getMessage());
+        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setPath(request.getRequestURI()); // 요청된 경로
+        errorResponse.setMethod(request.getMethod()); // 요청 메서드
+
+        slackUtil.sendAlert(e, new RequestInfo(request)); // Slack 알림 전송
+
         return ResponseEntity
                 .status(HttpStatus.SERVICE_UNAVAILABLE)
-                .body(new ErrorResponse("External Service Error", e.getMessage()));
+                .body(errorResponse);
     }
 
-    // 재고 부족 관련 예외처리
+    // 재고 부족 예외 처리
     @ExceptionHandler(OutOfStockException.class)
-    @SlackNotification
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ErrorResponse> handleOutOfStockException(OutOfStockException e) {
+    public ResponseEntity<ErrorResponse> handleOutOfStockException(OutOfStockException e, HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setError("재고부족 에러 발생");
+        errorResponse.setMessage(e.getMessage());
+        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setPath(request.getRequestURI()); // 요청된 경로
+        errorResponse.setMethod(request.getMethod()); // 요청 메서드
+
+        slackUtil.sendAlert(e, new RequestInfo(request)); // Slack 알림 전송
+
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse("Out of Stock", e.getMessage()));
+                .body(errorResponse);
+    }
+
+    // 존재하지 않는 리소스에 대한 접근 시 발생
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException e, HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setError("존재하지 않는 리소스에 접근해서 에러 발생");
+        errorResponse.setMessage(e.getMessage());
+        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setPath(request.getRequestURI()); // 요청된 경로
+        errorResponse.setMethod(request.getMethod()); // 요청 메서드
+
+        slackUtil.sendAlert(e, new RequestInfo(request)); // Slack 알림 전송
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(errorResponse);
+    }
+
+
+    // 허용되지 않는 HTTP 메서드를 사용할 경우
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleMethodNotAllowedException(HttpRequestMethodNotSupportedException e,
+                                                                         HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setError("허용되지 않는 HTTP 메서드 에러 발생");
+        errorResponse.setMessage(e.getMessage());
+        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setPath(request.getRequestURI()); // 요청된 경로
+        errorResponse.setMethod(request.getMethod()); // 요청 메서드
+
+        slackUtil.sendAlert(e, new RequestInfo(request)); // Slack 알림 전송
+
+        return ResponseEntity
+                .status(HttpStatus.METHOD_NOT_ALLOWED)
+                .body(errorResponse);
+    }
+
+    // 클라이언트의 잘못된 요청 (예: 형식 불일치, 필수 값 누락 등)에서 발생
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException e,
+                                                                        HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setError("잘못된 요청 에러 발생");
+        errorResponse.setMessage(e.getMessage());
+        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setPath(request.getRequestURI()); // 요청된 경로
+        errorResponse.setMethod(request.getMethod()); // 요청 메서드
+
+        slackUtil.sendAlert(e, new RequestInfo(request)); // Slack 알림 전송
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(errorResponse);
+    }
+
+    // 요청이 특정 시간 내에 처리되지 못할 때 발생
+    @ExceptionHandler(RequestTimeoutException.class)
+    public ResponseEntity<ErrorResponse> handleRequestTimeoutException(RequestTimeoutException e,
+                                                                       HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setError("응답 시간 에러 발생(오래걸려서 TimeOut)");
+        errorResponse.setMessage(e.getMessage());
+        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setPath(request.getRequestURI()); // 요청된 경로
+        errorResponse.setMethod(request.getMethod()); // 요청 메서드
+
+        slackUtil.sendAlert(e, new RequestInfo(request)); // Slack 알림 전송
+
+        return ResponseEntity
+                .status(HttpStatus.REQUEST_TIMEOUT)
+                .body(errorResponse);
+    }
+
+    // 일반 예외 처리
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleException(Exception e, HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setError("에러 발생");
+        errorResponse.setMessage(e.getMessage());
+        errorResponse.setTimestamp(LocalDateTime.now()); // 오류 발생 시간
+        errorResponse.setPath(request.getRequestURI()); // 요청된 경로
+        errorResponse.setMethod(request.getMethod()); // 요청 메서드
+
+        slackUtil.sendAlert(e, new RequestInfo(request)); // Slack 알림 전송
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(errorResponse);
     }
 }

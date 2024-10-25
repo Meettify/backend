@@ -32,7 +32,6 @@ import java.util.List;
 @Log4j2
 @RequiredArgsConstructor
 @Service
-@TimeTrace
 public class OrderServiceImpl implements OrderService{
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
@@ -42,6 +41,7 @@ public class OrderServiceImpl implements OrderService{
 
     // 주문하기
     @Override
+    @TimeTrace
     public ResponseOrderDTO saveOrder(List<RequestOrderServiceDTO> orders, String email, AddressDTO address) {
         try {
             // 회원 조회

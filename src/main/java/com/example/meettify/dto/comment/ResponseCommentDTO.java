@@ -27,6 +27,8 @@ public class ResponseCommentDTO {
     private LocalDateTime createdAt;
     @Schema(description = "작성 닉네임")
     private String nickName;
+
+    @Builder.Default
     private List<ResponseCommentDTO> children = new ArrayList<>();  // 자식 댓글 리스트
 
     // DTO로 변환

@@ -1,6 +1,7 @@
 package com.example.meettify.controller.notice;
 
 import com.example.meettify.dto.board.*;
+import com.example.meettify.exception.board.BoardException;
 import com.example.meettify.service.notice.NoticeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -39,7 +40,7 @@ public class NoticeController implements NoticeControllerDocs {
             ResponseNoticeDTO response = noticeService.saveBoard(changeServiceNotice, email);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            throw new BoardException(e.getMessage());
         }
     }
 
@@ -57,7 +58,7 @@ public class NoticeController implements NoticeControllerDocs {
             ResponseNoticeDTO response = noticeService.updateBoard(noticeId, changeServiceNotice);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            throw new BoardException(e.getMessage());
         }
     }
 
@@ -69,7 +70,7 @@ public class NoticeController implements NoticeControllerDocs {
             ResponseNoticeDTO response = noticeService.getNotice(noticeId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            throw new BoardException(e.getMessage());
         }
     }
 
@@ -82,7 +83,7 @@ public class NoticeController implements NoticeControllerDocs {
             String response = noticeService.deleteNotice(noticeId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            throw new BoardException(e.getMessage());
         }
     }
 
@@ -112,7 +113,7 @@ public class NoticeController implements NoticeControllerDocs {
 
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            throw new BoardException(e.getMessage());
         }
     }
 }

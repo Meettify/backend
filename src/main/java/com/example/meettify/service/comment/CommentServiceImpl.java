@@ -29,7 +29,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Service
 @Log4j2
-@TimeTrace
 public class CommentServiceImpl implements  CommentService{
     private final CommentRepository commentRepository;
     private final CommunityRepository communityRepository;
@@ -37,6 +36,7 @@ public class CommentServiceImpl implements  CommentService{
 
     // 댓글 생성
     @Override
+    @TimeTrace
     public ResponseCommentDTO createComment(Long communityId,
                                             CreateCommentDTO comment,
                                             String email) {
@@ -69,6 +69,7 @@ public class CommentServiceImpl implements  CommentService{
 
     // 뎃글 수정
     @Override
+    @TimeTrace
     public ResponseCommentDTO updateComment(Long communityId, Long commentId, UpdateCommentDTO comment, String email) {
         try {
             CommunityEntity findCommunity = communityRepository.findById(commentId)
@@ -93,6 +94,7 @@ public class CommentServiceImpl implements  CommentService{
 
     // 댓글 삭제
     @Override
+    @TimeTrace
     public String deleteComment(Long commentId) {
         try {
             CommentEntity findComment = commentRepository.findById(commentId)
@@ -111,6 +113,7 @@ public class CommentServiceImpl implements  CommentService{
     // 댓글 상세페이지
     @Override
     @Transactional(readOnly = true)
+    @TimeTrace
     public ResponseCommentDTO getComment(Long commentId) {
         try {
             CommentEntity findComment = commentRepository.findById(commentId)
@@ -124,6 +127,7 @@ public class CommentServiceImpl implements  CommentService{
     // 댓글 페이징처리
     @Override
     @Transactional(readOnly = true)
+    @TimeTrace
     public Page<ResponseCommentDTO> getComments(Pageable page, Long communityId) {
         try {
             // 댓글과 대댓글을 모두 가져옴

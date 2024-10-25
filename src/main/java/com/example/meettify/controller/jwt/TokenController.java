@@ -21,14 +21,14 @@ public class TokenController implements TokenControllerDocs{
     // accessToken 재발급
     @Override
     @GetMapping("")
-    public ResponseEntity<?> getAccessToken(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<?> getAccessToken(@AuthenticationPrincipal UserDetails userDetails) throws IllegalAccessException {
         try {
             String email = userDetails.getUsername();
             TokenDTO response = tokenService.reissuanceAccessToken(email);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error(e.getMessage());
-            return ResponseEntity.badRequest().body(e.getMessage());
+            throw new IllegalAccessException(e.getMessage());
         }
     }
 }

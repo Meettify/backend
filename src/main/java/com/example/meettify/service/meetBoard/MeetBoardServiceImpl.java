@@ -37,7 +37,6 @@ import java.util.List;
 @Service
 @Transactional
 @RequiredArgsConstructor
-@TimeTrace
 public class MeetBoardServiceImpl implements MeetBoardService {
     private final MeetBoardRepository meetBoardRepository;
     private final MeetBoardImageRepository meetBoardImageRepository;

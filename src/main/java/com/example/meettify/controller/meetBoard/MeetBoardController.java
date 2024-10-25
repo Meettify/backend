@@ -1,6 +1,7 @@
 package com.example.meettify.controller.meetBoard;
 
 import com.example.meettify.dto.meetBoard.*;
+import com.example.meettify.exception.board.BoardException;
 import com.example.meettify.service.meetBoard.MeetBoardService;
 import jakarta.validation.Valid;
 import org.springframework.web.multipart.MultipartFile;
@@ -57,7 +58,7 @@ public class MeetBoardController implements MeetBoardControllerDocs{
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             log.error("게시글 리스트 조회 오류: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            throw new BoardException(e.getMessage());
         }
     }
 
@@ -77,7 +78,7 @@ public class MeetBoardController implements MeetBoardControllerDocs{
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             log.error("예외 : " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            throw new BoardException(e.getMessage());
         }
     }
 
@@ -99,7 +100,7 @@ public class MeetBoardController implements MeetBoardControllerDocs{
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             log.error("예외 : " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            throw new BoardException(e.getMessage());
         }
     }
 
@@ -111,7 +112,7 @@ public class MeetBoardController implements MeetBoardControllerDocs{
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             log.error("모임 게시글 삭제 오류: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            throw new BoardException(e.getMessage());
         }
     }
 
@@ -135,7 +136,7 @@ public class MeetBoardController implements MeetBoardControllerDocs{
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             log.error("모임 게시글 수정 오류 " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            throw new BoardException(e.getMessage());
         }
     }
 

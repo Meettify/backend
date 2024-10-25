@@ -24,7 +24,6 @@ import java.util.List;
 @Transactional
 @RequiredArgsConstructor
 @Log4j2
-@TimeTrace
 public class TokenServiceImpl implements TokenService{
     private final TokenRepository tokenRepository;
     private final MemberRepository memberRepository;
@@ -32,6 +31,7 @@ public class TokenServiceImpl implements TokenService{
 
     // accessToken이 만료시 재발급해주는 로직
     @Override
+    @TimeTrace
     public TokenDTO reissuanceAccessToken(String email) {
         try {
             TokenEntity findToken = tokenRepository.findByEmail(email);

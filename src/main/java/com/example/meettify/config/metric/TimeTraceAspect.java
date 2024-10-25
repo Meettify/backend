@@ -38,6 +38,7 @@ public class TimeTraceAspect {
 
         try {
             stopWatch.start();
+            log.debug("Entering method: {}", joinPoint.getSignature().toShortString());
             return joinPoint.proceed();
         } finally {
             stopWatch.stop();

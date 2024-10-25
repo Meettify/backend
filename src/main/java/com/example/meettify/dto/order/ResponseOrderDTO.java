@@ -22,6 +22,7 @@ public class ResponseOrderDTO {
     @Schema(description = "주문 총 상품 가격")
     private int orderTotalPrice;
     @Schema(description = "주문 상품")
+    @Builder.Default
     private List<ResponseOrderItemDTO> orderItems = new ArrayList<>();
 
     public static ResponseOrderDTO changeDTO(OrderEntity order, AddressDTO address) {

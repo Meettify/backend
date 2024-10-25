@@ -61,7 +61,7 @@ public interface MeetControllerDocs {
     public ResponseEntity<?> updateMeetMemberRole(@PathVariable Long meetId,
                                                   @PathVariable Long meetMemberId,
                                                   @RequestBody @Valid UpdateRoleRequestDTO request, // DTO 사용
-                                                  @AuthenticationPrincipal UserDetails userDetails);
+                                                  @AuthenticationPrincipal UserDetails userDetails) throws IllegalAccessException;
 
     @PutMapping("/{meetId}/{meetMemberId}")
     @Operation(summary = "마이페이지에서 모임 탈퇴", description = "마이 페이지에서 모임 탈퇴하는 기능을 구현")

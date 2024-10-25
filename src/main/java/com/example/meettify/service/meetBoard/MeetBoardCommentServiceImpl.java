@@ -31,7 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-@TimeTrace
 public class MeetBoardCommentServiceImpl implements MeetBoardCommentService {
     private final MemberRepository memberRepository;
     private final MeetMemberRepository meetMemberRepository;
