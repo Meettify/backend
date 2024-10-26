@@ -63,4 +63,18 @@ public class QuestionServiceImpl implements QuestionService{
             throw new BoardException("문의글 수정 실패 : " + e.getMessage());
         }
     }
+
+    // 문의 삭제
+    @Override
+    public String deleteQuestion(Long questionId) {
+        try {
+            QuestionEntity findQuestion = questionRepository.findById(questionId)
+                    .orElseThrow(() -> new BoardException("문의글이 존재하지 않습니다."));
+
+            questionRepository.deleteById(findQuestion.getQuestionId());
+            return "문의글을 삭제했습니다.";
+        } catch (Exception e) {
+            throw new BoardException("문의글을 삭제하는데 실패했습니다." + e.getMessage());
+        }
+    }
 }

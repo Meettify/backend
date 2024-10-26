@@ -11,4 +11,6 @@ public interface QuestionService {
     ResponseQuestionDTO updateQuestion(Long questionId,
                                        UpdateQuestionDTO question,
                                        String email);
+    // 문의 삭제
+    String deleteQuestion(Long questionId);
 }

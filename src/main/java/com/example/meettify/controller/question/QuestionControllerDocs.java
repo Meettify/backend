@@ -14,4 +14,7 @@ public interface QuestionControllerDocs {
 
     @Operation(summary = "문의 수정", description = "문의 수정 API")
     ResponseEntity<?> updateQuestion(Long questionId, UpdateQuestionDTO question, UserDetails userDetails);
+
+    @Operation(summary = "문의 삭제", description = "문의 삭제 API")
+    ResponseEntity<?> deleteQuestion(Long questionId, UserDetails userDetails);
 }
