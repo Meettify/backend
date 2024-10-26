@@ -1,18 +1,25 @@
 package com.example.meettify.entity.jwt;
 
 import com.example.meettify.dto.jwt.TokenDTO;
-import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
 
-@Entity(name = "tokens")
+/*
+ *   writer  : 유요한
+ *   work    : 토큰을 레디스에 담아줄 클래스
+ *   date    : 2024/09/30
+ *   update  : 2024/10/26
+ * */
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Getter
+// @RedisHash 어노테이션은 Redis Lettuce를 사용하기 위해 작성
+@RedisHash(value = "refreshToken", timeToLive = 864000000)
 public class TokenEntity {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "token_id")
+    @Id
     private Long tokenId;
     private String grantType;
     private String refreshToken;
