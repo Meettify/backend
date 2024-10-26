@@ -58,7 +58,7 @@ public class CommentServiceImpl implements  CommentService{
             CommentEntity commentEntity = CommentEntity.saveComment(comment, findMember, findCommunity, parentComment);
             // 댓글 디비에 저장
             CommentEntity saveComment = commentRepository.save(commentEntity);
-            ResponseCommentDTO response = ResponseCommentDTO.changeDTO(saveComment);
+            ResponseCommentDTO response = ResponseCommentDTO.changeDTO(saveComment, findMember.getNickName());
             log.info("반환 댓글 : " + response);
             return response;
         } catch (Exception e) {
@@ -72,6 +72,7 @@ public class CommentServiceImpl implements  CommentService{
     @TimeTrace
     public ResponseCommentDTO updateComment(Long communityId, Long commentId, UpdateCommentDTO comment, String email) {
         try {
+            MemberEntity findMember = memberRepository.findByMemberEmail(email);
             CommunityEntity findCommunity = communityRepository.findById(commentId)
                     .orElseThrow(() -> new BoardException("커뮤니티 글이 없습니다."));
 
@@ -84,7 +85,7 @@ public class CommentServiceImpl implements  CommentService{
             // 댓글 수정
             findComment.updateComment(comment);
             CommentEntity updateComment = commentRepository.save(findComment);
-            ResponseCommentDTO response = ResponseCommentDTO.changeDTO(updateComment);
+            ResponseCommentDTO response = ResponseCommentDTO.changeDTO(updateComment, findMember.getNickName());
             log.info("수정된 댓글 {} ", response );
             return response;
         } catch (Exception e) {
@@ -117,8 +118,8 @@ public class CommentServiceImpl implements  CommentService{
     public ResponseCommentDTO getComment(Long commentId) {
         try {
             CommentEntity findComment = commentRepository.findById(commentId)
-                    .orElseThrow(() -> new CommentException("댓글 조회해씁니다."));
-            return ResponseCommentDTO.changeDTO(findComment);
+                    .orElseThrow(() -> new CommentException("댓글이 존재하지 않습니다."));
+            return ResponseCommentDTO.changeDTO(findComment, findComment.getMember().getNickName());
         } catch (Exception e) {
             throw new CommentException("댓글 조회하는데 실패했습니다.");
         }
@@ -135,7 +136,7 @@ public class CommentServiceImpl implements  CommentService{
 
             // 댓글 엔티티를 DTO로 변환
             List<ResponseCommentDTO> responseComments = findAllComment.stream()
-                    .map(ResponseCommentDTO::changeDTO)
+                    .map(comment -> ResponseCommentDTO.changeDTO(comment, comment.getMember().getNickName()))
                     .toList();
 
             // 중첩 구조로 변환
