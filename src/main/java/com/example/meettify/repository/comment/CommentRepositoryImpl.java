@@ -13,6 +13,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 import java.util.List;
 
 import static com.example.meettify.entity.comment.QCommentEntity.commentEntity;
+import static com.example.meettify.entity.member.QMemberEntity.memberEntity;
 
 @RequiredArgsConstructor
 @Log4j2
@@ -23,8 +24,8 @@ public class CommentRepositoryImpl implements CustomCommentRepository{
     public Page<CommentEntity> findCommentByCommunityId(Long communityId, Pageable pageable) {
         List<CommentEntity> comment = queryFactory
                 .selectFrom(commentEntity)
-                .leftJoin(commentEntity.parent)
-                .fetchJoin()
+                .leftJoin(commentEntity.parent).fetchJoin()
+                .leftJoin(commentEntity.member, memberEntity).fetchJoin() // member fetch join
                 .where(commentEntity.community.communityId.eq(communityId))
                 .orderBy(commentEntity.commentId.asc())
                 .offset(pageable.getOffset())

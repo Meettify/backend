@@ -11,6 +11,7 @@ import com.example.meettify.repository.member.MemberRepository;
 import com.example.meettify.repository.question.QuestionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,7 +48,7 @@ public class QuestionServiceImpl implements QuestionService{
     public ResponseQuestionDTO updateQuestion(Long questionId, UpdateQuestionDTO question, String email) {
         try {
             // 문의글 조회
-            QuestionEntity findQuestion = questionRepository.findById(questionId)
+            QuestionEntity findQuestion = questionRepository.findByQuestionId(questionId)
                     .orElseThrow(() -> new BoardException("문의글이 존재하지 않습니다."));
             // 회원 조회
             MemberEntity findMember = memberRepository.findByMemberEmail(email);
@@ -61,6 +62,46 @@ public class QuestionServiceImpl implements QuestionService{
             return ResponseQuestionDTO.changeDTO(updateQuestion, findMember.getNickName());
         } catch (Exception e) {
             throw new BoardException("문의글 수정 실패 : " + e.getMessage());
+        }
+    }
+
+    // 문의 삭제
+    @Override
+    public String deleteQuestion(Long questionId) {
+        try {
+            QuestionEntity findQuestion = questionRepository.findById(questionId)
+                    .orElseThrow(() -> new BoardException("문의글이 존재하지 않습니다."));
+
+            questionRepository.deleteById(findQuestion.getQuestionId());
+            return "문의글을 삭제했습니다.";
+        } catch (Exception e) {
+            throw new BoardException("문의글을 삭제하는데 실패했습니다." + e.getMessage());
+        }
+    }
+
+    // 문의 조회
+    @Override
+    public ResponseQuestionDTO getQuestion(Long questionId, UserDetails userDetails) {
+        try {
+            // 문의글 조회
+            QuestionEntity findQuestion = questionRepository.findByQuestionId(questionId)
+                    .orElseThrow(() -> new BoardException("문의글이 존재하지 않습니다."));
+
+            // 인증받은 이메일 가져오기
+            String email = userDetails.getUsername();
+            // 인증받은 권한 가져오기
+            String authority = userDetails.getAuthorities().iterator().next().getAuthority();
+
+            ResponseQuestionDTO response = null;
+
+            if(findQuestion.getMember().getMemberEmail().equals(email) ||
+                    authority.equals("ROLE_ADMIN")) {
+                response =  ResponseQuestionDTO.changeDTO(findQuestion, findQuestion.getMember().getNickName());
+            }
+
+            return response;
+        } catch (Exception e) {
+            throw new BoardException("문의글 조회하는데 실패했습니다. : " + e.getMessage());
         }
     }
 }

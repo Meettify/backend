@@ -52,4 +52,35 @@ public class QuestionController implements QuestionControllerDocs{
             throw new BoardException(e.getMessage());
         }
     }
+
+    // 문의글 삭제
+    @Override
+    @DeleteMapping("/{questionId}")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> deleteQuestion(@PathVariable Long questionId,
+                                            @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            String email = userDetails.getUsername();
+            log.info(email);
+            String response = questionService.deleteQuestion(questionId);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            throw new BoardException(e.getMessage());
+        }
+    }
+
+    // 문의글 조회
+    @Override
+    @GetMapping("/{questionId}")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> getQuestions(@PathVariable Long questionId,
+                                          @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            ResponseQuestionDTO response = questionService.getQuestion(questionId, userDetails);
+            log.info(response);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            throw new BoardException(e.getMessage());
+        }
+    }
 }

@@ -32,12 +32,12 @@ public class ResponseCommentDTO {
     private List<ResponseCommentDTO> children = new ArrayList<>();  // 자식 댓글 리스트
 
     // DTO로 변환
-    public static ResponseCommentDTO changeDTO(CommentEntity comment) {
+    public static ResponseCommentDTO changeDTO(CommentEntity comment, String nickName) {
         return ResponseCommentDTO.builder()
                 .commentId(comment.getCommentId())
                 .comment(comment.getComment())
                 .createdAt(comment.getRegTime())
-                .nickName(comment.getCreatedBy())
+                .nickName(nickName)
                 .build();
     }
 
