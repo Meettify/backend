@@ -4,5 +4,5 @@ import com.example.meettify.dto.jwt.TokenDTO;
 
 public interface TokenService {
     // accessToken 재발급
-    TokenDTO reissuanceAccessToken(String email);
+    TokenDTO reissuanceAccessToken(String email, String refreshToken);
 }

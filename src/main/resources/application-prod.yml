@@ -46,6 +46,7 @@ spring:
     redis:
       host: redis
       port: 6379
+      password: ${REDIS_PASSWORD}
 
   security:
     oauth2:
@@ -82,9 +83,9 @@ spring:
 jwt:
   secret_key: ${JWT_SECRET}
   access:
-    expiration: 3600000000
+    expiration: 3600
   refresh:
-    expiration: 1209600000000
+    expiration: 864000000
 
 cloud:
   aws:

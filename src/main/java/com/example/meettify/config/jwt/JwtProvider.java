@@ -82,40 +82,6 @@ public class JwtProvider {
         return responseToken;
     }
 
-    // accessToken 재발급
-    public TokenDTO getAccessToken(String email,
-                                   List<GrantedAuthority> authorities,
-                                   Long memberId,
-                                   String refreshToken) {
-        // 클레임(Claims)에 유저 권한 등록
-        Map<String, Object> claims = new HashMap<>();
-        claims.put(AUTHORITIES_KEY, authorities.stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList()));
-        claims.put("sub", email);
-
-        Date now = new Date(System.currentTimeMillis());
-        Date accessTokenExpire = new Date(now.getTime() + this.accessTokenTime);
-        String accessToken = Jwts.builder()
-                .setIssuedAt(now)
-                .setClaims(claims)
-                // 내용 exp : 토큰 만료 시간, 시간은 NumericDate 형식(예: 1480849143370)으로 하며
-                // 항상 현재 시간 이후로 설정합니다.
-                .setExpiration(accessTokenExpire)
-                // 서명 : 비밀값과 함께 해시값을 ES256 방식으로 암호화
-                .signWith(key, SignatureAlgorithm.HS256)
-                .compact();
-
-        TokenDTO responseToken = TokenDTO.builder()
-                .grantType("Bearer ")
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .memberEmail(email)
-                .memberId(memberId)
-                .build();
-        log.info("responseToken: {}", responseToken);
-        return responseToken;
-    }
 
     // JWT 토큰을 복호화하여 토큰에 들어있는 정보를 꺼내오는 코드
     // 토큰으로 클레임을 만들고 이를 이용해 유저 객체를 만들어서 최종적으로 authentication 객체를 리턴

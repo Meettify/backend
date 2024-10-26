@@ -24,7 +24,7 @@ import java.util.List;
 @Transactional
 @RequiredArgsConstructor
 @Log4j2
-public class TokenServiceImpl implements TokenService{
+public class TokenServiceImpl implements TokenService {
     private final TokenRepository tokenRepository;
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
@@ -32,20 +32,25 @@ public class TokenServiceImpl implements TokenService{
     // accessToken이 만료시 재발급해주는 로직
     @Override
     @TimeTrace
-    public TokenDTO reissuanceAccessToken(String email) {
+    public TokenDTO reissuanceAccessToken(String email, String refreshToken) {
         try {
+            // 레디스에서 토큰 조회
             TokenEntity findToken = tokenRepository.findByEmail(email);
             log.info("토큰 소유주 체크 : " + findToken.getEmail());
 
-            MemberEntity findMember = memberRepository.findByMemberEmail(email);
-
-            if(findMember.equals(findToken.getEmail())) {
-                List<GrantedAuthority> authorities = getAuthorities(findMember);
-                TokenDTO token = jwtProvider.getAccessToken(
-                        email, authorities, findMember.getMemberId(), findToken.getRefreshToken());
-                return token;
+            // 리프레시 토큰 검증
+            if (!findToken.getRefreshToken().equals(refreshToken)) {
+                throw new JwtException("유효하지 않은 리프레시 토큰입니다.");
             }
-            throw new MemberException("유저 정보가 맞지 않습니다.");
+            // 회원 조회
+            MemberEntity findMember = memberRepository.findByMemberEmail(email);
+            // 권한 설정
+            List<GrantedAuthority> authorities = getAuthorities(findMember);
+            // 토큰 재발급
+            TokenDTO token = jwtProvider.createToken(email, authorities, findMember.getMemberId());
+            // 레디스에 토큰 저장
+            tokenRepository.save(TokenEntity.changeEntity(token));
+            return token;
         } catch (Exception e) {
             throw new JwtException("토큰 발급하는데 실패했습니다.");
         }
