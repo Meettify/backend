@@ -52,7 +52,9 @@ public class JwtProvider {
         claims.put("sub", email);
 
         Date now = new Date(System.currentTimeMillis());
-        Date accessTokenExpire = new Date(now.getTime() + this.accessTokenTime);
+
+        // 1시간 = 3600초 * 1000밀리초
+        Date accessTokenExpire = new Date(now.getTime() + accessTokenTime * 1000);
         String accessToken = Jwts.builder()
                 .setIssuedAt(now)
                 .setClaims(claims)
@@ -63,7 +65,8 @@ public class JwtProvider {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
-        Date refreshTokenExpire = new Date(now.getTime() + this.refreshTokenTime);
+        // 10일 = 864000초 * 1000밀리초
+        Date refreshTokenExpire = new Date(now.getTime() + refreshTokenTime * 1000);
         String refreshToken = Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
