@@ -5,6 +5,7 @@ import com.example.meettify.config.jwt.JwtSecurityConfig;
 import com.example.meettify.config.oauth.OAuth2FailHandler;
 import com.example.meettify.config.oauth.OAuth2SuccessHandler;
 import com.example.meettify.config.oauth.PrincipalOAuthUserService;
+import com.example.meettify.config.slack.SlackUtil;
 import com.example.meettify.exception.jwt.JwtAccessDeniedHandler;
 import com.example.meettify.exception.jwt.JwtAuthenticationEntryPoint;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -40,6 +41,7 @@ public class SecurityConfig {
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final OAuth2FailHandler oAuth2FailHandler;
     private final PrincipalOAuthUserService principalOAuthUserService;
+    private final SlackUtil slackUtil;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -140,8 +142,8 @@ public class SecurityConfig {
 
         // Exception handling for authentication/authorization issues
         http.exceptionHandling(exceptions -> exceptions
-                .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
-                .accessDeniedHandler(new JwtAccessDeniedHandler())
+                .authenticationEntryPoint(new JwtAuthenticationEntryPoint(slackUtil))
+                .accessDeniedHandler(new JwtAccessDeniedHandler(slackUtil))
         );
 
         // OAuth2 Login configuration
