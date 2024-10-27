@@ -1,7 +1,7 @@
 package com.example.meettify.config.security;
 
+import com.example.meettify.config.jwt.JwtAuthenticationFilter;
 import com.example.meettify.config.jwt.JwtProvider;
-import com.example.meettify.config.jwt.JwtSecurityConfig;
 import com.example.meettify.config.oauth.OAuth2FailHandler;
 import com.example.meettify.config.oauth.OAuth2SuccessHandler;
 import com.example.meettify.config.oauth.PrincipalOAuthUserService;
@@ -23,6 +23,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -137,14 +138,13 @@ public class SecurityConfig {
                         .requestMatchers("/grafana").permitAll()
                 );
 
-        // JWT Configuration
-        http.apply(new JwtSecurityConfig(jwtProvider));
-
-        // Exception handling for authentication/authorization issues
-        http.exceptionHandling(exceptions -> exceptions
-                .authenticationEntryPoint(new JwtAuthenticationEntryPoint(slackUtil))
-                .accessDeniedHandler(new JwtAccessDeniedHandler(slackUtil))
-        );
+        http
+                .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint(slackUtil))
+                        .accessDeniedHandler(new JwtAccessDeniedHandler(slackUtil))
+                )
+                .authorizeRequests();
 
         // OAuth2 Login configuration
         http.oauth2Login(oauth2 -> oauth2
