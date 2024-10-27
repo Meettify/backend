@@ -31,12 +31,16 @@ public class TokenServiceImpl implements TokenService {
 
     // accessToken이 만료시 재발급해주는 로직
     @Override
-    @TimeTrace
     public TokenDTO reissuanceAccessToken(String email, String refreshToken) {
         try {
             // 레디스에서 토큰 조회
             TokenEntity findToken = tokenRepository.findByEmail(email);
-            log.info("토큰 소유주 체크 : " + findToken.getEmail());
+            if (findToken == null) {
+                log.error("Token not found for email: {}", email);
+                throw new JwtException("No token found for email: " + email);
+            }
+            log.info("토큰 소유주 체크 : {}", findToken.getEmail());
+            log.info("리프레쉬 토큰 {}", refreshToken);
 
             // 리프레시 토큰 검증
             if (!findToken.getRefreshToken().equals(refreshToken)) {

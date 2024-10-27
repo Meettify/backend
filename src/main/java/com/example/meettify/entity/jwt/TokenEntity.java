@@ -19,10 +19,9 @@ import org.springframework.data.redis.core.RedisHash;
 // @RedisHash 어노테이션은 Redis Lettuce를 사용하기 위해 작성
 @RedisHash(value = "refreshToken", timeToLive = 864000000)
 public class TokenEntity {
-    @Id
-    private Long tokenId;
     private String grantType;
     private String refreshToken;
+    @Id
     private String email;
     private Long memberId;
 
