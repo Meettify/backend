@@ -60,7 +60,14 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .formLogin(form -> form.disable())
-                .logout(logout -> logout.disable())
+                .logout(logout -> logout.disable());
+
+        http
+                .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint(slackUtil))
+                        .accessDeniedHandler(new JwtAccessDeniedHandler(slackUtil))
+                )
                 .authorizeHttpRequests(auth -> auth
                         // API 권한 설정
                         .requestMatchers("/", "/**").permitAll()
@@ -122,9 +129,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/search/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/v1/search").permitAll()
 
-
-
-
                         // Swagger 리소스에 대한 접근 허용
                         .requestMatchers("/swagger-resources/**").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
@@ -135,16 +139,7 @@ public class SecurityConfig {
                         // prometheus & grafana
                         .requestMatchers("/monitor/**").permitAll()
                         .requestMatchers("/prometheus").permitAll()
-                        .requestMatchers("/grafana").permitAll()
-                );
-
-        http
-                .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(exceptions -> exceptions
-                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint(slackUtil))
-                        .accessDeniedHandler(new JwtAccessDeniedHandler(slackUtil))
-                )
-                .authorizeRequests();
+                        .requestMatchers("/grafana").permitAll());
 
         // OAuth2 Login configuration
         http.oauth2Login(oauth2 -> oauth2
@@ -181,7 +176,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173")); // 허용할 Origin
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "do2867lf6anbu.cloudfront.net")); // 허용할 Origin
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE")); // 허용할 메서드
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type")); // 허용할 헤더
         configuration.setAllowCredentials(true); // 인증 정보 허용
