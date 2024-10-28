@@ -34,6 +34,8 @@ public class TokenController implements TokenControllerDocs{
             String email = userDetails.getUsername();
             // 리프레시 토큰에서 "Bearer " 부분 제거
             refreshToken = refreshToken.replace("Bearer ", "");
+            log.info("Email: {}", email);
+            log.info("리프레쉬 토큰 {}", refreshToken);
 
             TokenDTO response = tokenService.reissuanceAccessToken(email, refreshToken);
             return ResponseEntity.ok(response);
