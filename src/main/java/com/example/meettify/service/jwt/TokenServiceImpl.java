@@ -52,6 +52,7 @@ public class TokenServiceImpl implements TokenService {
             List<GrantedAuthority> authorities = getAuthorities(findMember);
             // 토큰 재발급
             TokenDTO token = jwtProvider.createToken(email, authorities, findMember.getMemberId());
+            log.info("token: {}", token);
             // 레디스에 토큰 저장
             tokenRepository.save(TokenEntity.changeEntity(token));
             return token;
