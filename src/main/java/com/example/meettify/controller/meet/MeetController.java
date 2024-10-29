@@ -138,7 +138,7 @@ public class MeetController implements  MeetControllerDocs{
 
     //가입한 모임 리스트 보기
     @Override
-    @GetMapping("/myMeet")
+    @GetMapping("/my-meet")
     public ResponseEntity<?> getMyMeet(@AuthenticationPrincipal UserDetails userDetails) {
         try {
             String email = userDetails.getUsername();
