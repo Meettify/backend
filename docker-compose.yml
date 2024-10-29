@@ -153,3 +153,5 @@ volumes:
   app_home:  # 애플리케이션 홈 디렉토리
   grafana-storage:
     driver: local
+  redis-data: # Redis 데이터 지속성을 위한 볼륨 추가
+    driver: local
