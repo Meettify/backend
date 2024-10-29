@@ -74,4 +74,8 @@ public class CommunityEntity extends BaseEntity {
     public void removeImg() {
         this.images = new ArrayList<>();
     }
+
+    public void setViewCount(int totalViewCount) {
+        this.viewCount = totalViewCount;
+    }
 }
