@@ -47,15 +47,21 @@ public class CommentServiceImpl implements  CommentService{
             CommunityEntity findCommunity = communityRepository.findById(communityId)
                     .orElseThrow(() -> new BoardException("커뮤니티가 존재하지 않습니다."));
 
-            CommentEntity parentComment = null;
+            CommentEntity parentComment;
+            CommentEntity commentEntity;
             if (comment.getCommentParentId() != null) {
                 // 부모 댓글이 있는 경우 대댓글로 설정
                 parentComment = commentRepository.findById(comment.getCommentParentId())
                         .orElseThrow(() -> new CommentException("부모 댓글이 존재하지 않습니다."));
+                // 댓글 생성하기 위한 엔티티
+                commentEntity = CommentEntity.saveComment(comment, findMember, findCommunity, parentComment);
+                // 부모 댓글에 자식 댓글을 넣음
+                parentComment.getChildren().add(commentEntity);
             }
 
             // 댓글 생성하기 위한 엔티티
-            CommentEntity commentEntity = CommentEntity.saveComment(comment, findMember, findCommunity, parentComment);
+            // 부모 댓글을 넘겨받지 않는다는 것은 일반 댓글이니 여기서 처리
+            commentEntity = CommentEntity.saveComment(comment, findMember, findCommunity, null);
             // 댓글 디비에 저장
             CommentEntity saveComment = commentRepository.save(commentEntity);
             ResponseCommentDTO response = ResponseCommentDTO.changeDTO(saveComment, findMember.getNickName());
@@ -155,22 +161,22 @@ public class CommentServiceImpl implements  CommentService{
         // 모든 댓글을 순회하며 ID 기준으로 맵에 저장
         comments.forEach(c -> {
             map.put(c.getCommentId(), c);
+            c.getChildren().clear(); // 자식 댓글 리스트 초기화
         });
 
         // 부모-자식 관계 설정
         comments.forEach(c -> {
             if (c.getParentId() != null) { // Parent ID가 있는 경우 (자식 댓글)
-                // 부모 댓글의 자식 목록에 자식 댓글 추가
                 ResponseCommentDTO parentComment = map.get(c.getParentId());
                 if (parentComment != null) {
                     parentComment.getChildren().add(c);
+                } else {
+                    log.warn("부모 댓글을 찾을 수 없습니다. ID: {}", c.getParentId());
                 }
             } else {
-                // 부모 댓글일 경우 최상위 댓글로 추가
-                result.add(c);
+                result.add(c); // 부모 댓글일 경우 최상위 댓글로 추가
             }
         });
-
         return result;
     }
 }

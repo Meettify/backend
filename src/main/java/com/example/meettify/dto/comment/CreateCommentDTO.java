@@ -1,6 +1,7 @@
 package com.example.meettify.dto.comment;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 /*
@@ -15,6 +16,7 @@ import lombok.*;
 @Builder
 public class CreateCommentDTO {
     @Schema(description = "댓글 등록")
+    @NotNull(message = "댓글을 빈값으로는 안됩니다.")
     private String comment;
     @Schema(description = "부모 댓글 번호")
     private Long commentParentId;
