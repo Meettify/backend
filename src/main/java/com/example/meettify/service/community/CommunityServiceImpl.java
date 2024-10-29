@@ -215,11 +215,23 @@ public class CommunityServiceImpl implements CommunityService {
             Page<CommunityEntity> findAllCommunity = communityRepository.findAll(pageable);
             log.info("조회된 커뮤니티 수 : {}", findAllCommunity.getTotalElements());
             log.info("조회된 커뮤니티 : {}", findAllCommunity);
+
+            countRedisView(findAllCommunity);
+
             return findAllCommunity.map(ResponseCommunityDTO::changeCommunity);
         } catch (Exception e) {
             log.error("Error retrieving community: ", e.getMessage());
             throw new BoardException("커뮤니티 글을 가져오는데 실패했습니다. : " + e.getMessage());
         }
+    }
+
+    private void countRedisView(Page<CommunityEntity> findAllCommunity) {
+        // 각 커뮤니티 게시글에 대해 Redis 조회수를 가져와서 합산
+        findAllCommunity.forEach(community -> {
+            Integer redisViewCount = redisService.getViewCount("viewCount_community" + community.getCommunityId());
+            int totalViewCount = community.getViewCount() + (redisViewCount != null ? redisViewCount : 0);
+            community.setViewCount(totalViewCount);  // or update DTO to reflect this view count
+        });
     }
 
     // 커뮤니티 제목 검색
@@ -231,6 +243,7 @@ public class CommunityServiceImpl implements CommunityService {
             Page<CommunityEntity> findAllByTitle = communityRepository.findBySearchTitle(pageable, searchTitle);
             log.info("조회된 커뮤니티 수 : {}", findAllByTitle.getTotalElements());
             log.info("조회된 커뮤니티 : {}", findAllByTitle);
+            countRedisView(findAllByTitle);
             return findAllByTitle.map(ResponseCommunityDTO::changeCommunity);
         } catch (Exception e) {
             log.error("Error retrieving community: ", e.getMessage());

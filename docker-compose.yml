@@ -11,6 +11,10 @@ services:
       retries: 3
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
+    volumes:
+      - redis-data:/data              # Redis 데이터 파일 볼륨 마운트
+      - /home/ubuntu/redis.conf:/usr/local/etc/redis/redis.conf # redis.conf 파일 마운트
+    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
 
   mysql:
     image: mysql:8.0
