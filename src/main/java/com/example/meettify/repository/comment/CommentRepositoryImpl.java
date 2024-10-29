@@ -2,6 +2,7 @@ package com.example.meettify.repository.comment;
 
 
 import com.example.meettify.entity.comment.CommentEntity;
+import com.example.meettify.entity.community.QCommunityEntity;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 import java.util.List;
 
 import static com.example.meettify.entity.comment.QCommentEntity.commentEntity;
+import static com.example.meettify.entity.community.QCommunityEntity.communityEntity;
 import static com.example.meettify.entity.member.QMemberEntity.memberEntity;
 
 @RequiredArgsConstructor
@@ -25,6 +27,7 @@ public class CommentRepositoryImpl implements CustomCommentRepository{
         List<CommentEntity> comment = queryFactory
                 .selectFrom(commentEntity)
                 .leftJoin(commentEntity.parent).fetchJoin()
+                .leftJoin(commentEntity.community, communityEntity).fetchJoin()
                 .leftJoin(commentEntity.member, memberEntity).fetchJoin() // member fetch join
                 .where(commentEntity.community.communityId.eq(communityId))
                 .orderBy(commentEntity.commentId.asc())
@@ -32,10 +35,15 @@ public class CommentRepositoryImpl implements CustomCommentRepository{
                 .limit(pageable.getPageSize())
                 .fetch();
 
+        log.info("comment count: {}", comment.size());
+        log.info("comment: {}", comment);
+
         JPAQuery<Long> count = queryFactory
                 .select(commentEntity.count())
                 .from(commentEntity)
                 .where(commentEntity.community.communityId.eq(communityId));
+
+        log.info("comment count: {}", count::fetchOne);
 
         return PageableExecutionUtils.getPage(comment, pageable, count::fetchOne);
     }
