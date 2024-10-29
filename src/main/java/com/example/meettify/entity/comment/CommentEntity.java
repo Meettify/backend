@@ -27,6 +27,8 @@ public class CommentEntity extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "comment_id")
     private Long commentId;
+
+    @Column(nullable = false)
     private String comment;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -41,7 +43,7 @@ public class CommentEntity extends BaseEntity {
     @JoinColumn(name = "parent_id")
     private CommentEntity parent;
 
-    @OneToMany(mappedBy = "parent", orphanRemoval = true)
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     @Builder.Default
     @OrderBy("commentId asc ")
     private List<CommentEntity> children = new ArrayList<>();
