@@ -139,44 +139,9 @@ public class CommentServiceImpl implements  CommentService{
         try {
             // 댓글과 대댓글을 모두 가져옴
             Page<CommentEntity> findAllComment = commentRepository.findCommentByCommunityId(communityId, page);
-
-            // 댓글 엔티티를 DTO로 변환
-            List<ResponseCommentDTO> responseComments = findAllComment.stream()
-                    .map(comment -> ResponseCommentDTO.changeDTO(comment, comment.getMember().getNickName()))
-                    .toList();
-
-            // 중첩 구조로 변환
-            List<ResponseCommentDTO> nestedComments = convertNestedStructure(responseComments);
-
-            // 변환된 댓글 구조로 페이지 반환
-            return new PageImpl<>(nestedComments, page, findAllComment.getTotalElements());
+            return findAllComment.map(commentEntity -> ResponseCommentDTO.changeDTO(commentEntity, commentEntity.getMember().getNickName()));
         } catch (Exception e) {
             throw new CommentException("상품을 페이징 처리해서 가져오는데 실패했습니다.");
         }
-    }
-    private List<ResponseCommentDTO> convertNestedStructure(List<ResponseCommentDTO> comments) {
-        List<ResponseCommentDTO> result = new ArrayList<>();
-        Map<Long, ResponseCommentDTO> map = new HashMap<>();
-
-        // 모든 댓글을 순회하며 ID 기준으로 맵에 저장
-        comments.forEach(c -> {
-            map.put(c.getCommentId(), c);
-            c.getChildren().clear(); // 자식 댓글 리스트 초기화
-        });
-
-        // 부모-자식 관계 설정
-        comments.forEach(c -> {
-            if (c.getParentId() != null) { // Parent ID가 있는 경우 (자식 댓글)
-                ResponseCommentDTO parentComment = map.get(c.getParentId());
-                if (parentComment != null) {
-                    parentComment.getChildren().add(c);
-                } else {
-                    log.warn("부모 댓글을 찾을 수 없습니다. ID: {}", c.getParentId());
-                }
-            } else {
-                result.add(c); // 부모 댓글일 경우 최상위 댓글로 추가
-            }
-        });
-        return result;
     }
 }
