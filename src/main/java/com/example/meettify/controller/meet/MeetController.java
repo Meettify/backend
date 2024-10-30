@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -37,8 +38,8 @@ public class MeetController implements  MeetControllerDocs{
     //모임 리스트 보기
     @Override
     @GetMapping
-    public ResponseEntity<?> getList(Pageable pageable, MeetSearchCondition condition,
-                                         @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<?> getList(@PageableDefault(size = 12) Pageable pageable, MeetSearchCondition condition,
+                                     @AuthenticationPrincipal UserDetails userDetails) {
         try {
             log.info("condition : " + condition);
             Page<MeetSummaryDTO> meets = meetService.meetsSearch(condition, pageable,(userDetails != null ? userDetails.getUsername() : ""));
@@ -137,7 +138,7 @@ public class MeetController implements  MeetControllerDocs{
 
     //가입한 모임 리스트 보기
     @Override
-    @GetMapping("/myMeet")
+    @GetMapping("/my-meet")
     public ResponseEntity<?> getMyMeet(@AuthenticationPrincipal UserDetails userDetails) {
         try {
             String email = userDetails.getUsername();
