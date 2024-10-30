@@ -1,12 +1,12 @@
 package com.example.meettify.controller.search;
 
 
-import com.example.meettify.dto.search.SearchCondition;
-import com.example.meettify.dto.search.SearchResponseDTO;
+import com.example.meettify.dto.search.*;
 import com.example.meettify.exception.board.BoardException;
 import com.example.meettify.exception.item.ItemException;
 import com.example.meettify.exception.not_found.ResourceNotFoundException;
 import com.example.meettify.exception.timeout.RequestTimeoutException;
+import com.example.meettify.service.search.SearchLogService;
 import com.example.meettify.service.search.SearchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,9 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @Log4j2
@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class SearchController implements  SearchControllerDocs {
     private final SearchService searchService;
+    private final SearchLogService searchLogService;
 
     @Override
     @GetMapping
@@ -51,6 +52,31 @@ public class SearchController implements  SearchControllerDocs {
             throw new ItemException(e.getMessage());
         } catch (Exception e) {
             throw new Exception(e.getMessage());
+        }
+    }
+
+
+    @Override
+    @GetMapping("/searchLogs")
+    public ResponseEntity<?> findRecentSearchLog(@AuthenticationPrincipal UserDetails userDetails) throws Exception {
+        try {
+            String email = userDetails.getUsername();
+            List<SearchLog> response = searchLogService.findRecentSearchLogs(email);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch (Exception e) {
+            throw new IllegalAccessException(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/searchLog")
+    public ResponseEntity<?> deleteRecentSearchLog(@AuthenticationPrincipal UserDetails userDetails,
+                                                   @RequestBody DeleteSearchLog deleteSearchLog) throws Exception {
+        try {
+            String email = userDetails.getUsername();
+            searchLogService.deleteRecentSearchLog(email, deleteSearchLog);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } catch (Exception e) {
+            throw new IllegalAccessException(e.getMessage());
         }
     }
 }

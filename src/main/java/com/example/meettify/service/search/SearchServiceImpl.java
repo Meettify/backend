@@ -5,6 +5,7 @@ import com.example.meettify.config.metric.TimeTrace;
 import com.example.meettify.dto.board.ResponseCommunityDTO;
 import com.example.meettify.dto.item.ResponseItemDTO;
 import com.example.meettify.dto.meet.MeetSummaryDTO;
+import com.example.meettify.dto.search.RequestSearchLog;
 import com.example.meettify.dto.search.SearchCondition;
 import com.example.meettify.dto.search.SearchResponseDTO;
 import com.example.meettify.entity.community.CommunityEntity;
@@ -29,17 +30,18 @@ public class SearchServiceImpl implements SearchService {
     private final MemberRepository memberRepository;
     private final MeetMemberRepository meetMemberRepository;
     private final SearchCustomRepositoryImpl searchCustomRepository;
+    private final SearchLogService searchLogService;
 
 
     @TimeTrace
-    public SearchResponseDTO searchResponseDTO(SearchCondition searchCondition,String email) {
+    public SearchResponseDTO searchResponseDTO(SearchCondition searchCondition, String email) {
 
 
         HashMap<String, List> searchResponse = searchCustomRepository.searchAll(searchCondition);
 
-        List<MeetEntity> meetEntityList = (List<MeetEntity>)searchResponse.get("meet");
-        List<ItemEntity> itemEntities = (List<ItemEntity>)searchResponse.get("item");
-        List<CommunityEntity> communityEntities = (List<CommunityEntity>)searchResponse.get("community");
+        List<MeetEntity> meetEntityList = (List<MeetEntity>) searchResponse.get("meet");
+        List<ItemEntity> itemEntities = (List<ItemEntity>) searchResponse.get("item");
+        List<CommunityEntity> communityEntities = (List<CommunityEntity>) searchResponse.get("community");
 
 
         // 사용자 정보를 통해 모임 멤버 ID 목록 조회
@@ -48,8 +50,20 @@ public class SearchServiceImpl implements SearchService {
         List<MeetSummaryDTO> responseMeetSummaryDTOList = meetEntityList.stream().map(meet -> MeetSummaryDTO.changeDTO(meet, memberMeetIds)).toList();
         List<ResponseItemDTO> responseItemDTOList = itemEntities.stream().map(ResponseItemDTO::changeDTO).toList();
         List<ResponseCommunityDTO> responseBoardDTOS = communityEntities.stream().map(ResponseCommunityDTO::changeCommunity).toList();
+
+        // 레디스에 최신 검색 10개 보여주기 위해 저장
+        if (member != null) {
+            // Log the search term
+            RequestSearchLog requestSearchLog = RequestSearchLog.builder()
+                    .name(searchCondition.getTotalKeyword())
+                    .build();
+            searchLogService.saveRecentSearchLog(email, requestSearchLog);
+        }
+
         return SearchResponseDTO.changeDTO(responseMeetSummaryDTOList, responseItemDTOList, responseBoardDTOS);
-    };
+    }
+
+    ;
 
 
 }
