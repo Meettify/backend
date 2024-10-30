@@ -2,7 +2,6 @@ package com.example.meettify.service.community;
 
 import com.example.meettify.config.cookie.CookieUtils;
 import com.example.meettify.config.metric.TimeTrace;
-import com.example.meettify.config.redis.RedisService;
 import com.example.meettify.config.s3.S3ImageUploadService;
 import com.example.meettify.dto.board.CreateServiceDTO;
 import com.example.meettify.dto.board.ResponseCommunityDTO;

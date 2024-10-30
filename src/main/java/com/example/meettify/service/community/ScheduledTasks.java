@@ -1,6 +1,5 @@
 package com.example.meettify.service.community;
 
-import com.example.meettify.config.redis.RedisService;
 import com.example.meettify.repository.community.CommunityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.EnableScheduling;

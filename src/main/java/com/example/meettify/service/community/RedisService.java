@@ -1,4 +1,4 @@
-package com.example.meettify.config.redis;
+package com.example.meettify.service.community;
 
 import com.example.meettify.config.cookie.TimeUtils;
 import lombok.RequiredArgsConstructor;

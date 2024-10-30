@@ -19,7 +19,7 @@ import java.util.List;
  * */
 @Entity(name = "comments")
 @Getter
-@ToString(exclude = {"member", "community"})
+@ToString(exclude = {"member", "community", "parent", "children"})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
