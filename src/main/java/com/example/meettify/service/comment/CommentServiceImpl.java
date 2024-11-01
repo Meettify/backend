@@ -79,15 +79,13 @@ public class CommentServiceImpl implements  CommentService{
     public ResponseCommentDTO updateComment(Long communityId, Long commentId, UpdateCommentDTO comment, String email) {
         try {
             MemberEntity findMember = memberRepository.findByMemberEmail(email);
-            CommunityEntity findCommunity = communityRepository.findById(commentId)
+            CommunityEntity findCommunity = communityRepository.findById(communityId)
                     .orElseThrow(() -> new BoardException("커뮤니티 글이 없습니다."));
-
-            if(findCommunity == null) {
-                throw new BoardException("커뮤니티 글이 존재하지 않습니다.");
-            }
 
             CommentEntity findComment = commentRepository.findById(commentId)
                     .orElseThrow(() -> new CommentException("댓글이 없습니다."));
+
+
             // 댓글 수정
             findComment.updateComment(comment);
             CommentEntity updateComment = commentRepository.save(findComment);
