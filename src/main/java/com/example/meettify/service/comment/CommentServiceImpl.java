@@ -76,7 +76,7 @@ public class CommentServiceImpl implements  CommentService{
     // 뎃글 수정
     @Override
     @TimeTrace
-    public ResponseCommentDTO updateComment(Long communityId, Long commentId, UpdateCommentDTO comment, String email) {
+    public ResponseCommentDTO updateComment(Long commentId, Long communityId, UpdateCommentDTO comment, String email) {
         try {
             MemberEntity findMember = memberRepository.findByMemberEmail(email);
             CommunityEntity findCommunity = communityRepository.findById(communityId)

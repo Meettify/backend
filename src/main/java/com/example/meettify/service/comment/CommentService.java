@@ -10,7 +10,7 @@ public interface CommentService {
     // 댓글 생성
     ResponseCommentDTO createComment(Long communityId, CreateCommentDTO comment, String email );
     // 댓글 수정
-    ResponseCommentDTO updateComment(Long communityId, Long commentId, UpdateCommentDTO comment, String email );
+    ResponseCommentDTO updateComment(Long commentId, Long communityId, UpdateCommentDTO comment, String email );
     // 댓글 삭제
     String deleteComment(Long commentId);
     // 댓글 조회
