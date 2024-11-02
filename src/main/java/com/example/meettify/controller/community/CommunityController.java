@@ -84,7 +84,7 @@ public class CommunityController implements CommunityControllerDocs {
     // 커뮤니티 삭제
     @Override
     @DeleteMapping("/{communityId}")
-    public ResponseEntity<?> deleteCommunity(Long communityId) {
+    public ResponseEntity<?> deleteCommunity(@PathVariable Long communityId) {
         try {
             String response = communityService.deleteBoard(communityId);
             return ResponseEntity.ok(response);
