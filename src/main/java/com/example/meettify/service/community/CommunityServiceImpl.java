@@ -188,14 +188,13 @@ public class CommunityServiceImpl implements CommunityService {
     public String deleteBoard(Long communityId) {
         try {
             CommunityEntity findCommunity = communityRepository.findById(communityId)
-                    .orElseThrow(() -> new BoardException("Community not found with id: " + communityId));
+                    .orElseThrow(() -> new BoardException("게시글을 찾을 수 없습니다. : " + communityId));
             log.info("findCommunity: {}", findCommunity);
             if(findCommunity != null) {
-                communityRepository.deleteById(communityId);
                 findCommunity.getImages().forEach(
                         img -> s3ImageUploadService.deleteFile(img.getUploadImgPath(), img.getUploadImgName())
                 );
-                findCommunity.removeImg();
+                communityRepository.delete(findCommunity);
                 return "삭제가 완료되었습니다.";
             }
             throw new BoardException("커뮤니티 글이 존재하지 않습니다. 잘못된 id를 보냈습니다.");
