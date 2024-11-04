@@ -11,6 +11,8 @@ import com.example.meettify.repository.member.MemberRepository;
 import com.example.meettify.repository.question.QuestionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -81,6 +83,7 @@ public class QuestionServiceImpl implements QuestionService{
 
     // 문의 조회
     @Override
+    @Transactional(readOnly = true)
     public ResponseQuestionDTO getQuestion(Long questionId, UserDetails userDetails) {
         try {
             // 문의글 조회
@@ -100,6 +103,19 @@ public class QuestionServiceImpl implements QuestionService{
             }
 
             return response;
+        } catch (Exception e) {
+            throw new BoardException("문의글 조회하는데 실패했습니다. : " + e.getMessage());
+        }
+    }
+
+    // 내 문의글 보기
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ResponseQuestionDTO> getAllQuestions(Pageable pageable, String memberEmail) {
+        try {
+            Page<QuestionEntity> findAllQuestions = questionRepository.findAllByMember(memberEmail, pageable);
+            return findAllQuestions
+                    .map(q -> ResponseQuestionDTO.changeDTO(q, q.getMember().getNickName()));
         } catch (Exception e) {
             throw new BoardException("문의글 조회하는데 실패했습니다. : " + e.getMessage());
         }

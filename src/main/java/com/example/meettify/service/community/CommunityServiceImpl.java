@@ -255,7 +255,7 @@ public class CommunityServiceImpl implements CommunityService {
     @Transactional(readOnly = true)
     public Page<ResponseCommunityDTO> getMyBoards(Pageable pageable, String memberEmail) {
         try {
-            Page<CommunityEntity> findAllCommunity = communityRepository.findAllByMemberEmail(memberEmail);
+            Page<CommunityEntity> findAllCommunity = communityRepository.findAllByMemberEmail(memberEmail, pageable);
             countRedisView(findAllCommunity);
             return findAllCommunity.map(ResponseCommunityDTO::changeCommunity);
         } catch (Exception e) {

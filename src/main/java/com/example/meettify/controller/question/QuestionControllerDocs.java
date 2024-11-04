@@ -20,4 +20,8 @@ public interface QuestionControllerDocs {
 
     @Operation(summary = "문의 조회", description = "문의 조회 API")
     ResponseEntity<?> getQuestions(Long questionId, UserDetails userDetails);
+
+    @Operation(summary = "내 문의 조회", description = "내 문의 조회 API")
+    ResponseEntity<?> getMyQuestions(Long questionId, UserDetails userDetails);
+
 }
