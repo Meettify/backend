@@ -60,4 +60,11 @@ public class RedisService {
         redisTemplate.opsForValue().set(key, 0);
         log.info("Reset view count for key {}", key);
     }
+
+    // 레디스 삭제
+    public void deleteData(String key) {
+        redisTemplate.delete(key);
+        log.info("Deleted data for key {}", key);
+    }
+
 }
