@@ -39,4 +39,9 @@ public interface CommunityRepository extends JpaRepository<CommunityEntity, Long
             " join fetch c.member" +
             " where c.communityId = :communityId")
     CommunityEntity findByCommunityId(@Param("communityId") Long communityId);
+
+    @Query("SELECT c FROM communities c " +
+            "JOIN FETCH c.member m " +
+            "WHERE m.memberEmail = :memberEmail")
+    Page<CommunityEntity> findAllByMemberEmail(@Param("memberEmail") String memberEmail);
 }

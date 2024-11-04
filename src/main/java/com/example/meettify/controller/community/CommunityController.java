@@ -153,4 +153,37 @@ public class CommunityController implements CommunityControllerDocs {
             throw new BoardException(e.getMessage());
         }
     }
+
+    @Override
+    @GetMapping("/my-community")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<?> getCommunities(Pageable pageable, UserDetails userDetails) {
+        try {
+            String email = userDetails.getUsername();
+
+            // 검색하지 않을 때는 모든 글을 보여준다.
+            Page<ResponseCommunityDTO> community = communityService.getMyBoards(pageable, email);
+            Map<String, Object> response = new HashMap<>();
+            // 현재 페이지의 아이템 목록
+            response.put("communities", community.getContent());
+            // 현재 페이지 번호
+            response.put("nowPageNumber", community.getNumber() + 1);
+            // 전체 페이지 수
+            response.put("totalPage", community.getTotalPages());
+            // 한 페이지에 출력되는 데이터 개수
+            response.put("pageSize", community.getSize());
+            // 다음 페이지 존재 여부
+            response.put("hasNextPage", community.hasNext());
+            // 이전 페이지 존재 여부
+            response.put("hasPreviousPage", community.hasPrevious());
+            // 첫 번째 페이지 여부
+            response.put("isFirstPage", community.isFirst());
+            // 마지막 페이지 여부
+            response.put("isLastPage", community.isLast());
+
+            return ResponseEntity.ok().body(response);
+        } catch (Exception e) {
+            throw new BoardException(e.getMessage());
+        }
+    }
 }

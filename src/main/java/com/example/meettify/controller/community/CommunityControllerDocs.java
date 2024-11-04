@@ -40,4 +40,7 @@ public interface CommunityControllerDocs {
 
     @Operation(summary = "커뮤니티 제목 검색", description = "커뮤니티 제목 검색 페이징 API")
     ResponseEntity<?> searchCommunity(Pageable pageable, String searchTitle);
+
+    @Operation(summary = "본인 커뮤니티 작성 내역 보기", description = "본인 커뮤니티 작성 내역 보기 API")
+    ResponseEntity<?> getCommunities(Pageable pageable, UserDetails userDetails);
 }

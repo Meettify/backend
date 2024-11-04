@@ -37,4 +37,7 @@ public interface CommunityService {
     // 커뮤니티 제목 검색
     Page<ResponseCommunityDTO> searchTitle(Pageable pageable, String searchTitle);
 
+    // 본인 커뮤니티 글 보기
+    Page<ResponseCommunityDTO> getMyBoards(Pageable pageable, String memberEmail);
+
 }
