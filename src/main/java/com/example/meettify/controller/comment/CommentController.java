@@ -5,6 +5,7 @@ import com.example.meettify.dto.comment.ResponseCommentDTO;
 import com.example.meettify.dto.comment.UpdateCommentDTO;
 import com.example.meettify.exception.comment.CommentException;
 import com.example.meettify.service.comment.CommentService;
+import com.example.meettify.service.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -24,6 +25,7 @@ import java.util.Map;
 @RequestMapping("/api/v1/{communityId}/comment")
 public class CommentController implements CommentControllerDocs{
     private final CommentService commentService;
+    private final NotificationService notificationService;
 
     // 댓글 생성
     @Override
@@ -35,6 +37,9 @@ public class CommentController implements CommentControllerDocs{
         try {
             String email = userDetails.getUsername();
             ResponseCommentDTO response = commentService.createComment(communityId, comment, email);
+            // 알림 구현
+            notificationService.notifyCommentForCommunity(communityId);
+
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             throw new CommentException(e.getMessage());

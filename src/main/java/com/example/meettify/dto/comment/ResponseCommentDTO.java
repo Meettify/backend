@@ -27,17 +27,20 @@ public class ResponseCommentDTO {
     private LocalDateTime createdAt;
     @Schema(description = "작성 닉네임")
     private String nickName;
+    @Schema(description = "부모 번호")
+    private Long parentCommentId;
 
     @Builder.Default
     private List<ResponseCommentDTO> children = new ArrayList<>();  // 자식 댓글 리스트
 
     // DTO로 변환
-    public static ResponseCommentDTO changeDTO(CommentEntity comment, String nickName) {
+    public static ResponseCommentDTO changeDTO(CommentEntity comment, String nickName, Long parentCommentId) {
         return ResponseCommentDTO.builder()
                 .commentId(comment.getCommentId())
                 .comment(comment.getComment())
                 .createdAt(comment.getRegTime())
                 .nickName(nickName)
+                .parentCommentId(parentCommentId)
                 .build();
     }
 
