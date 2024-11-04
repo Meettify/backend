@@ -195,6 +195,7 @@ public class CommunityServiceImpl implements CommunityService {
                         img -> s3ImageUploadService.deleteFile(img.getUploadImgPath(), img.getUploadImgName())
                 );
                 communityRepository.delete(findCommunity);
+                redisService.deleteData("viewCount_community" + findCommunity.getCommunityId());
                 return "삭제가 완료되었습니다.";
             }
             throw new BoardException("커뮤니티 글이 존재하지 않습니다. 잘못된 id를 보냈습니다.");
