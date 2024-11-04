@@ -157,7 +157,7 @@ public class CommunityController implements CommunityControllerDocs {
     @Override
     @GetMapping("/my-community")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> getCommunities(Pageable pageable, UserDetails userDetails) {
+    public ResponseEntity<?> getCommunities(Pageable pageable, @AuthenticationPrincipal UserDetails userDetails) {
         try {
             String email = userDetails.getUsername();
 
