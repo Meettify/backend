@@ -249,4 +249,18 @@ public class CommunityServiceImpl implements CommunityService {
             throw new BoardException("커뮤니티 글을 가져오는데 실패했습니다. : " + e.getMessage());
         }
     }
+
+    // 내 커뮤니티 보기
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ResponseCommunityDTO> getMyBoards(Pageable pageable, String memberEmail) {
+        try {
+            Page<CommunityEntity> findAllCommunity = communityRepository.findAllByMemberEmail(memberEmail);
+            countRedisView(findAllCommunity);
+            return findAllCommunity.map(ResponseCommunityDTO::changeCommunity);
+        } catch (Exception e) {
+            log.error("Error retrieving community: ", e.getMessage());
+            throw new BoardException("커뮤니티 글을 가져오는데 실패했습니다. : " + e.getMessage());
+        }
+    }
 }

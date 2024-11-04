@@ -47,6 +47,9 @@ public class RedisConfig {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
 
+        // 트랜잭션 지원 설정 추가
+        template.setEnableTransactionSupport(true);
+
         // 직렬화 설정
         // Redis의 키를 StringRedisSerializer를 사용하여 문자열로 직렬화합니다. Redis의 키는 보통 문자열 형태로 저장되므로 이 설정이 적절합니다.
         template.setKeySerializer(new StringRedisSerializer());
@@ -60,6 +63,7 @@ public class RedisConfig {
     public RedisTemplate<String, SearchLog> searchLogRedis() {
         RedisTemplate<String, SearchLog> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory());
+        redisTemplate.setEnableTransactionSupport(true); // 트랜잭션 지원 설정 추가
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setHashKeySerializer(new StringRedisSerializer());
         redisTemplate.setHashValueSerializer(new Jackson2JsonRedisSerializer<>(SearchLog.class));
