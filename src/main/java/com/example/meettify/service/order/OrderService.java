@@ -7,7 +7,11 @@ import com.example.meettify.dto.order.ResponseOrderDTO;
 import java.util.List;
 
 public interface OrderService {
+    // 주문하기
     ResponseOrderDTO saveOrder(List<RequestOrderServiceDTO> orders,
                                String email,
                                AddressDTO address);
+
+    // 내 주문 내역 보기
+
 }
