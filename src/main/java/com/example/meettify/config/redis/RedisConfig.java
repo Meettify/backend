@@ -57,7 +57,7 @@ public class RedisConfig {
 
     // 검색 로그 템플릿
     @Bean
-    public RedisTemplate<String, SearchLog> SearchLogRedis() {
+    public RedisTemplate<String, SearchLog> searchLogRedis() {
         RedisTemplate<String, SearchLog> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory());
         redisTemplate.setKeySerializer(new StringRedisSerializer());
