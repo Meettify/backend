@@ -1,5 +1,6 @@
 package com.example.meettify.dto.search;
 
+import com.example.meettify.dto.meet.category.Category;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,4 +13,5 @@ import lombok.NoArgsConstructor;
 public class SearchLog {
     private String name;
     private String createdAt;
+    private Category category;
 }
