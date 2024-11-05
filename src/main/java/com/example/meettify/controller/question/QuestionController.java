@@ -92,10 +92,10 @@ public class QuestionController implements QuestionControllerDocs{
     @Override
     @GetMapping("/my-questions")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> getMyQuestions(Long questionId, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<?> getMyQuestions(Pageable pageable, @AuthenticationPrincipal UserDetails userDetails) {
         try {
             String email = userDetails.getUsername();
-            Page<ResponseQuestionDTO> findAllQuestions = questionService.getAllQuestions(Pageable.unpaged(), email);
+            Page<ResponseQuestionDTO> findAllQuestions = questionService.getAllQuestions(pageable, email);
             Map<String, Object> response = new HashMap<>();
             // 현재 페이지의 아이템 목록
             response.put("contents",findAllQuestions.getContent());

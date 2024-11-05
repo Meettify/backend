@@ -22,6 +22,8 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -108,6 +110,20 @@ public class OrderServiceImpl implements OrderService{
         } catch (Exception e) {
             log.error("주문 처리 중 에러 발생: " + e.getMessage(), e);
             throw new OrderException("주문하는데 실패 했습니다. : " + e.getMessage());
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ResponseOrderDTO> getMyOrders(String email, Pageable pageable) {
+        try {
+            Page<OrderEntity> findAllOrders = orderRepository.findAllByMemberEmail(email, pageable);
+            log.info("findAllOrders{} " , findAllOrders);
+            return findAllOrders
+                    .map(ResponseOrderDTO::viewChangeDTO);
+        }catch (Exception e) {
+            log.error("주문 조회 중 에러 발생: " + e.getMessage(), e);
+            throw new OrderException("주문 조회 실패 했습니다. : " + e.getMessage());
         }
     }
 }

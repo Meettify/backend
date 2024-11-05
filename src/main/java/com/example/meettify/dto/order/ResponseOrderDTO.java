@@ -37,4 +37,17 @@ public class ResponseOrderDTO {
                 .orderItems(orderItems)
                 .build();
     }
+
+    public static ResponseOrderDTO viewChangeDTO(OrderEntity order) {
+        List<ResponseOrderItemDTO> orderItems = order.getOrderItems().stream()
+                .map(ResponseOrderItemDTO::changeDTO)
+                .collect(Collectors.toList());
+
+        return ResponseOrderDTO.builder()
+                .orderId(order.getOrderId())
+                .orderAddress(AddressDTO.changeDTO(order.getAddress()))
+                .orderTotalPrice(order.getTotalPrice())
+                .orderItems(orderItems)
+                .build();
+    }
 }

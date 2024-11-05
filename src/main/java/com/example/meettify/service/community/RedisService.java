@@ -71,8 +71,11 @@ public class RedisService {
 
     // 레디스 삭제
     public void deleteData(String key) {
-        redisTemplate.delete(key);
-        log.info("Deleted data for key {}", key);
+        Boolean result = redisTemplate.delete(key);
+        if(Boolean.TRUE.equals(result)) {
+            log.info("Deleted data for key {}", key);
+        }
+        log.warn("Failed to delete data for key {} or key does not exist", key);
     }
 
 }

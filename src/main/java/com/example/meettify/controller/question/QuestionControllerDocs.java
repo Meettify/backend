@@ -4,6 +4,7 @@ import com.example.meettify.dto.board.CreateBoardDTO;
 import com.example.meettify.dto.board.UpdateQuestionDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -22,6 +23,6 @@ public interface QuestionControllerDocs {
     ResponseEntity<?> getQuestions(Long questionId, UserDetails userDetails);
 
     @Operation(summary = "내 문의 조회", description = "내 문의 조회 API")
-    ResponseEntity<?> getMyQuestions(Long questionId, UserDetails userDetails);
+    ResponseEntity<?> getMyQuestions(Pageable pageable, UserDetails userDetails);
 
 }
