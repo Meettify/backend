@@ -155,4 +155,20 @@ public class ItemRepositoryImpl implements CustomItemRepository {
                 .where(builder)
                 .fetchOne();
     }
+
+    @Override
+    public List<ItemEntity> findItemsByCategory(Category category, String title) {
+        try {
+            List<ItemEntity> items = queryFactory
+                    .selectFrom(itemEntity)
+                    .where(itemEntity.itemCategory.eq(category), titleEq(title))
+                    .fetch();
+
+            log.info("items: {}", items);
+            return items;
+        } catch (Exception e) {
+            log.error("Index out of bounds while fetching items: " + e.getMessage());
+            throw new ItemException("상품을 조회하는데 실패했습니다. : " + e.getMessage());
+        }
+    }
 }

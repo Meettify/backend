@@ -35,14 +35,10 @@ public class SearchServiceImpl implements SearchService {
 
     @TimeTrace
     public SearchResponseDTO searchResponseDTO(SearchCondition searchCondition, String email) {
-
-
         HashMap<String, List> searchResponse = searchCustomRepository.searchAll(searchCondition);
-
         List<MeetEntity> meetEntityList = (List<MeetEntity>) searchResponse.get("meet");
         List<ItemEntity> itemEntities = (List<ItemEntity>) searchResponse.get("item");
         List<CommunityEntity> communityEntities = (List<CommunityEntity>) searchResponse.get("community");
-
 
         // 사용자 정보를 통해 모임 멤버 ID 목록 조회
         MemberEntity member = memberRepository.findByMemberEmail(email);
@@ -59,11 +55,6 @@ public class SearchServiceImpl implements SearchService {
                     .build();
             searchLogService.saveRecentSearchLog(email, requestSearchLog);
         }
-
         return SearchResponseDTO.changeDTO(responseMeetSummaryDTOList, responseItemDTOList, responseBoardDTOS);
     }
-
-    ;
-
-
 }
