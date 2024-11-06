@@ -40,7 +40,6 @@ public class CommunityServiceImpl implements CommunityService {
     private final MemberRepository memberRepository;
     private final S3ImageUploadService s3ImageUploadService;
     private final RedisCommunityService redisCommunityService;
-    private final ScheduledTasks scheduledTasks;
 
     // 커뮤니티 생성
     @Override
@@ -87,14 +86,11 @@ public class CommunityServiceImpl implements CommunityService {
     @TimeTrace
     public ResponseCommunityDTO updateBoard(Long communityId,
                                             UpdateServiceDTO community,
-                                            List<MultipartFile> files,
-                                            String memberEmail) {
+                                            List<MultipartFile> files) {
         try {
             // 커뮤니티 조회
             CommunityEntity findCommunity = communityRepository.findById(communityId)
                     .orElseThrow(() -> new ItemException("Community not found with id: " + communityId));
-            // 회원 조회
-            MemberEntity findMember = memberRepository.findByMemberEmail(memberEmail);
 
             // 만약 남겨야 할 이미지 ID가 비어있다면, 모든 이미지를 삭제
             if (community.getRemainImgId().isEmpty()) {
@@ -166,7 +162,7 @@ public class CommunityServiceImpl implements CommunityService {
             // 조회수는 이미 증가했으므로 엔티티에서 바로 조회 가능
             return ResponseCommunityDTO.communityDetail(findCommunity, totalViewCount);
         } catch (Exception e) {
-            log.error("Error retrieving community: ", e.getMessage());
+            log.error("Error retrieving community {} ", e.getMessage());
             throw new BoardException("상세 페이지를 조회하는데 실패했습니다.");
         }
     }
@@ -189,7 +185,7 @@ public class CommunityServiceImpl implements CommunityService {
         try {
             CommunityEntity findCommunity = communityRepository.findById(communityId)
                     .orElseThrow(() -> new BoardException("게시글을 찾을 수 없습니다. : " + communityId));
-            log.info("findCommunity: {}", findCommunity);
+            log.info("findCommunity {}", findCommunity);
             if(findCommunity != null) {
                 findCommunity.getImages().forEach(
                         img -> s3ImageUploadService.deleteFile(img.getUploadImgPath(), img.getUploadImgName())
@@ -200,7 +196,7 @@ public class CommunityServiceImpl implements CommunityService {
             }
             throw new BoardException("커뮤니티 글이 존재하지 않습니다. 잘못된 id를 보냈습니다.");
         } catch (Exception e) {
-            log.error("Error deleting community: ", e.getMessage());
+            log.error("Error deleting community {} ", e.getMessage());
             throw new BoardException("커뮤니티 글을 삭제하는데 실패했습니다. :" + e.getMessage());
         }
     }
@@ -219,7 +215,7 @@ public class CommunityServiceImpl implements CommunityService {
 
             return findAllCommunity.map(ResponseCommunityDTO::changeCommunity);
         } catch (Exception e) {
-            log.error("Error retrieving community: ", e.getMessage());
+            log.error("Error retrieving community {} ", e.getMessage());
             throw new BoardException("커뮤니티 글을 가져오는데 실패했습니다. : " + e.getMessage());
         }
     }
@@ -240,12 +236,12 @@ public class CommunityServiceImpl implements CommunityService {
     public Page<ResponseCommunityDTO> searchTitle(Pageable pageable, String searchTitle) {
         try {
             Page<CommunityEntity> findAllByTitle = communityRepository.findBySearchTitle(pageable, searchTitle);
-            log.info("조회된 커뮤니티 수 : {}", findAllByTitle.getTotalElements());
-            log.info("조회된 커뮤니티 : {}", findAllByTitle);
+            log.info("조회된 커뮤니티 수  {}", findAllByTitle.getTotalElements());
+            log.info("조회된 커뮤니티  {}", findAllByTitle);
             countRedisView(findAllByTitle);
             return findAllByTitle.map(ResponseCommunityDTO::changeCommunity);
         } catch (Exception e) {
-            log.error("Error retrieving community: ", e.getMessage());
+            log.error("Error retrieving community {} ", e.getMessage());
             throw new BoardException("커뮤니티 글을 가져오는데 실패했습니다. : " + e.getMessage());
         }
     }
@@ -259,7 +255,7 @@ public class CommunityServiceImpl implements CommunityService {
             countRedisView(findAllCommunity);
             return findAllCommunity.map(ResponseCommunityDTO::changeCommunity);
         } catch (Exception e) {
-            log.error("Error retrieving community: ", e.getMessage());
+            log.error("Error retrieving community {}", e.getMessage());
             throw new BoardException("커뮤니티 글을 가져오는데 실패했습니다. : " + e.getMessage());
         }
     }

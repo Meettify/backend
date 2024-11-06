@@ -38,9 +38,7 @@
     public class ItemServiceImpl implements ItemService {
         private final MemberRepository memberRepository;
         private final ItemRepository itemRepository;
-        private final ItemImgRepository itemImgRepository;
         private final S3ImageUploadService s3ImageUploadService;
-        private final RedisCommunityService redisCommunityService;
         private final RedisSearchLogService redisSearchLogService;
 
         // 상품 등록 메서드
@@ -196,7 +194,7 @@
             // 최근 검색 기록에서 키워드를 추출합니다.
             List<String> keywords = userSearchLogs.stream()
                     .map(SearchLog::getName) // SearchLog에서 name을 가져옵니다.
-                    .collect(Collectors.toList());
+                    .toList();
 
             List<ItemEntity> items = new ArrayList<>();
             // 키워드가 존재하는 경우, 각각의 키워드에 대해 상품을 조회합니다.
