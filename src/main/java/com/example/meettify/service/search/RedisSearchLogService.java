@@ -24,7 +24,7 @@ import java.util.Objects;
 @Transactional
 @RequiredArgsConstructor
 @Log4j2
-public class SearchLogService {
+public class RedisSearchLogService {
     private final MemberRepository memberRepository;
     private final RedisTemplate<String, SearchLog> redisTemplate;
     private final ItemRepository itemRepository;
@@ -36,18 +36,12 @@ public class SearchLogService {
             throw new MemberException("Member not found");
         }
 
-        // 상품 조회
-        ItemEntity findItem = itemRepository.findByItemName(searchLog.getName());
-        if (findItem == null) {
-            throw new ItemException("Item not found");
-        }
 
         // key로 현재 로그인한 SearchLog + [현재 로그인한 member의 id 값] 으로 두었고
         String key = "SearchLog" + findMember.getMemberId();
         SearchLog value = SearchLog.builder()
                 .name(searchLog.getName())
                 // 검색을 레디스에 저장할 때 상품을 조회하고 그 카테고리를 레디스에 저장
-                .category(findItem.getItemCategory())
                 .createdAt(LocalDateTime.now().toString())
                 .build();
 

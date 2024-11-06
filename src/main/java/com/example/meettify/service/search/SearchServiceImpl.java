@@ -30,7 +30,7 @@ public class SearchServiceImpl implements SearchService {
     private final MemberRepository memberRepository;
     private final MeetMemberRepository meetMemberRepository;
     private final SearchCustomRepositoryImpl searchCustomRepository;
-    private final SearchLogService searchLogService;
+    private final RedisSearchLogService redisSearchLogService;
 
 
     @TimeTrace
@@ -53,7 +53,7 @@ public class SearchServiceImpl implements SearchService {
             RequestSearchLog requestSearchLog = RequestSearchLog.builder()
                     .name(searchCondition.getTotalKeyword())
                     .build();
-            searchLogService.saveRecentSearchLog(email, requestSearchLog);
+            redisSearchLogService.saveRecentSearchLog(email, requestSearchLog);
         }
         return SearchResponseDTO.changeDTO(responseMeetSummaryDTOList, responseItemDTOList, responseBoardDTOS);
     }

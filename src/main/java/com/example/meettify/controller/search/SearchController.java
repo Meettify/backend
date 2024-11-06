@@ -6,9 +6,8 @@ import com.example.meettify.exception.board.BoardException;
 import com.example.meettify.exception.item.ItemException;
 import com.example.meettify.exception.not_found.ResourceNotFoundException;
 import com.example.meettify.exception.timeout.RequestTimeoutException;
-import com.example.meettify.service.search.SearchLogService;
+import com.example.meettify.service.search.RedisSearchLogService;
 import com.example.meettify.service.search.SearchService;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -16,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,7 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SearchController implements  SearchControllerDocs {
     private final SearchService searchService;
-    private final SearchLogService searchLogService;
+    private final RedisSearchLogService redisSearchLogService;
 
     @Override
     @GetMapping
@@ -61,7 +59,7 @@ public class SearchController implements  SearchControllerDocs {
     public ResponseEntity<?> findRecentSearchLog(@AuthenticationPrincipal UserDetails userDetails) throws Exception {
         try {
             String email = userDetails.getUsername();
-            List<SearchLog> response = searchLogService.findRecentSearchLogs(email);
+            List<SearchLog> response = redisSearchLogService.findRecentSearchLogs(email);
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             throw new IllegalAccessException(e.getMessage());
@@ -73,7 +71,7 @@ public class SearchController implements  SearchControllerDocs {
                                                    @RequestBody DeleteSearchLog deleteSearchLog) throws Exception {
         try {
             String email = userDetails.getUsername();
-            searchLogService.deleteRecentSearchLog(email, deleteSearchLog);
+            redisSearchLogService.deleteRecentSearchLog(email, deleteSearchLog);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (Exception e) {
             throw new IllegalAccessException(e.getMessage());
