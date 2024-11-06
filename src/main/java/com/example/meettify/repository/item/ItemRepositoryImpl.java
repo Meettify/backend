@@ -24,6 +24,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static com.example.meettify.entity.item.QItemEntity.itemEntity;
 import static org.springframework.util.StringUtils.hasText;
@@ -157,18 +158,22 @@ public class ItemRepositoryImpl implements CustomItemRepository {
     }
 
     @Override
-    public List<ItemEntity> findItemsByCategory(Category category, String title) {
+    public List<ItemEntity> findItemsByCategoriesAndKeyword(Set<Category> categories, String keyword) {
         try {
-            List<ItemEntity> items = queryFactory
+            // 카테고리와 키워드에 해당하는 상품을 찾기 위한 로직
+            return queryFactory
                     .selectFrom(itemEntity)
-                    .where(itemEntity.itemCategory.eq(category), titleEq(title))
+                    .where(itemEntity.itemCategory.in(categories)
+                            ,keywordContains(keyword))
                     .fetch();
-
-            log.info("items: {}", items);
-            return items;
         } catch (Exception e) {
             log.error("Index out of bounds while fetching items: " + e.getMessage());
             throw new ItemException("상품을 조회하는데 실패했습니다. : " + e.getMessage());
         }
     }
+    private BooleanExpression keywordContains(String keyword) {
+        return keyword == null || keyword.isEmpty() ? null :
+                itemEntity.itemName.contains(keyword).or(itemEntity.itemDetails.contains(keyword));
+    }
+
 }

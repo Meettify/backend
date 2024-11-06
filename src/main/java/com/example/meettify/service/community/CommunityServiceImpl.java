@@ -39,7 +39,7 @@ public class CommunityServiceImpl implements CommunityService {
     private final CommunityRepository communityRepository;
     private final MemberRepository memberRepository;
     private final S3ImageUploadService s3ImageUploadService;
-    private final RedisService redisService;
+    private final RedisCommunityService redisCommunityService;
     private final ScheduledTasks scheduledTasks;
 
     // 커뮤니티 생성
@@ -140,9 +140,9 @@ public class CommunityServiceImpl implements CommunityService {
         try {
             String viewCountCookieValue = CookieUtils.getViewCountCookieValue(request, response);
 
-            if(!redisService.isExistInSet(viewCountCookieValue, communityId)) {
+            if(!redisCommunityService.isExistInSet(viewCountCookieValue, communityId)) {
                 increaseViewCountAsync("viewCount_community" + communityId);
-                redisService.addToSet(viewCountCookieValue, communityId);
+                redisCommunityService.addToSet(viewCountCookieValue, communityId);
             }
 
             // 조회수 증가 후 다시 엔티티 조회
@@ -154,7 +154,7 @@ public class CommunityServiceImpl implements CommunityService {
             // Redis에서 조회수 가져오기
             Integer redisViewCount = null;
             try {
-                redisViewCount = redisService.getViewCount("viewCount_community" + communityId);
+                redisViewCount = redisCommunityService.getViewCount("viewCount_community" + communityId);
             } catch (Exception e) {
                 log.error("Error retrieving view count from Redis for communityId {}: {}", communityId, e.getMessage());
                 // Redis 오류 발생 시 기본 조회수를 사용
@@ -176,7 +176,7 @@ public class CommunityServiceImpl implements CommunityService {
     @Async
     public void increaseViewCountAsync(String viewCountKey) {
         try {
-            redisService.increaseData(viewCountKey);
+            redisCommunityService.increaseData(viewCountKey);
         } catch (Exception e) {
             log.error("Error increasing view count in Redis for key {}: {}", viewCountKey, e.getMessage());
         }
@@ -195,7 +195,7 @@ public class CommunityServiceImpl implements CommunityService {
                         img -> s3ImageUploadService.deleteFile(img.getUploadImgPath(), img.getUploadImgName())
                 );
                 communityRepository.delete(findCommunity);
-                redisService.deleteData("viewCount_community" + findCommunity.getCommunityId());
+                redisCommunityService.deleteData("viewCount_community" + findCommunity.getCommunityId());
                 return "삭제가 완료되었습니다.";
             }
             throw new BoardException("커뮤니티 글이 존재하지 않습니다. 잘못된 id를 보냈습니다.");
@@ -227,7 +227,7 @@ public class CommunityServiceImpl implements CommunityService {
     private void countRedisView(Page<CommunityEntity> findAllCommunity) {
         // 각 커뮤니티 게시글에 대해 Redis 조회수를 가져와서 합산
         findAllCommunity.forEach(community -> {
-            Integer redisViewCount = redisService.getViewCount("viewCount_community" + community.getCommunityId());
+            Integer redisViewCount = redisCommunityService.getViewCount("viewCount_community" + community.getCommunityId());
             int totalViewCount = community.getViewCount() + (redisViewCount != null ? redisViewCount : 0);
             community.setViewCount(totalViewCount);  // or update DTO to reflect this view count
         });

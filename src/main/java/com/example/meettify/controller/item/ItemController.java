@@ -151,4 +151,17 @@ public class ItemController implements ItemControllerDocs{
             throw new ItemException(e.getMessage());
         }
     }
+
+    @Override
+    @GetMapping("/recommend-items")
+    public ResponseEntity<?> recommendItems(@AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            String email = userDetails.getUsername();
+            List<ResponseItemDTO> response = itemService.recommendItemsBySearchHistory(email);
+            log.info("response {}", response);
+            return ResponseEntity.ok().body(response);
+        } catch (Exception e) {
+            throw new ItemException(e.getMessage());
+        }
+    }
 }

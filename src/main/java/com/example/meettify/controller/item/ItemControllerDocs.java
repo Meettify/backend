@@ -42,4 +42,7 @@ public interface ItemControllerDocs {
                                             int maxPrice,
                                             Category category,
                                             ItemStatus status);
+
+    @Operation(summary = "상품 추천", description = "모임 게시글에서 사용할 상품 추천 API")
+    ResponseEntity<?> recommendItems(UserDetails userDetails);
 }

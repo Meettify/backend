@@ -29,4 +29,7 @@ public interface ItemService {
 
     // 동적 검색
     Page<ResponseItemDTO> searchItems(ItemSearchCondition condition, Pageable pageable);
+
+    // 상품 추천
+    List<ResponseItemDTO> recommendItemsBySearchHistory(String email);
 }

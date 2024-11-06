@@ -13,9 +13,8 @@
     import com.example.meettify.repository.item.ItemImgRepository;
     import com.example.meettify.repository.item.ItemRepository;
     import com.example.meettify.repository.member.MemberRepository;
-    import com.example.meettify.service.community.RedisService;
-    import com.example.meettify.service.search.SearchLogService;
-    import com.example.meettify.service.search.SearchService;
+    import com.example.meettify.service.community.RedisCommunityService;
+    import com.example.meettify.service.search.RedisSearchLogService;
     import jakarta.persistence.EntityNotFoundException;
     import lombok.RequiredArgsConstructor;
     import lombok.extern.log4j.Log4j2;
@@ -41,8 +40,8 @@
         private final ItemRepository itemRepository;
         private final ItemImgRepository itemImgRepository;
         private final S3ImageUploadService s3ImageUploadService;
-        private final RedisService redisService;
-        private final SearchLogService searchLogService;
+        private final RedisCommunityService redisCommunityService;
+        private final RedisSearchLogService redisSearchLogService;
 
         // 상품 등록 메서드
         @Override
@@ -183,17 +182,46 @@
             }
         }
 
-//        // 사용자 이메일을 통해 검색 기록을 조회하고, 그 기록에서 카테고리를 추출하여 추천 상품을 계산합니다.
-//        public List<ResponseItemDTO> recommendItemsBySearchHistory(String email) {
-//            // 최근 사용자의 검색 기록 조회
-//            // 검색 이름과 시간이 담긴 리스트
-//            List<SearchLog> userSearchLogs = searchLogService.findRecentSearchLogs(email);
-//            log.info("userSearchLogs: {}", userSearchLogs);
-//
-//            List<List<ItemEntity>> collect = userSearchLogs.stream()
-//                    .map(search -> itemRepository.findItemsByCategory(search.getCategory(), search.getName()))
-//
-//        }
+        @Transactional(readOnly = true)
+        // 사용자 이메일을 통해 검색 기록을 조회하고, 그 기록에서 카테고리를 추출하여 추천 상품을 계산합니다.
+        public List<ResponseItemDTO> recommendItemsBySearchHistory(String email) {
+            // 사용자의 최근 검색 기록을 가져옵니다.
+            // 검색 이름과 시간이 담긴 리스트
+            List<SearchLog> userSearchLogs = redisSearchLogService.findRecentSearchLogs(email);
+            log.info("userSearchLogs: {}", userSearchLogs);
+
+            // 검색 기록에서 카테고리를 추출합니다. 이 카테고리는 사용자가 자주 검색한 항목과 관련된 상품을 찾는 데 사용됩니다.
+            Set<Category> categories = extractCategoriesFromSearchLogs(userSearchLogs);
+
+            // 최근 검색 기록에서 키워드를 추출합니다.
+            List<String> keywords = userSearchLogs.stream()
+                    .map(SearchLog::getName) // SearchLog에서 name을 가져옵니다.
+                    .collect(Collectors.toList());
+
+            List<ItemEntity> items = new ArrayList<>();
+            // 키워드가 존재하는 경우, 각각의 키워드에 대해 상품을 조회합니다.
+            for (String keyword : keywords) {
+                // 카테고리와 키워드로 상품을 추천
+                List<ItemEntity> findItems = itemRepository.findItemsByCategoriesAndKeyword(categories, keyword);
+                items.addAll(findItems);
+            }
+
+            return  items
+                    .stream()
+                    .map(ResponseItemDTO::changeDTO)
+                    .collect(Collectors.toList());
+        }
 
 
+        // 검색 로그에서 카테고리를 추출합니다. 만약 카테고리가 null인 경우에는 추가하지 않도록 했습니다.
+        private Set<Category> extractCategoriesFromSearchLogs(List<SearchLog> searchLogs) {
+            Set<Category> categories = new HashSet<>();
+            for (SearchLog log : searchLogs) {
+                // 검색 기록에서 카테고리 추출
+                if (log.getCategory() != null) {
+                    categories.add(log.getCategory()); // log에서 category를 가져와서 enum으로 변환
+                }
+            }
+            return categories;
+        }
     }
