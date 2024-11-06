@@ -6,6 +6,7 @@ import com.example.meettify.entity.member.AddressEntity;
 import com.example.meettify.entity.member.MemberEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import net.minidev.json.annotate.JsonIgnore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,7 @@ public class OrderEntity extends BaseEntity {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     @Builder.Default
+    @JsonIgnore
     private List<OrderItemEntity> orderItems = new ArrayList<>();
 
     public static OrderEntity saveOrder(MemberEntity member, AddressDTO address, int totalPrice) {

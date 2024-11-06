@@ -6,6 +6,7 @@ import com.example.meettify.entity.meet.MeetEntity;
 import com.example.meettify.entity.member.MemberEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import net.minidev.json.annotate.JsonIgnore;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -13,7 +14,6 @@ import java.util.List;
 
 @Entity(name = "meetBoardComments")
 @Getter
-@ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
@@ -45,6 +45,7 @@ public class MeetBoardCommentEntity extends BaseEntity {
     //부모 댁글 삭제시 자식 댓글도 삭제하기.
     @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    @JsonIgnore
     private List<MeetBoardCommentEntity> replies = new ArrayList<>();  // 대댓글 리스트
 
     @PrePersist

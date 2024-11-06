@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
  * */
 @Entity(name = "meetMembers")
 @Getter
-@ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder

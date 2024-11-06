@@ -6,6 +6,7 @@ import com.example.meettify.dto.board.UpdateServiceDTO;
 import com.example.meettify.entity.member.MemberEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import net.minidev.json.annotate.JsonIgnore;
 
 import java.util.*;
 
@@ -31,6 +32,7 @@ public class CommunityEntity extends BaseEntity {
     @OneToMany(mappedBy = "community", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("itemImgId asc ")
     @Builder.Default
+    @JsonIgnore
     private List<CommunityImgEntity> images = new ArrayList<>();
 
     @Column(columnDefinition = "default 0", nullable = false)
