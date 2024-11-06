@@ -19,7 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 public class ScheduledTasks {
-    private final RedisService redisService;
+    private final RedisCommunityService redisCommunityService;
     private final CommunityRepository communityRepository;
 
     @Scheduled(fixedRate = 86400000) // 매일 자정에 실행
@@ -28,7 +28,7 @@ public class ScheduledTasks {
         List<Long> communityIds = communityRepository.findAllCommunityIds();
         for (Long communityId : communityIds) {
             // Redis에서 조회 수 가져오기
-            Integer redisViewCount = redisService.getAndDeleteViewCount("viewCount_community" + communityId);
+            Integer redisViewCount = redisCommunityService.getAndDeleteViewCount("viewCount_community" + communityId);
             if (redisViewCount != null) {
                 // 데이터베이스에 업데이트
                 communityRepository.incrementViewCount(communityId, redisViewCount);

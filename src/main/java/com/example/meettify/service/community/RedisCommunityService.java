@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 @Service
 @Log4j2
-public class RedisService {
+public class RedisCommunityService {
     private final RedisTemplate<String, Object> redisTemplate;
 
     // Redis에 저장된 특정 키의 값을 증가시키는 기능을 수행합니다
