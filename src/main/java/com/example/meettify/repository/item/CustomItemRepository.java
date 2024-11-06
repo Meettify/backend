@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Set;
 
 /*
 *   worker  : 유요한
@@ -17,5 +18,5 @@ public interface CustomItemRepository {
     Page<ItemEntity> itemsSearch(ItemSearchCondition condition, Pageable pageable);
     long countItems(ItemSearchCondition condition);
 
-    List<ItemEntity> findItemsByCategory(Category category, String title);
+    List<ItemEntity> findItemsByCategoriesAndKeyword(Set<Category> categories, String keyword);
 }
