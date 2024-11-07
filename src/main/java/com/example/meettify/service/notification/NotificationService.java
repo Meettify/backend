@@ -1,9 +1,11 @@
 package com.example.meettify.service.notification;
 
+import com.example.meettify.dto.member.role.UserRole;
 import com.example.meettify.entity.community.CommunityEntity;
 import com.example.meettify.entity.member.MemberEntity;
 import com.example.meettify.exception.board.BoardException;
 import com.example.meettify.repository.community.CommunityRepository;
+import com.example.meettify.repository.item.ItemRepository;
 import com.example.meettify.repository.member.MemberRepository;
 import com.example.meettify.repository.notification.CustomNotificationRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -91,4 +94,25 @@ public class NotificationService {
         }
     }
 
+    // 상품 등록 후 관리자에게 알림을 전송하는 메서드
+    public void notifyNewItemCreated(String itemName) {
+        String message = "새로운 상품이 등록되었습니다: " + itemName;
+        // 1. 관리자 역할을 가진 모든 사용자 조회
+        List<MemberEntity> allAdmin = memberRepository.findAllByMemberRole(UserRole.ADMIN);
+
+        // 2. 각 관리자에게 알림 전송
+        for (MemberEntity admin : allAdmin) {
+            Long adminId = admin.getMemberId();
+
+            if(customNotificationRepository.containsKey(adminId)){
+                SseEmitter sseEmitter = customNotificationRepository.findById(adminId);
+                try {
+                    sseEmitter.send(SseEmitter.event().name("newItem").data(message));
+                } catch (Exception e) {
+                    customNotificationRepository.deleteById(adminId);
+                    log.error("Error sending notification to admin: " + admin.getMemberEmail(), e);
+                }
+            }
+        }
+    }
 }

@@ -83,9 +83,12 @@ public class SecurityConfig {
 
                         // 상품
                         .requestMatchers("/api/v1/items/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/items").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/items").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/items/{itemId}").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/items/{itemId}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/items/item-list").hasRole("ADMIN")
+
+
                         // 커뮤니티
                         .requestMatchers("/api/v1/community/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/community").hasAnyRole("USER", "ADMIN")

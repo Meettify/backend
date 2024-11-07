@@ -5,6 +5,7 @@ import com.example.meettify.dto.item.status.ItemStatus;
 import com.example.meettify.dto.meet.category.Category;
 import com.example.meettify.exception.item.ItemException;
 import com.example.meettify.service.item.ItemService;
+import com.example.meettify.service.notification.NotificationService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -33,10 +34,11 @@ import java.util.Map;
 public class ItemController implements ItemControllerDocs{
     private final ItemService itemService;
     private final ModelMapper modelMapper;
+    private final NotificationService notificationService;
 
     // 상품 등록
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
     public ResponseEntity<?> createItem(@Validated @RequestPart CreateItemDTO item,
                                         @RequestPart(value = "files", required = false)List<MultipartFile> files,
                                         BindingResult bindingResult,
@@ -45,9 +47,9 @@ public class ItemController implements ItemControllerDocs{
             if (bindingResult.hasErrors()) {
                 return ResponseEntity.badRequest().body(bindingResult);
             }
-
             CreateItemServiceDTO changeServiceDTO = modelMapper.map(item, CreateItemServiceDTO.class);
-
+            // 새로 담긴 상품을 관리자들에게 알림을 보냄
+            notificationService.notifyNewItemCreated(item.getItemName());
             String email = userDetails.getUsername();
             ResponseItemDTO response = itemService.createItem(changeServiceDTO, files, email);
             return ResponseEntity.ok().body(response);
@@ -159,6 +161,39 @@ public class ItemController implements ItemControllerDocs{
             String email = userDetails.getUsername();
             List<ResponseItemDTO> response = itemService.recommendItemsBySearchHistory(email);
             log.info("response {}", response);
+            return ResponseEntity.ok().body(response);
+        } catch (Exception e) {
+            throw new ItemException(e.getMessage());
+        }
+    }
+
+    @Override
+    @GetMapping("/item-list")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> getItemList(Pageable page) {
+        try {
+            Page<ResponseItemDTO> items = itemService.requestItemList(page);
+            log.info("condition : " + items);
+            log.info("상품 조회 {}", items);
+
+            Map<String, Object> response = new HashMap<>();
+            // 현재 페이지의 아이템 목록
+            response.put("items", items.getContent());
+            // 현재 페이지 번호
+            response.put("nowPageNumber", items.getNumber() + 1);
+            // 전체 페이지 수
+            response.put("totalPage", items.getTotalPages());
+            // 한 페이지에 출력되는 데이터 개수
+            response.put("pageSize", items.getSize());
+            // 다음 페이지 존재 여부
+            response.put("hasNextPage", items.hasNext());
+            // 이전 페이지 존재 여부
+            response.put("hasPreviousPage", items.hasPrevious());
+            // 첫 번째 페이지 여부
+            response.put("isFirstPage", items.isFirst());
+            // 마지막 페이지 여부
+            response.put("isLastPage", items.isLast());
+
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
             throw new ItemException(e.getMessage());
