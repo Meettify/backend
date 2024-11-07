@@ -87,6 +87,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/v1/items/{itemId}").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/items/{itemId}").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/items/item-list").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/items/confirm/{itemId}").hasRole("ADMIN")
 
 
                         // 커뮤니티

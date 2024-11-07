@@ -199,4 +199,17 @@ public class ItemController implements ItemControllerDocs{
             throw new ItemException(e.getMessage());
         }
     }
+
+    // 상품 컨펌
+    @Override
+    @GetMapping("/confirm/{itemId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> changeItemStatus(@PathVariable Long itemId) {
+        try {
+            String response = itemService.changeStatusItem(itemId);
+            return ResponseEntity.ok().body(response);
+        } catch (Exception e) {
+            throw new ItemException(e.getMessage());
+        }
+    }
 }

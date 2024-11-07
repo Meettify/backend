@@ -130,4 +130,9 @@ public class ItemEntity extends BaseEntity {
     public int getItemStock() {
         return this.itemCount;
     }
+
+    // 상태 변경
+    public void changeStatus() {
+        this.itemStatus = ItemStatus.SELL;
+    }
 }

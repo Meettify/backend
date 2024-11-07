@@ -35,4 +35,7 @@ public interface ItemService {
 
     // 신청 상품 확인
     Page<ResponseItemDTO> requestItemList(Pageable page);
+
+    // 상품 컨펌
+    String changeStatusItem(Long itemId);
 }
