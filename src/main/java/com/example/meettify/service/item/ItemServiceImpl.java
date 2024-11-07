@@ -10,10 +10,8 @@
     import com.example.meettify.entity.member.MemberEntity;
     import com.example.meettify.exception.item.ItemException;
     import com.example.meettify.exception.member.MemberException;
-    import com.example.meettify.repository.item.ItemImgRepository;
     import com.example.meettify.repository.item.ItemRepository;
     import com.example.meettify.repository.member.MemberRepository;
-    import com.example.meettify.service.community.RedisCommunityService;
     import com.example.meettify.service.search.RedisSearchLogService;
     import jakarta.persistence.EntityNotFoundException;
     import lombok.RequiredArgsConstructor;
@@ -210,7 +208,6 @@
                     .collect(Collectors.toList());
         }
 
-
         // 검색 로그에서 카테고리를 추출합니다. 만약 카테고리가 null인 경우에는 추가하지 않도록 했습니다.
         private Set<Category> extractCategoriesFromSearchLogs(List<SearchLog> searchLogs) {
             Set<Category> categories = new HashSet<>();
@@ -221,5 +218,17 @@
                 }
             }
             return categories;
+        }
+
+        @Override
+        @Transactional(readOnly = true)
+        public Page<ResponseItemDTO> requestItemList(Pageable page) {
+            try {
+                Page<ItemEntity> findAllByWait = itemRepository.findAllByWait(page);
+                return findAllByWait.map(ResponseItemDTO::changeDTO);
+            } catch (Exception e) {
+                log.error("error : " + e.getMessage());
+                throw new EntityNotFoundException("상품 조회에 실패하였습니다.\n" + e.getMessage());
+            }
         }
     }

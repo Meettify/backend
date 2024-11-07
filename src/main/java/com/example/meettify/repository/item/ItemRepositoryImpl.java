@@ -62,25 +62,7 @@ public class ItemRepositoryImpl implements CustomItemRepository {
             log.info("count: {}", count::fetchOne);
 
 
-            for (Sort.Order order : pageable.getSort()) {
-                // PathBuilder는 주어진 엔티티의 동적인 경로를 생성하는데 사용된다.
-                PathBuilder pathBuilder = new PathBuilder(
-                        // 엔티티의 타입 정보를 얻어옴
-                        itemEntity.getType(),
-                        // 엔티티의 메타데이터를 얻어온다.
-                        itemEntity.getMetadata());
-                // Order 객체에서 정의된 속성에 해당하는 동적 경로를 얻어온다.
-                // 예를 들어, 만약 order.getProperty()가 memberName이라면
-                // pathBuilder.get("memberName")은 엔티티의 memberName 속성에 대한 동적 경로를 반환
-                // 이 동적 경로는 QueryDsl에서 사용되어 정렬 조건을 만들 때 활용된다.
-                PathBuilder sort = pathBuilder.get(order.getProperty());
-
-                content.orderBy(
-                        new OrderSpecifier<>(
-                                order.isDescending() ? Order.DESC : Order.ASC,
-                                sort != null ? sort : itemEntity.itemId
-                        ));
-            }
+            dynamicSort(pageable, content);
             List<ItemEntity> result = content.fetch();
 
             // 결과 리스트의 크기를 체크하여 적절한 처리
@@ -95,6 +77,28 @@ public class ItemRepositoryImpl implements CustomItemRepository {
         } catch (Exception e) {
             log.error("Index out of bounds while fetching items: " + e.getMessage());
             throw new ItemException("상품을 조회하는데 실패했습니다. : " + e.getMessage());
+        }
+    }
+
+    private static void dynamicSort(Pageable pageable, JPAQuery<ItemEntity> content) {
+        for (Sort.Order order : pageable.getSort()) {
+            // PathBuilder는 주어진 엔티티의 동적인 경로를 생성하는데 사용된다.
+            PathBuilder pathBuilder = new PathBuilder(
+                    // 엔티티의 타입 정보를 얻어옴
+                    itemEntity.getType(),
+                    // 엔티티의 메타데이터를 얻어온다.
+                    itemEntity.getMetadata());
+            // Order 객체에서 정의된 속성에 해당하는 동적 경로를 얻어온다.
+            // 예를 들어, 만약 order.getProperty()가 memberName이라면
+            // pathBuilder.get("memberName")은 엔티티의 memberName 속성에 대한 동적 경로를 반환
+            // 이 동적 경로는 QueryDsl에서 사용되어 정렬 조건을 만들 때 활용된다.
+            PathBuilder sort = pathBuilder.get(order.getProperty());
+
+            content.orderBy(
+                    new OrderSpecifier<>(
+                            order.isDescending() ? Order.DESC : Order.ASC,
+                            sort != null ? sort : itemEntity.itemId
+                    ));
         }
     }
 
@@ -157,6 +161,7 @@ public class ItemRepositoryImpl implements CustomItemRepository {
                 .fetchOne();
     }
 
+    // 카테고리 별로 쿼워드를 동적으로 조회
     @Override
     public List<ItemEntity> findItemsByCategoriesAndKeyword(Set<Category> categories, String keyword) {
         try {
@@ -175,5 +180,29 @@ public class ItemRepositoryImpl implements CustomItemRepository {
         return keyword == null || keyword.isEmpty() ? null :
                 itemEntity.itemName.contains(keyword).or(itemEntity.itemDetails.contains(keyword));
     }
+    
+    // 상품 상태가 WAIT인 것을 전부 조회
+    @Override
+    public Page<ItemEntity> findAllByWait(Pageable page) {
+        try {
+            JPAQuery<ItemEntity> content = queryFactory
+                    .selectFrom(itemEntity)
+                    .where(itemEntity.itemStatus.eq(ItemStatus.WAIT));
 
+            JPAQuery<Long> count = queryFactory
+                    .select(itemEntity.count())
+                    .from(itemEntity)
+                    .where(itemEntity.itemStatus.eq(ItemStatus.WAIT));
+
+            dynamicSort(page, content);
+            List<ItemEntity> result = content.fetch();
+
+            // 페이지 시작이거나 컨텐츠의 사이즈가 페이지 사이즈보다 작거나
+            // 마지막 페이지일 때 카운트 쿼리를 호출하지 않는다.
+            return PageableExecutionUtils.getPage(result, page, count::fetchOne);
+        } catch (Exception e) {
+            log.error("Index out of bounds while fetching items: " + e.getMessage());
+            throw new ItemException("상품을 조회하는데 실패했습니다. : " + e.getMessage());
+        }
+    }
 }

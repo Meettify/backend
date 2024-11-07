@@ -65,7 +65,7 @@ public class ItemEntity extends BaseEntity {
                 .itemName(item.getItemName())
                 .itemPrice(item.getItemPrice())
                 .itemDetails(item.getItemDetails())
-                .itemStatus(item.getItemStatus())
+                .itemStatus(ItemStatus.WAIT)
                 .itemCount(item.getItemCount())
                 .itemCategory(item.getItemCategory())
                 .build();

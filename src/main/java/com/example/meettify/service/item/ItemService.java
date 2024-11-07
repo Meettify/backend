@@ -32,4 +32,7 @@ public interface ItemService {
 
     // 상품 추천
     List<ResponseItemDTO> recommendItemsBySearchHistory(String email);
+
+    // 신청 상품 확인
+    Page<ResponseItemDTO> requestItemList(Pageable page);
 }
