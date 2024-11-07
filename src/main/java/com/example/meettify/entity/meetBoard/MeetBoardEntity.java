@@ -7,6 +7,7 @@ import com.example.meettify.entity.meet.MeetEntity;
 import com.example.meettify.entity.member.MemberEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import net.minidev.json.annotate.JsonIgnore;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -19,7 +20,6 @@ import java.util.List;
  * */
 @Entity(name = "meetBoards")
 @Getter
-@ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
@@ -37,6 +37,7 @@ public class MeetBoardEntity extends BaseEntity {
     // 이미지를 빈 리스트로 초기화
     @OneToMany(mappedBy = "meetBoardEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    @JsonIgnore
     private List<MeetBoardImageEntity> meetBoardImages = new ArrayList<>();
 
     @JoinColumn(name = "member_id")
@@ -53,6 +54,7 @@ public class MeetBoardEntity extends BaseEntity {
     // 코멘트도 빈 리스트로 초기화
     @OneToMany(mappedBy = "meetBoardEntity", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
+    @JsonIgnore
     private List<MeetBoardCommentEntity> comments = new ArrayList<>();
 
     // 게시글 작성 시간 설정

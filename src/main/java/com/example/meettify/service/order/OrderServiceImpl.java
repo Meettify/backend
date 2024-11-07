@@ -36,7 +36,6 @@ import java.util.List;
 @Service
 public class OrderServiceImpl implements OrderService{
     private final OrderRepository orderRepository;
-    private final OrderItemRepository orderItemRepository;
     private final MemberRepository memberRepository;
     private final CartItemRepository cartItemRepository;
     private final ItemRepository itemRepository;

@@ -11,7 +11,6 @@ import lombok.*;
  * */
 @Entity(name = "meetImages")
 @Getter
-@ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder

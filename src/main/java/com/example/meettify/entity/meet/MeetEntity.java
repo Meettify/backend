@@ -7,6 +7,7 @@ import com.example.meettify.dto.meet.category.Category;
 import com.example.meettify.entity.meetBoard.MeetBoardEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import net.minidev.json.annotate.JsonIgnore;
 
 import java.util.List;
 
@@ -17,7 +18,6 @@ import java.util.List;
  * */
 @Entity(name = "meets")
 @Getter
-@ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
@@ -39,9 +39,11 @@ public class MeetEntity extends BaseEntity {
     private String meetLocation;
 
     @OneToMany(mappedBy = "meetEntity", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @JsonIgnore
     private List<MeetMemberEntity> meetMember;
 
     @OneToMany(mappedBy = "meetEntity", fetch = FetchType.LAZY, orphanRemoval = true)
+    @JsonIgnore
     private List<com.example.meettify.entity.meet.MeetImageEntity> meetImages;
 
     @Column(name = "meet_category", nullable = false)
@@ -49,6 +51,7 @@ public class MeetEntity extends BaseEntity {
     private Category meetCategory;
 
     @OneToMany(mappedBy = "meetEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<MeetBoardEntity> MeetBoardEntity;
 
 

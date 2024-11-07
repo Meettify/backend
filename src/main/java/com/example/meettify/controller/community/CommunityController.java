@@ -60,7 +60,7 @@ public class CommunityController implements CommunityControllerDocs {
             String email = userDetails.getUsername();
             log.info("기능 사용중인 email" + email);
             UpdateServiceDTO updateServiceDTO = modelMapper.map(community, UpdateServiceDTO.class);
-            ResponseCommunityDTO response = communityService.updateBoard(communityId, updateServiceDTO, files, email);
+            ResponseCommunityDTO response = communityService.updateBoard(communityId, updateServiceDTO, files);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             throw new BoardException(e.getMessage());

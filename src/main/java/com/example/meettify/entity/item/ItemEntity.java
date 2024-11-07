@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import net.minidev.json.annotate.JsonIgnore;
 
 import java.util.*;
 
@@ -46,6 +47,7 @@ public class ItemEntity extends BaseEntity {
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("itemImgId asc ")
     @Builder.Default
+    @JsonIgnore
     private List<ItemImgEntity> images = new ArrayList<>();
 
     // 재고 수량
