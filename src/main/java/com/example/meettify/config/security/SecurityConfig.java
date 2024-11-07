@@ -131,10 +131,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST,"/api/v1/meetBoards/meets/{meetId}/boards/{meetBoardId}/comments").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE,"/api/v1/meetBoards/{meetBoardCommentId}").hasAnyRole("USER", "ADMIN")
 
-
-
+                        // 검색
                         .requestMatchers("/api/v1/search/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/v1/search").permitAll()
+
+                        // 알림
+                        .requestMatchers("/api/v1/notification/subscribe").hasAnyRole("USER", "ADMIN")
 
                         // Swagger 리소스에 대한 접근 허용
                         .requestMatchers("/swagger-resources/**").permitAll()
