@@ -45,4 +45,10 @@ public interface ItemControllerDocs {
 
     @Operation(summary = "상품 추천", description = "모임 게시글에서 사용할 상품 추천 API")
     ResponseEntity<?> recommendItems(UserDetails userDetails);
+
+    @Operation(summary = "대기 중인 상품 보기", description = "상품 상태가 WAIT인 상품 리시트 보기 API")
+    ResponseEntity<?> getItemList(Pageable page);
+
+    @Operation(summary = "상품 상태 변경하기", description = "상품을 컨펌하는 기능 API")
+    ResponseEntity<?> changeItemStatus(Long itemId);
 }

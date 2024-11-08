@@ -65,7 +65,7 @@ public class ItemEntity extends BaseEntity {
                 .itemName(item.getItemName())
                 .itemPrice(item.getItemPrice())
                 .itemDetails(item.getItemDetails())
-                .itemStatus(item.getItemStatus())
+                .itemStatus(ItemStatus.WAIT)
                 .itemCount(item.getItemCount())
                 .itemCategory(item.getItemCategory())
                 .build();
@@ -129,5 +129,10 @@ public class ItemEntity extends BaseEntity {
     // 재고 수량
     public int getItemStock() {
         return this.itemCount;
+    }
+
+    // 상태 변경
+    public void changeStatus() {
+        this.itemStatus = ItemStatus.SELL;
     }
 }
