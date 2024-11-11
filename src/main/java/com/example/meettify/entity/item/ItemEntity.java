@@ -126,11 +126,6 @@ public class ItemEntity extends BaseEntity {
         this.itemCount = this.itemCount - count;
     }
 
-    // 재고 수량
-    public int getItemStock() {
-        return this.itemCount;
-    }
-
     // 상태 변경
     public void changeStatus() {
         this.itemStatus = ItemStatus.SELL;

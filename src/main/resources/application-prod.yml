@@ -158,4 +158,8 @@ info:
 slack:
   webhook: ${WEBHOOK}
 
+iamport:
+  apiKey: ${APIKEY}
+  secretKey: ${SECRETKEY}
+
 

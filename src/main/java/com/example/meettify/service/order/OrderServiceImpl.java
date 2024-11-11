@@ -4,6 +4,8 @@ import com.example.meettify.config.metric.TimeTrace;
 import com.example.meettify.dto.member.AddressDTO;
 import com.example.meettify.dto.order.RequestOrderServiceDTO;
 import com.example.meettify.dto.order.ResponseOrderDTO;
+import com.example.meettify.dto.order.ResponseOrderItemDTO;
+import com.example.meettify.dto.pay.RequestPaymentDTO;
 import com.example.meettify.entity.cart.CartEntity;
 import com.example.meettify.entity.cart.CartItemEntity;
 import com.example.meettify.entity.item.ItemEntity;
@@ -20,6 +22,7 @@ import com.example.meettify.repository.order.OrderItemRepository;
 import com.example.meettify.repository.order.OrderRepository;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -27,23 +30,108 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Transactional
 @Log4j2
 @RequiredArgsConstructor
 @Service
-public class OrderServiceImpl implements OrderService{
+public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final MemberRepository memberRepository;
     private final CartItemRepository cartItemRepository;
     private final ItemRepository itemRepository;
+    private final HttpSession session;
+
+
+    public ResponseOrderDTO createTempOrder(List<RequestOrderServiceDTO> orders, String email, AddressDTO address) {
+        try {
+            // 회원 조회
+            MemberEntity findMember = memberRepository.findByMemberEmail(email);
+            if (findMember == null) {
+                throw new MemberException("로그인을 해야 주문할 수 있습니다.");
+            }
+
+            // 총 금액을 저장할 변수
+            int totalPrice = 0;
+            // 모든 주문 아이템에 대한 정보를 담을 리스트
+            List<ResponseOrderItemDTO> orderItems = new ArrayList<>();
+
+            for (RequestOrderServiceDTO order : orders) {
+                int orderCount = order.getItemCount();
+                int itemPrice;
+                ItemEntity findItem;
+
+                // 1. 장바구니에서 조회 (장바구니에 있는 경우)
+                // 주문할 상품으로 장바구니 상품을 조회해봄
+                CartItemEntity findCartItem = cartItemRepository.findByItem_ItemId(order.getItemId());
+                log.info("상품으로 조회한 장바구니 상품 조회 {} ", findCartItem);
+
+                // 장바구니에 없는 경우
+                // 상품을 바로 구매하려는 경우라서 바로 구매
+                if (findCartItem != null && findCartItem.getCartCount() >= orderCount) {
+                    // 장바구니 상품을 가져옴
+                    findItem = findCartItem.getItem();
+                    // 장바구니의 상품의 가격을 가져옴
+                    itemPrice = findCartItem.getItem().getItemPrice();
+
+                    // 주문 개수랑 상품 가격을 곱해서 총액 계산
+                    totalPrice += itemPrice * orderCount;
+
+                    // 주문 상품 생성
+                    ResponseOrderItemDTO responseOrderItem = ResponseOrderItemDTO.createOrder(orderCount, itemPrice, findItem);
+                    // 주문 상품 리스트에 넣기
+                    orderItems.add(responseOrderItem);
+                } else {
+                    // 장바구니에 없는 경우 혹은 장바구니 수량이 부족한 경우 -> 직접 상품 조회 후 바로 구매 처리
+                    findItem = itemRepository.findById(order.getItemId())
+                            .orElseThrow(() -> new ItemException("해당 상품이 존재하지 않습니다."));
+                    itemPrice = findItem.getItemPrice();
+
+                    // 주문 총액 및 재고 처리
+                    totalPrice += itemPrice * orderCount;
+
+                    // 주문 항목 생성
+                    ResponseOrderItemDTO responseOrderItem = ResponseOrderItemDTO.createOrder(orderCount, itemPrice, findItem);
+                    orderItems.add(responseOrderItem);
+                }
+            }
+            String merchantUid = generateMerchantUid(); //주문번호 생성
+            // 주문 DTO 생성
+            ResponseOrderDTO response = ResponseOrderDTO.createDTO(orderItems, address, merchantUid, totalPrice);
+
+            log.info("responseOrderDTO: {}", response);
+            session.setAttribute("order_" + merchantUid, response); // 세션에 저장
+
+            return response;
+        } catch (Exception e) {
+            log.error("주문 처리 중 에러 발생: " + e.getMessage(), e);
+            throw new OrderException("주문하는데 실패 했습니다. : " + e.getMessage());
+        }
+    }
+
+    // 주문 번호 생성 메서드
+    private String generateMerchantUid() {
+        // 현재 날짜와 시간을 포함한 고유한 문자열 생성
+        String uniqueString = UUID.randomUUID().toString().replace("-", "");
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String formattedDay = now.format(formatter).replace("-", "");
+
+        // 무작위 문자열과 현재 날짜/시간을 조합하여 주문번호 생성
+        return formattedDay + uniqueString;
+    }
 
     // 주문하기
     @Override
-    @TimeTrace
-    public ResponseOrderDTO saveOrder(List<RequestOrderServiceDTO> orders, String email, AddressDTO address) {
+    public ResponseOrderDTO saveOrder(List<RequestPaymentDTO> orders,
+                                      String email,
+                                      AddressDTO address,
+                                      String orderUUid) {
         try {
             // 회원 조회
             MemberEntity findMember = memberRepository.findByMemberEmail(email);
@@ -56,71 +144,96 @@ public class OrderServiceImpl implements OrderService{
             // 모든 주문 아이템에 대한 정보를 담을 리스트
             List<OrderItemEntity> orderItemEntities = new ArrayList<>();
 
-            for (RequestOrderServiceDTO order : orders) {
+            for (RequestPaymentDTO order : orders) {
+                int orderCount = order.getItemCount();
+                int itemPrice;
+                ItemEntity findItem;
+
+                // 1. 장바구니에서 조회 (장바구니에 있는 경우)
+                // 주문할 상품으로 장바구니 상품을 조회해봄
                 CartItemEntity findCartItem = cartItemRepository.findByItem_ItemId(order.getItemId());
                 log.info("상품으로 조회한 장바구니 상품 조회 : " + findCartItem);
 
-                if (findCartItem == null) {
-                    // 장바구니에 없는 경우
-                    ItemEntity findItem = itemRepository.findById(order.getItemId())
-                            .orElseThrow(() -> new ItemException("해당 상품이 존재하지 않습니다."));
+                // 장바구니에 없는 경우
+                // 상품을 바로 구매하려는 경우라서 바로 구매
+                if (findCartItem != null && findCartItem.getCartCount() >= orderCount) {
+                    // 장바구니 수량이 단일 구매 수량보다 많거나 같을 경우
+                    findItem = findCartItem.getItem();
+                    itemPrice = findCartItem.getItem().getItemPrice();
 
-                    // 가격 계산
-                    int orderPrice = findItem.getItemPrice() * order.getItemCount();
-                    totalPrice += orderPrice;
-
-                    // 주문 상품 생성
-                    OrderItemEntity orderItemEntity = OrderItemEntity.saveOrder(findItem, null, order.getItemCount(), findItem.getItemPrice());
+                    // 주문 총액 및 재고 처리
+                    totalPrice += itemPrice * orderCount;
                     // 주문할 상품 개수만큼 해당 상품의 재고 수량을 감소
-                    findItem.minusItemStock(order.getItemCount());
+                    findItem.minusItemStock(orderCount);
                     // 재고 수량 상품 디비에 저장
                     // 상품과 주문은 양방향 연관관계가 아니기 때문에 직접 처리해서 저장
                     itemRepository.save(findItem);
-                    orderItemEntities.add(orderItemEntity);
-                } else {
-                    // 장바구니에 있는 경우
-                    int orderPrice = findCartItem.getItem().getItemPrice() * order.getItemCount();
-                    totalPrice += orderPrice;
-                    // 주문할 상품 개수만큼 해당 상품의 재고 수량을 감소
-                    findCartItem.getItem().minusItemStock(order.getItemCount());
-                    // 재고 수량 상품 디비에 저장
-                    // 상품과 주문은 양방향 연관관계가 아니기 때문에 직접 처리해서 저장
-                    itemRepository.save(findCartItem.getItem());
 
                     // 주문 상품 생성
-                    OrderItemEntity orderItemEntity = OrderItemEntity.saveOrder(findCartItem.getItem(), null, order.getItemCount(), findCartItem.getItem().getItemPrice());
+                    OrderItemEntity orderItemEntity = OrderItemEntity.saveOrder(
+                            findItem,
+                            null,
+                            order.getItemCount(),
+                            findItem.getItemPrice());
                     orderItemEntities.add(orderItemEntity);
-                    // 주문 성공 후 장바구니에서 삭제
-                    cartItemRepository.delete(findCartItem);
+
+                    // 장바구니 수량에서 구매한 수량 차감
+                    findCartItem.setCount(findCartItem.getCartCount() - orderCount);
+                    if (findCartItem.getCartCount() == 0) {
+                        // 수량이 0이면 장바구니에서 삭제
+                        cartItemRepository.delete(findCartItem);
+                    } else {
+                        cartItemRepository.save(findCartItem);
+                    }
+                } else {
+                    // 장바구니에 없는 경우 혹은 장바구니 수량이 부족한 경우 -> 직접 상품 조회 후 바로 구매 처리
+                    findItem = itemRepository.findById(order.getItemId())
+                            .orElseThrow(() -> new ItemException("해당 상품이 존재하지 않습니다."));
+                    itemPrice = findItem.getItemPrice();
+
+                    // 주문 총액 및 재고 처리
+                    totalPrice += itemPrice * orderCount;
+                    findItem.minusItemStock(orderCount);
+                    itemRepository.save(findItem);
+
+                    // 주문 항목 생성
+                    OrderItemEntity orderItemEntity = OrderItemEntity.saveOrder(
+                            findItem, null, orderCount, itemPrice);
+                    orderItemEntities.add(orderItemEntity);
                 }
             }
 
+            ResponseOrderDTO orderInfo = (ResponseOrderDTO) session.getAttribute("order_" + orderUUid);
+
+            if (!orderInfo.getOrderUUIDId().equals(orderUUid)) {
+                throw new OrderException("주문 정보와 일치하지 않습니다.");
+            }
+
             // 최종 주문 생성 및 총 금액 반영
-            OrderEntity orderEntity = OrderEntity.saveOrder(findMember, address, totalPrice);
-            for (OrderItemEntity itemEntity : orderItemEntities) {
-                itemEntity.setOrder(orderEntity); // 주문과 연결
-                orderEntity.getOrderItems().add(itemEntity);
+            OrderEntity orderEntity = OrderEntity.saveOrder(findMember, address, totalPrice, orderUUid);
+            for (OrderItemEntity orderItemEntity : orderItemEntities) {
+                orderItemEntity.setOrder(orderEntity); // 주문과 연결
+                orderEntity.getOrderItems().add(orderItemEntity);
             }
 
             OrderEntity saveOrder = orderRepository.save(orderEntity); // 주문 저장
-
-            return ResponseOrderDTO.changeDTO(saveOrder, address);
-
+            return ResponseOrderDTO.changeDTO(saveOrder, address, orderUUid);
         } catch (Exception e) {
             log.error("주문 처리 중 에러 발생: " + e.getMessage(), e);
             throw new OrderException("주문하는데 실패 했습니다. : " + e.getMessage());
         }
     }
 
+    // 내 주문 정보 보기
     @Override
     @Transactional(readOnly = true)
     public Page<ResponseOrderDTO> getMyOrders(String email, Pageable pageable) {
         try {
             Page<OrderEntity> findAllOrders = orderRepository.findAllByMemberEmail(email, pageable);
-            log.info("findAllOrders{} " , findAllOrders);
+            log.info("findAllOrders{} ", findAllOrders);
             return findAllOrders
                     .map(ResponseOrderDTO::viewChangeDTO);
-        }catch (Exception e) {
+        } catch (Exception e) {
             log.error("주문 조회 중 에러 발생: " + e.getMessage(), e);
             throw new OrderException("주문 조회 실패 했습니다. : " + e.getMessage());
         }

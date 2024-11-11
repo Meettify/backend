@@ -22,7 +22,7 @@ import java.util.List;
 @Log4j2
 public class NotificationService {
     // SSE 이벤트 타임아웃 시간
-    private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60;
+    private static final Long DEFAULT_TIMEOUT = -1L; // 무제한
     private final CustomNotificationRepository customNotificationRepository;
     private final MemberRepository memberRepository;
     private final CommunityRepository communityRepository;

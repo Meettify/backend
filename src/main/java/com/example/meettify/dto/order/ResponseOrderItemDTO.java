@@ -1,6 +1,7 @@
 package com.example.meettify.dto.order;
 
 import com.example.meettify.dto.item.ResponseItemDTO;
+import com.example.meettify.entity.item.ItemEntity;
 import com.example.meettify.entity.order.OrderItemEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -28,6 +29,14 @@ public class ResponseOrderItemDTO {
                 .orderCount(orderItem.getOrderCount())
                 .orderPrice(orderItem.getOrderPrice())
                 .item(responseItem)
+                .build();
+    }
+
+    public static ResponseOrderItemDTO createOrder(int orderCount, int price, ItemEntity item) {
+        return ResponseOrderItemDTO.builder()
+                .orderCount(orderCount)
+                .orderPrice(price)
+                .item(ResponseItemDTO.changeDTO(item))
                 .build();
     }
 }
