@@ -63,4 +63,9 @@ public class CartItemEntity {
             }
         }
     }
+
+    // 장바구니 상품 개수 변경
+    public void setCount(int count) {
+        this.cartCount = Math.max(0, this.cartCount - count);
+    }
 }

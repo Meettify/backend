@@ -30,10 +30,11 @@ public class OrderController implements OrderControllerDocs{
     private final OrderService orderService;
     private final ModelMapper modelMapper;
 
+
     @Override
-    @PostMapping("")
+    @PostMapping("/tempOrder")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> saveOrder(@RequestBody List<RequestOrderDTO> orders,
+    public ResponseEntity<?> createTempOrder(@RequestBody List<RequestOrderDTO> orders,
                                        @RequestBody AddressDTO address,
                                        @AuthenticationPrincipal UserDetails userDetails) {
         try {
@@ -41,7 +42,7 @@ public class OrderController implements OrderControllerDocs{
             List<RequestOrderServiceDTO> serviceDTOS = orders.stream()
                     .map(order -> modelMapper.map(order, RequestOrderServiceDTO.class))
                     .collect(Collectors.toList());
-            ResponseOrderDTO response = orderService.saveOrder(serviceDTOS, email, address);
+            ResponseOrderDTO response = orderService.createTempOrder(serviceDTOS, email, address);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             throw new OrderException(e.getMessage());
@@ -50,7 +51,8 @@ public class OrderController implements OrderControllerDocs{
 
     // 내 주문 보기
     @Override
-    @GetMapping("")
+    @GetMapping("/my-order")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> getOrders(UserDetails userDetails, Pageable pageable) {
         try {
             String email = userDetails.getUsername();

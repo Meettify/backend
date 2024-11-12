@@ -37,12 +37,16 @@ public class OrderEntity extends BaseEntity {
     @JsonIgnore
     private List<OrderItemEntity> orderItems = new ArrayList<>();
 
-    public static OrderEntity saveOrder(MemberEntity member, AddressDTO address, int totalPrice) {
+    private String orderUUIDid;
+
+
+    public static OrderEntity saveOrder(MemberEntity member, AddressDTO address, int totalPrice, String orderUUIDid) {
         AddressEntity addressEntity = AddressEntity.changeEntity(address);
         return OrderEntity.builder()
                 .member(member)
                 .address(addressEntity)
                 .totalPrice(totalPrice)
+                .orderUUIDid(orderUUIDid)
                 .build();
     }
 
