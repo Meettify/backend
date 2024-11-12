@@ -5,7 +5,7 @@ WORKDIR /app
 
 # 의존성 파일 복사
 COPY gradle/wrapper/ gradle/wrapper/
-COPY gradle.properties build.gradle settings.gradle /app/
+COPY build.gradle settings.gradle /app/
 
 # 의존성 설치
 RUN ./gradlew build --parallel --no-daemon
