@@ -51,7 +51,8 @@ public class OrderController implements OrderControllerDocs{
 
     // 내 주문 보기
     @Override
-    @GetMapping("")
+    @GetMapping("/my-order")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> getOrders(UserDetails userDetails, Pageable pageable) {
         try {
             String email = userDetails.getUsername();

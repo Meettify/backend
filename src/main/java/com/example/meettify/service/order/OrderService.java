@@ -1,6 +1,7 @@
 package com.example.meettify.service.order;
 
 import com.example.meettify.dto.member.AddressDTO;
+import com.example.meettify.dto.order.RequestOrderDTO;
 import com.example.meettify.dto.order.RequestOrderServiceDTO;
 import com.example.meettify.dto.order.ResponseOrderDTO;
 import com.example.meettify.dto.pay.RequestPaymentDTO;
@@ -16,7 +17,7 @@ public interface OrderService {
                                      AddressDTO address);
 
     // 주문하기
-    ResponseOrderDTO saveOrder(List<RequestPaymentDTO> orders,
+    ResponseOrderDTO saveOrder(List<RequestOrderDTO> orders,
                                String email,
                                AddressDTO address,
                                String orderUUid);

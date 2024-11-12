@@ -2,6 +2,7 @@ package com.example.meettify.service.order;
 
 import com.example.meettify.config.metric.TimeTrace;
 import com.example.meettify.dto.member.AddressDTO;
+import com.example.meettify.dto.order.RequestOrderDTO;
 import com.example.meettify.dto.order.RequestOrderServiceDTO;
 import com.example.meettify.dto.order.ResponseOrderDTO;
 import com.example.meettify.dto.order.ResponseOrderItemDTO;
@@ -128,7 +129,7 @@ public class OrderServiceImpl implements OrderService {
 
     // 주문하기
     @Override
-    public ResponseOrderDTO saveOrder(List<RequestPaymentDTO> orders,
+    public ResponseOrderDTO saveOrder(List<RequestOrderDTO> orders,
                                       String email,
                                       AddressDTO address,
                                       String orderUUid) {
@@ -144,7 +145,7 @@ public class OrderServiceImpl implements OrderService {
             // 모든 주문 아이템에 대한 정보를 담을 리스트
             List<OrderItemEntity> orderItemEntities = new ArrayList<>();
 
-            for (RequestPaymentDTO order : orders) {
+            for (RequestOrderDTO order : orders) {
                 int orderCount = order.getItemCount();
                 int itemPrice;
                 ItemEntity findItem;

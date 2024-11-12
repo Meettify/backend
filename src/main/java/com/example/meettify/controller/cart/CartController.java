@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,7 @@ public class CartController implements CartControllerDocs{
     // 장바구니 등록
     @Override
     @PostMapping("")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> addCart(@RequestBody RequestCartDTO cart,
                                      @AuthenticationPrincipal UserDetails userDetails) {
         try {
@@ -40,6 +42,7 @@ public class CartController implements CartControllerDocs{
     // 장바구니 상품 삭제
     @Override
     @DeleteMapping("/{cartItemId}")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> removeCart(@PathVariable Long cartItemId,
                                         @AuthenticationPrincipal UserDetails userDetails) {
         try {
@@ -54,6 +57,7 @@ public class CartController implements CartControllerDocs{
     // 장바구니 상품 수정
     @Override
     @PutMapping("/{cartId}")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> updateCart(@PathVariable Long cartId,
                                         @RequestBody List<UpdateCartItemDTO> carts,
                                         @AuthenticationPrincipal UserDetails userDetails) {
@@ -70,6 +74,7 @@ public class CartController implements CartControllerDocs{
 
     @Override
     @GetMapping("/{cartId}")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> getCart(@PathVariable Long cartId,
                                      @AuthenticationPrincipal UserDetails userDetails) {
         try {

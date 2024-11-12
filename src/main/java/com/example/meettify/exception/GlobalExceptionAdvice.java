@@ -8,10 +8,12 @@ import com.example.meettify.exception.comment.CommentException;
 import com.example.meettify.exception.externalService.ExternalServiceException;
 import com.example.meettify.exception.file.FileDownloadException;
 import com.example.meettify.exception.file.FileUploadException;
+import com.example.meettify.exception.importResponse.IamportResponseException;
 import com.example.meettify.exception.item.ItemException;
 import com.example.meettify.exception.meet.MeetException;
 import com.example.meettify.exception.member.MemberException;
 import com.example.meettify.exception.order.OrderException;
+import com.example.meettify.exception.pay.PayException;
 import com.example.meettify.exception.sessionExpire.SessionExpiredException;
 import com.example.meettify.exception.stock.OutOfStockException;
 import com.example.meettify.exception.not_found.ResourceNotFoundException;
@@ -20,6 +22,7 @@ import com.example.meettify.exception.validation.DataValidationException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.*;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -73,6 +76,51 @@ public class GlobalExceptionAdvice {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(errorResponse);
     }
+
+    /**
+     * 게시글작성시 모든값이 제대로 입력되지 않았을때 발생하는 예외
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<String> dataIntegrityViolationError(DataIntegrityViolationException e, HttpServletRequest request){
+        String message = "값이 제대로 입력되지 않았습니다.(DataIntegrityViolationException)";
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setError("회원 에러 발생");
+        errorResponse.setMessage(message);
+        errorResponse.setTimestamp(now); // 오류 발생 시간
+        errorResponse.setPath(request.getRequestURI()); // 요청된 경로
+        errorResponse.setMethod(request.getMethod()); // 요청 메서드
+
+        slackUtil.sendAlert(e, new RequestInfo(request)); // Slack 알림 전송
+        return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * 실제 결제금액과 DB의 결제 금액이 다를때 발생하는 예외
+     * @return
+     */
+    @ExceptionHandler(IamportResponseException.class)
+    public ResponseEntity<String> verifyIamportException(IamportResponseException e, HttpServletRequest request){
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setError("회원 에러 발생");
+        errorResponse.setMessage(e.getMessage());
+        errorResponse.setTimestamp(now); // 오류 발생 시간
+        errorResponse.setPath(request.getRequestURI()); // 요청된 경로
+        errorResponse.setMethod(request.getMethod()); // 요청 메서드
+
+        slackUtil.sendAlert(e, new RequestInfo(request)); // Slack 알림 전송
+        return new ResponseEntity<>("실제 결제금액과 서버에서 결제금액이 다릅니다.",HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * 결제관련 예외
+     * @return
+     */
+    @ExceptionHandler(IamportResponseException.class)
+    public ResponseEntity<String> IamportResponseException(){
+        return new ResponseEntity<>("결제관련해서 에러가 발생",HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+
 
     // 게시판 관련 예외 처리
     @ExceptionHandler(BoardException.class)
@@ -164,6 +212,23 @@ public class GlobalExceptionAdvice {
     public ResponseEntity<ErrorResponse> handleOrderException(OrderException e, HttpServletRequest request) {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setError("주문 에러 발생");
+        errorResponse.setMessage(e.getMessage());
+        errorResponse.setTimestamp(now); // 오류 발생 시간
+        errorResponse.setPath(request.getRequestURI()); // 요청된 경로
+        errorResponse.setMethod(request.getMethod()); // 요청 메서드
+
+        slackUtil.sendAlert(e, new RequestInfo(request)); // Slack 알림 전송
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(errorResponse);
+    }
+
+    // 결제 관련 예외 처리
+    @ExceptionHandler(PayException.class)
+    public ResponseEntity<ErrorResponse> handleOrderException(PayException e, HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setError("결제 에러 발생");
         errorResponse.setMessage(e.getMessage());
         errorResponse.setTimestamp(now); // 오류 발생 시간
         errorResponse.setPath(request.getRequestURI()); // 요청된 경로

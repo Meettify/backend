@@ -95,6 +95,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/v1/community").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/community/{communityId}").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/community/{communityId}").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/community/my-community").hasRole("USER")
 
                         // 댓글
                         .requestMatchers("/api/v1/{communityId}/comment/**").permitAll()
@@ -103,9 +104,18 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/{communityId}/comment/{commentId}").hasAnyRole("USER", "ADMIN")
 
                         // 장바구니
-                        .requestMatchers(HttpMethod.GET, "/api/v1/cart/{cartId}").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/cart/").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/cart/{cartId}").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/carts/{cartId}").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/carts").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/carts/{cartId}").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/carts/{cartItemId}").hasAnyRole("USER", "ADMIN")
+
+                        // 주문하기
+                        .requestMatchers(HttpMethod.POST, "/api/v1/orders/tempOrder").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/orders/my-order").hasAnyRole("USER", "ADMIN")
+
+                        // 결제하기
+                        .requestMatchers(HttpMethod.GET, "/api/v1/payment/verify").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/payment/cancel").hasAnyRole("USER", "ADMIN")
 
                         //모임
                         .requestMatchers("/api/v1/meets/**").permitAll()
