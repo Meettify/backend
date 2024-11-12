@@ -1,5 +1,6 @@
 package com.example.meettify.config.jwt;
 
+import com.example.meettify.exception.jwt.JwtAuthenticationEntryPoint;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,33 +38,52 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         HttpServletRequest httpServletRequest = request;
         String method = request.getMethod();
+        log.info("method {} " , method);
         String requestURI = request.getRequestURI();
+        log.info("requestURI {} " , requestURI);
 
         // 허용된 경로와 메서드 조합을 정의
         // 해당 경로는 토큰검사를 하지 않음
         Map<String, List<String>> publicPaths = new HashMap<>();
-        publicPaths.put("/api/v1/members/**", Arrays.asList("GET", "POST"));
-        publicPaths.put("/api/v1/notice/**", List.of("GET"));
-        publicPaths.put("/api/v1/items/**", List.of("GET"));
-        publicPaths.put("/api/v1/community/**", List.of("GET"));
-        publicPaths.put("/api/v1/{communityId}/comment/**", List.of("GET"));
+        // 회원
+        publicPaths.put("/api/v1/members", Arrays.asList("GET", "POST"));
+        publicPaths.put("/api/v1/members/email/{memberEmail}", List.of("GET"));
+        publicPaths.put("/api/v1/members/nickName/{nickName}", List.of("GET"));
+        publicPaths.put("/api/v1/members/login", List.of("POST"));
+        // 상품
+        publicPaths.put("/api/v1/items/search", List.of("GET"));
+        // 커뮤니티
+        publicPaths.put("/api/v1/community/search", List.of("GET"));
+        publicPaths.put("/api/v1/community/communityList", List.of("GET"));
+        // 댓글
+        publicPaths.put("/api/v1/{communityId}/comment/commentList", List.of("GET"));
+        // 공지
+        publicPaths.put("/api/v1/notice/noticeList", List.of("GET"));
+        // 디폴트
         publicPaths.put("/", List.of("GET"));
+        // 스웨거
         publicPaths.put("/swagger-resources/**", List.of("GET"));
         publicPaths.put("/swagger-ui/**", List.of("GET"));
         publicPaths.put("/v3/api-docs/**", List.of("GET"));
         publicPaths.put("/api/swagger-config", List.of("GET"));
         publicPaths.put("/api/logistics", List.of("GET"));
+        // 액츄에이터
         publicPaths.put("/monitor/**", List.of("GET"));
+        // 프로메테우스
         publicPaths.put("/prometheus", List.of("GET"));
+        // 그라파나
         publicPaths.put("/grafana", List.of("GET"));
 
         // 허용된 경로와 메서드 조합을 통해 검증
         for (Map.Entry<String, List<String>> entry : publicPaths.entrySet()) {
             String pathPattern = entry.getKey();
+            log.info("pathPattern {} " , pathPattern);
             List<String> allowedMethods = entry.getValue();
+            log.info("allowedMethods {} " , allowedMethods);
 
             // AntPathMatcher를 사용한 경로 매칭 및 메서드 검증
             if (pathMatcher.match(pathPattern, requestURI) && allowedMethods.contains(method)) {
+                log.info("검사를 패스합니다.");
                 // 허용된 경로 및 메서드에 해당하면 필터 제외
                 filterChain.doFilter(request, response);
                 return;
@@ -75,8 +95,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = resolveToken(httpServletRequest);
         log.info("token : " + token);
 
-        // 토큰이 존재하고 토큰 유효성 검사를 통과하면 true
-        if(StringUtils.hasText(token) && jwtProvider.validateToken(token)) {
+        try {
+            if(!StringUtils.hasText(token) && jwtProvider.validateToken(token)) {
+                throw new Exception("토큰 검증에 실패했습니다.");
+            }
+
             // 토큰이 유효할 경우 토큰에서 Authentication 객체를 가지고 와서 SecurityContext에 저장
             // 여기까지 통과하면 토큰은 인증도 받았고 권한도 있다.
             Authentication authentication = jwtProvider.getAuthentication(token);
@@ -85,9 +108,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // 이렇게 저장하면 컨트롤러에서 토큰에서 정보를 가져와서 사용할 수 있습니다.
             log.info("인증에 성공했습니다. ");
             SecurityContextHolder.getContext().setAuthentication(authentication);
-        } else {
+        } catch (Exception e) {
             log.error("유효한 토큰이 없습니다.");
-            throw new AuthenticationException("Invalid or expired token"){};
         }
         filterChain.doFilter(request, response);
     }

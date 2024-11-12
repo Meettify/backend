@@ -84,6 +84,7 @@ public class CommunityController implements CommunityControllerDocs {
     // 커뮤니티 삭제
     @Override
     @DeleteMapping("/{communityId}")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> deleteCommunity(@PathVariable Long communityId) {
         try {
             String response = communityService.deleteBoard(communityId);
@@ -160,6 +161,7 @@ public class CommunityController implements CommunityControllerDocs {
     public ResponseEntity<?> getCommunities(Pageable pageable, @AuthenticationPrincipal UserDetails userDetails) {
         try {
             String email = userDetails.getUsername();
+            log.info(email);
 
             // 검색하지 않을 때는 모든 글을 보여준다.
             Page<ResponseCommunityDTO> community = communityService.getMyBoards(pageable, email);

@@ -63,11 +63,11 @@ public class SecurityConfig {
                 .logout(logout -> logout.disable());
 
         http
-                .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint(new JwtAuthenticationEntryPoint(slackUtil))
                         .accessDeniedHandler(new JwtAccessDeniedHandler(slackUtil))
-                ).authorizeHttpRequests(auth -> auth
+                )
+                .authorizeHttpRequests(auth -> auth
                         // API 권한 설정
                         .requestMatchers("/", "/**").permitAll()
                         // 유저
@@ -83,7 +83,7 @@ public class SecurityConfig {
 
                         // 상품
                         .requestMatchers("/api/v1/items/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/items").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/items").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/items/{itemId}").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/items/{itemId}").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/items/item-list").hasRole("ADMIN")
@@ -163,6 +163,10 @@ public class SecurityConfig {
                         .requestMatchers("/monitor/**").permitAll()
                         .requestMatchers("/prometheus").permitAll()
                         .requestMatchers("/grafana").permitAll());
+
+        http
+                .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class);
+
 
         // OAuth2 Login configuration
         http.oauth2Login(oauth2 -> oauth2
