@@ -111,15 +111,6 @@ public class GlobalExceptionAdvice {
         return new ResponseEntity<>("실제 결제금액과 서버에서 결제금액이 다릅니다.",HttpStatus.BAD_REQUEST);
     }
 
-    /**
-     * 결제관련 예외
-     * @return
-     */
-    @ExceptionHandler(IamportResponseException.class)
-    public ResponseEntity<String> IamportResponseException(){
-        return new ResponseEntity<>("결제관련해서 에러가 발생",HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
 
 
     // 게시판 관련 예외 처리
