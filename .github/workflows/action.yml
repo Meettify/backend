@@ -52,7 +52,7 @@ jobs:
           SPRING_PROFILES_ACTIVE: prod  # 활성 Spring 프로파일 설정
           REDIS_HOST: redis  # Redis 서비스 이름으로 설정
           REDIS_PORT: 6379  # Redis 포트
-        run: ./gradlew clean build -x test # 테스트 제외하고 빌드
+        run: ./gradlew clean build -x test --parallel # 테스트 제외하고 빌드
 
       # 6. 테스트 실행
       - name: Run Tests
@@ -172,9 +172,9 @@ jobs:
               fi
             done
             
-            # 사용하지 않는 이미지 확인 후 삭제
-            echo "Removing unused Docker images..."
-            docker image prune -f
+            # 사용하지 않는 이미지 및 볼륨 정리
+            echo "Cleaning up unused Docker images, containers, and volumes..."
+            docker system prune -a --volumes -f
 
             # 최신 이미지 가져와서 컨테이너 실행
             docker-compose pull
