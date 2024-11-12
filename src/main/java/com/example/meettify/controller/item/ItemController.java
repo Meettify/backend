@@ -38,7 +38,7 @@ public class ItemController implements ItemControllerDocs{
 
     // 상품 등록
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> createItem(@Validated @RequestPart CreateItemDTO item,
                                         @RequestPart(value = "files", required = false)List<MultipartFile> files,
                                         BindingResult bindingResult,
@@ -98,6 +98,7 @@ public class ItemController implements ItemControllerDocs{
     // 상품 삭제
     @Override
     @DeleteMapping("/{itemId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> deleteItem(@PathVariable Long itemId,
                                         @AuthenticationPrincipal UserDetails userDetails) {
         try {
@@ -156,6 +157,7 @@ public class ItemController implements ItemControllerDocs{
 
     @Override
     @GetMapping("/recommend-items")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
     public ResponseEntity<?> recommendItems(@AuthenticationPrincipal UserDetails userDetails) {
         try {
             String email = userDetails.getUsername();

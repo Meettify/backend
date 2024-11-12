@@ -32,10 +32,7 @@ public class SearchController implements  SearchControllerDocs {
     @GetMapping
     public ResponseEntity<?> getSearch(SearchCondition searchCondition, @AuthenticationPrincipal UserDetails userDetails) throws Exception {
         try {
-            String email = userDetails.getUsername();
-            if (email.isEmpty()) {
-                email = "";
-            }
+            String email = (userDetails != null) ? userDetails.getUsername() : "";  // 비로그인 사용자에 대해 빈 문자열 처리
             SearchResponseDTO searchResponseDTO = searchService.searchResponseDTO(searchCondition, email);
             return ResponseEntity.status(HttpStatus.OK).body(searchResponseDTO);
         } catch (IllegalArgumentException e) {
