@@ -12,6 +12,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .allowedOrigins("http://localhost:5173", "do2867lf6anbu.cloudfront.net")
                 .allowedHeaders("Authorization", "Content-Type")
                 .allowCredentials(true)
-                .allowedMethods("GET", "POST", "PUT", "DELETE");
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS");
     }
 }
