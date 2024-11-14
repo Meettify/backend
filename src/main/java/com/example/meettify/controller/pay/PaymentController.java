@@ -68,7 +68,7 @@ public class PaymentController implements PaymentControllerDocs {
 
     // 아임포트 결제 취소
     @Override
-    @GetMapping("/cancel")
+    @PostMapping("/iamport/cancel")
     @PreAuthorize("hasRole('ROLE_USER')")
     public IamportResponse<Payment> cancelPayment(@RequestBody CancelPaymentDTO cancel) {
         try {
@@ -102,7 +102,7 @@ public class PaymentController implements PaymentControllerDocs {
     }
 
     // 토스 결제 취소
-    @PostMapping("/cancel")
+    @PostMapping("/toss/cancel")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseTossCancelDTO cancelTossPayment(@RequestBody TossPaymentCancelDTO payment) {
         try {
