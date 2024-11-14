@@ -59,7 +59,7 @@ public class NotificationService {
     // 채팅 수신 알림 - receiver에게
     public void notifyMessage(String receiver) {
         // 5. 수신자 정보 조회
-        MemberEntity findMember = memberRepository.findByNickName(receiver);
+        MemberEntity findMember = memberRepository.findByMemberEmail(receiver);
 
         // 6. 수신자 정보로부터 id 값 추출
         Long memberId = findMember.getMemberId();

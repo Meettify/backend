@@ -14,6 +14,9 @@ import com.example.meettify.exception.meet.MeetException;
 import com.example.meettify.exception.member.MemberException;
 import com.example.meettify.exception.order.OrderException;
 import com.example.meettify.exception.pay.PayException;
+import com.example.meettify.exception.pay.PaymentConfirmErrorCode;
+import com.example.meettify.exception.pay.PaymentConfirmException;
+import com.example.meettify.exception.pay.PaymentTimeoutException;
 import com.example.meettify.exception.sessionExpire.SessionExpiredException;
 import com.example.meettify.exception.stock.OutOfStockException;
 import com.example.meettify.exception.not_found.ResourceNotFoundException;
@@ -220,6 +223,40 @@ public class GlobalExceptionAdvice {
     public ResponseEntity<ErrorResponse> handleOrderException(PayException e, HttpServletRequest request) {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setError("결제 에러 발생");
+        errorResponse.setMessage(e.getMessage());
+        errorResponse.setTimestamp(now); // 오류 발생 시간
+        errorResponse.setPath(request.getRequestURI()); // 요청된 경로
+        errorResponse.setMethod(request.getMethod()); // 요청 메서드
+
+        slackUtil.sendAlert(e, new RequestInfo(request)); // Slack 알림 전송
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(errorResponse);
+    }
+
+    // 결제 관련 예외 처리
+    @ExceptionHandler(PaymentTimeoutException.class)
+    public ResponseEntity<ErrorResponse> handleOrderException(PaymentTimeoutException e, HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setError("TOSS 결제 시간 초과 에러 발생");
+        errorResponse.setMessage(e.getMessage());
+        errorResponse.setTimestamp(now); // 오류 발생 시간
+        errorResponse.setPath(request.getRequestURI()); // 요청된 경로
+        errorResponse.setMethod(request.getMethod()); // 요청 메서드
+
+        slackUtil.sendAlert(e, new RequestInfo(request)); // Slack 알림 전송
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(errorResponse);
+    }
+
+    // 결제 관련 예외 처리
+    @ExceptionHandler(PaymentConfirmException.class)
+    public ResponseEntity<ErrorResponse> handleOrderException(PaymentConfirmException e, HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setError("TOSS 결제 에러 발생");
         errorResponse.setMessage(e.getMessage());
         errorResponse.setTimestamp(now); // 오류 발생 시간
         errorResponse.setPath(request.getRequestURI()); // 요청된 경로

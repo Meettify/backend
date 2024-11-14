@@ -25,5 +25,6 @@ public interface OrderService {
     // 내 주문 내역 보기
     Page<ResponseOrderDTO> getMyOrders(String email, Pageable pageable);
 
-
+    // 주문 취소
+    String cancelOrder(String orderUUID);
 }

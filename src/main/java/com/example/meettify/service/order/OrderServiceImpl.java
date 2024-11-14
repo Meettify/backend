@@ -239,4 +239,19 @@ public class OrderServiceImpl implements OrderService {
             throw new OrderException("주문 조회 실패 했습니다. : " + e.getMessage());
         }
     }
+
+    public String cancelOrder(String orderUUID) {
+        try {
+            // 주문번호로 주문 정보 가져오기
+            OrderEntity findOrder = orderRepository.findByOrderUUIDid(orderUUID);
+            log.info("findOrder: {}", findOrder);
+            findOrder.getOrderItems()
+                    .forEach(count -> count.getItem().addItemStock(count.getOrderCount()));
+            // 주문 삭제
+            orderRepository.deleteByOrderUUIDid(orderUUID);
+            return "주문을 삭제했습니다.";
+        } catch (Exception e) {
+            throw new OrderException("주문 취소하는데 실패했습니다.");
+        }
+    }
 }

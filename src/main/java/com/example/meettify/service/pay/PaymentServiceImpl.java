@@ -13,6 +13,7 @@ import com.example.meettify.exception.pay.PayException;
 import com.example.meettify.repository.member.MemberRepository;
 import com.example.meettify.repository.order.OrderRepository;
 import com.example.meettify.repository.pay.PaymentRepository;
+import com.example.meettify.service.order.OrderService;
 import com.siot.IamportRestClient.request.CancelData;
 import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Payment;
@@ -29,7 +30,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
     private final MemberRepository memberRepository;
     private final ImportConfig importConfig;
-    private final OrderRepository orderRepository;
+    private final OrderService orderService;
 
 
     // 결제 정보 저장
@@ -69,15 +70,9 @@ public class PaymentServiceImpl implements PaymentService {
             CancelData cancelData = new CancelData(cancel.getImpUid(), true);
             IamportResponse<Payment> payment = importConfig.iamportClient().cancelPaymentByImpUid(cancelData);
             log.info("payment: {}", payment);
-            // 주문번호로 주문 정보 가져오기
-            OrderEntity findOrder = orderRepository.findByOrderUUIDid(cancel.getOrderUid());
-            log.info("findOrder: {}", findOrder);
-
-            findOrder.getOrderItems()
-                    .forEach(count -> count.getItem().addItemStock(count.getOrderCount()));
-
-            // 주문 삭제
-            orderRepository.deleteByOrderUUIDid(cancel.getOrderUid());
+            // 주문취소
+            String result = orderService.cancelOrder(cancel.getOrderUid());
+            log.info("result: {}", result);
 
             return payment;
         } catch (Exception e) {
