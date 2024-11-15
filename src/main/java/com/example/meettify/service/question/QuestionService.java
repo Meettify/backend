@@ -19,5 +19,7 @@ public interface QuestionService {
     // 문의 조회
     ResponseQuestionDTO getQuestion(Long questionId, UserDetails userDetails);
     // 내 문의글 보기
-    Page<ResponseQuestionDTO> getAllQuestions(Pageable pageable, String memberEmail);
+    Page<ResponseQuestionDTO> getMyAllQuestions(Pageable pageable, String memberEmail);
+    // 모든 문의글 보기 - 관리자
+    Page<ResponseQuestionDTO> getAllQuestions(Pageable pageable);
 }

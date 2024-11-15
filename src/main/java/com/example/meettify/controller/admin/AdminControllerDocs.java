@@ -9,4 +9,7 @@ import org.springframework.http.ResponseEntity;
 public interface AdminControllerDocs {
     @Operation(summary = "회원 리스트", description = "전체적인 회원들을 가져오는 API")
     ResponseEntity<?> getAllMembers(Pageable page, String memberEmail);
+
+    @Operation(summary = "문의글 내역 보기", description = "전체적인 문의글 내역 가져오는 API")
+    ResponseEntity<?> getAllQuestions(Pageable page);
 }

@@ -95,7 +95,7 @@ public class QuestionController implements QuestionControllerDocs{
     public ResponseEntity<?> getMyQuestions(Pageable pageable, @AuthenticationPrincipal UserDetails userDetails) {
         try {
             String email = userDetails.getUsername();
-            Page<ResponseQuestionDTO> findAllQuestions = questionService.getAllQuestions(pageable, email);
+            Page<ResponseQuestionDTO> findAllQuestions = questionService.getMyAllQuestions(pageable, email);
             Map<String, Object> response = new HashMap<>();
             // 현재 페이지의 아이템 목록
             response.put("contents",findAllQuestions.getContent());
