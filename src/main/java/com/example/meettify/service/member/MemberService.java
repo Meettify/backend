@@ -4,6 +4,8 @@ import com.example.meettify.dto.jwt.TokenDTO;
 import com.example.meettify.dto.member.MemberServiceDTO;
 import com.example.meettify.dto.member.UpdateMemberServiceDTO;
 import com.example.meettify.dto.member.ResponseMemberDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface MemberService {
     // 회원가입
@@ -20,4 +22,7 @@ public interface MemberService {
     String removeUser(Long memberId, String email);
     // 화원 조회
     ResponseMemberDTO getMember(Long memberId);
+    // 전체적인 회원 가져오기 - 관리자 기능
+    Page<ResponseMemberDTO> getMembers(Pageable pageable, String email);
+
 }

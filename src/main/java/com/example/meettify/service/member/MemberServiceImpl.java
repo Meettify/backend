@@ -19,6 +19,8 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.GrantedAuthority;
@@ -204,7 +206,7 @@ public class MemberServiceImpl implements MemberService {
             }
             throw new MemberException("회원 id가 일치하지 않습니다.");
         } catch (EntityNotFoundException e) {
-            throw new MemberException(e.getMessage());
+            throw new MemberException("회원 삭제하는데 실패했습니다.");
         }
     }
 
@@ -217,6 +219,17 @@ public class MemberServiceImpl implements MemberService {
             return ResponseMemberDTO.changeDTO(findMember);
         } catch (Exception e) {
             throw new MemberException(e.getMessage());
+        }
+    }
+
+    // 관리자가 회원 정보를 가져오기
+    @Override
+    public Page<ResponseMemberDTO> getMembers(Pageable pageable, String email) {
+        try {
+            Page<MemberEntity> findAllMembers = memberRepository.findAll(pageable, email);
+            return findAllMembers.map(ResponseMemberDTO::changeDTO);
+        } catch (Exception e) {
+            throw new MemberException("회원 정보들을 가져오는데 실패했습니다.");
         }
     }
 }
