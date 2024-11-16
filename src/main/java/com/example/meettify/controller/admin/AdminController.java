@@ -1,9 +1,14 @@
 package com.example.meettify.controller.admin;
 
+import com.example.meettify.dto.comment.CreateAnswerDTO;
+import com.example.meettify.dto.comment.CreateCommentDTO;
+import com.example.meettify.dto.comment.ResponseCommentDTO;
 import com.example.meettify.dto.member.ResponseMemberDTO;
 import com.example.meettify.dto.question.ResponseQuestionDTO;
 import com.example.meettify.exception.board.BoardException;
+import com.example.meettify.exception.comment.CommentException;
 import com.example.meettify.exception.member.MemberException;
+import com.example.meettify.service.answer.AnswerCommentService;
 import com.example.meettify.service.member.MemberService;
 import com.example.meettify.service.question.QuestionService;
 import lombok.RequiredArgsConstructor;
@@ -13,9 +18,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,9 +29,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Log4j2
 @RequestMapping("/api/v1/admin")
-public class AdminController implements AdminControllerDocs{
+public class AdminController implements AdminControllerDocs {
     private final MemberService memberService;
     private final QuestionService questionService;
+    private final AnswerCommentService answerCommentService;
 
     // 모든 회원 정보 가져오기
     @Override
@@ -64,6 +70,7 @@ public class AdminController implements AdminControllerDocs{
         return response;
     }
 
+    // 모든 문의글 보기
     @Override
     @GetMapping("/questions")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -75,6 +82,21 @@ public class AdminController implements AdminControllerDocs{
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
             throw new BoardException(e.getMessage());
+        }
+    }
+
+    // 답변 달기
+    @Override
+    @PostMapping("/{questionId}/answer")
+    public ResponseEntity<?> createAnswer(@PathVariable Long questionId,
+                                          @RequestBody CreateAnswerDTO answer,
+                                          @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            String email = userDetails.getUsername() != null ? userDetails.getUsername() : "";
+            ResponseCommentDTO response = answerCommentService.createAnswerComment(questionId, answer, email);
+            return ResponseEntity.ok().body(response);
+        } catch (Exception e) {
+            throw new CommentException(e.getMessage());
         }
     }
 }
