@@ -1,8 +1,8 @@
 package com.example.meettify.service.answer;
 
 import com.example.meettify.dto.comment.CreateAnswerDTO;
-import com.example.meettify.dto.comment.CreateCommentDTO;
 import com.example.meettify.dto.comment.ResponseCommentDTO;
+import com.example.meettify.dto.comment.UpdateCommentDTO;
 import com.example.meettify.entity.answer.AnswerCommentEntity;
 import com.example.meettify.entity.member.MemberEntity;
 import com.example.meettify.entity.question.QuestionEntity;
@@ -39,6 +39,20 @@ public class AnswerCommentServiceImpl implements AnswerCommentService {
             return ResponseCommentDTO.changeDTO(saveAnswer, findAdmin.getNickName());
         } catch (Exception e) {
             throw new CommentException("답변 생성하는데 실패했습니다.");
+        }
+    }
+
+    @Override
+    public ResponseCommentDTO updateAnswerComment(Long answerId, UpdateCommentDTO answer) {
+        try {
+            AnswerCommentEntity findAnswer = answerCommentRepository.findByAnswerId(answerId)
+                    .orElseThrow(() -> new CommentException("답변이 존재하지 않습니다."));
+            // 답변 수정
+            findAnswer.updateComment(answer);
+            AnswerCommentEntity saveAnswer = answerCommentRepository.save(findAnswer);
+            return ResponseCommentDTO.changeDTO(saveAnswer, findAnswer.getMember().getNickName());
+        } catch (Exception e) {
+            throw new CommentException("답변을 수정하는데 실패했습니다.");
         }
     }
 }

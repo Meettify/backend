@@ -19,7 +19,7 @@ import java.util.List;
  *   work    : 문의글 답변 댓글 엔티티
  *   date    : 2024/11/15
  * */
-@Entity(name = "comments")
+@Entity(name = "answer")
 @Getter
 @ToString(exclude = {"member", "community", "parent", "children"})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

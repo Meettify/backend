@@ -3,6 +3,7 @@ package com.example.meettify.controller.admin;
 import com.example.meettify.dto.comment.CreateAnswerDTO;
 import com.example.meettify.dto.comment.CreateCommentDTO;
 import com.example.meettify.dto.comment.ResponseCommentDTO;
+import com.example.meettify.dto.comment.UpdateCommentDTO;
 import com.example.meettify.dto.member.ResponseMemberDTO;
 import com.example.meettify.dto.question.ResponseQuestionDTO;
 import com.example.meettify.exception.board.BoardException;
@@ -88,12 +89,26 @@ public class AdminController implements AdminControllerDocs {
     // 답변 달기
     @Override
     @PostMapping("/{questionId}/answer")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> createAnswer(@PathVariable Long questionId,
                                           @RequestBody CreateAnswerDTO answer,
                                           @AuthenticationPrincipal UserDetails userDetails) {
         try {
             String email = userDetails.getUsername() != null ? userDetails.getUsername() : "";
             ResponseCommentDTO response = answerCommentService.createAnswerComment(questionId, answer, email);
+            return ResponseEntity.ok().body(response);
+        } catch (Exception e) {
+            throw new CommentException(e.getMessage());
+        }
+    }
+
+    // 답변 수정
+    @Override
+    @PutMapping("/{questionId}/answer/{answerId}")
+    public ResponseEntity<?> updateAnswer(@PathVariable Long answerId,
+                                          @RequestBody UpdateCommentDTO answer) {
+        try {
+            ResponseCommentDTO response = answerCommentService.updateAnswerComment(answerId, answer);
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
             throw new CommentException(e.getMessage());
