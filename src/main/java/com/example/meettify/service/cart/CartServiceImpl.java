@@ -41,45 +41,58 @@ public class CartServiceImpl implements CartService{
 
     // 장바구니에 상품 추가
     @Override
-    @TimeTrace
     public ResponseCartDTO addCartItem(RequestCartServiceDTO cart, String email) {
         try {
+            log.info("----------------");
+            log.info(email);
             // 회원 조회
             MemberEntity findMember = memberRepository.findByMemberEmail(email);
+            log.info(findMember);
             // 상품 조회
             ItemEntity findItem = itemRepository.findById(cart.getItemId())
                     .orElseThrow(() -> new ItemException("해당 상품이 존재하지 않습니다."));
+            log.info("----------------");
+            log.info(findItem);
 
             CartEntity saveCart = null;
 
-            if(findMember != null) {
-                // 장바구니 상품 확인
-                CartEntity findCart = cartRepository.findByMemberMemberId(findMember.getMemberId());
-                log.info("장바구니 확인 {}" , findCart);
-
-                // 장바구니 상품 조회
-                CartItemEntity findCartItem = cartItemRepository.findByItem_ItemId(cart.getItemId());
-
-                // 기존에 장바구니에 상품이 있어서 추가
-                if(findCartItem == null) {
-                    // 기존에 상품이 없으니 새롭게 추가
-                    findCartItem = CartItemEntity.addCartItem(cart, findCart, findItem);
-                } else {
-                    throw new CartException("기존에 장바구니에 담았습니다.");
-                }
-                // 장바구니에 장바구니 상품 담기
-                findCart.getCartItems().add(findCartItem);
-                // 장바구니 총 개수 수정
-                findCart.changeCount(findCartItem.getCartCount());
-                // 재고 수량 확인
-                findItem.checkItemStock(cart.getItemCount());
-                // 장바구니에 상품 추가
-                findCart.saveCart(findCartItem, findMember);
-                saveCart = cartRepository.save(findCart);
-
-                return ResponseCartDTO.changeDTO(saveCart, email, findItem);
+            if(findMember == null) {
+                throw new MemberException("유저가 존재하지 않습니다.");
             }
-            throw new MemberException("해당 유저가 존재하지 않습니다.");
+
+            // 장바구니 상품 확인
+            CartEntity findCart = cartRepository.findByMemberMemberId(findMember.getMemberId());
+            log.info("장바구니 확인 {}" , findCart);
+
+            if(findCart == null) {
+                log.info("장바구니가 존재하지 않아서 생성합니다.");
+                findCart = CartEntity.saveCart(findMember);
+                findCart = cartRepository.save(findCart);
+                log.info("----------------");
+                log.info(findCart);
+            }
+
+            // 장바구니 상품 조회
+            CartItemEntity findCartItem = cartItemRepository.findByItem_ItemId(cart.getItemId());
+            log.info("----------------");
+            log.info(findCartItem);
+            if(findCartItem == null) {
+                // 기존에 상품이 없으니 새롭게 추가
+                findCartItem = CartItemEntity.addCartItem(cart, findCart, findItem);
+            } else {
+                throw new CartException("기존에 장바구니에 담았습니다.");
+            }
+            // 장바구니에 장바구니 상품 담기
+            findCart.getCartItems().add(findCartItem);
+            // 장바구니 총 개수 수정
+            findCart.changeCount(findCartItem.getCartCount());
+            // 재고 수량 확인
+            findItem.checkItemStock(cart.getItemCount());
+            // 장바구니에 상품 추가
+            findCart.saveCart(findCartItem, findMember);
+            saveCart = cartRepository.save(findCart);
+
+            return ResponseCartDTO.changeDTO(saveCart, email, findItem);
         } catch (Exception e) {
             throw new CartException("장바구니에 상품을 담는데 실패했습니다. : " + e.getMessage());
         }
@@ -87,7 +100,6 @@ public class CartServiceImpl implements CartService{
 
     // 장바구니 상품 삭제
     @Override
-    @TimeTrace
     public String deleteCartItem(Long cartItemId, String email) {
         try {
             // 회원 조회
@@ -119,7 +131,6 @@ public class CartServiceImpl implements CartService{
 
     // 장바구니 상품 수정
     @Override
-    @TimeTrace
     public ResponseCartDTO updateCartItem(Long cartId,
                                           List<UpdateCartServiceDTO> carts,
                                           String email) {
