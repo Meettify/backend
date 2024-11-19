@@ -199,7 +199,7 @@
             for (String keyword : keywords) {
                 // 카테고리와 키워드로 상품을 추천
                 List<ItemEntity> findItems = itemRepository.findItemsByCategoriesAndKeyword(categories, keyword);
-                items.addAll(findItems);
+                items.addAll(sampleItems(findItems, 10));
             }
 
             return  items
@@ -218,6 +218,13 @@
                 }
             }
             return categories;
+        }
+
+        private List<ItemEntity> sampleItems(List<ItemEntity> items, int sampleSize) {
+            Collections.shuffle(items); // 리스트를 무작위로 섞습니다.
+            return items.stream()
+                    .limit(sampleSize)  // 지정된 샘풀 크기만큼 반환
+                    .toList();
         }
 
         // 대기중인 상품 리스트
