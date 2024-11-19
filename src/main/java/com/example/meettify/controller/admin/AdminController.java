@@ -1,8 +1,7 @@
 package com.example.meettify.controller.admin;
 
 import com.example.meettify.dto.comment.CreateAnswerDTO;
-import com.example.meettify.dto.comment.CreateCommentDTO;
-import com.example.meettify.dto.comment.ResponseCommentDTO;
+import com.example.meettify.dto.comment.ResponseAnswerCommentDTO;
 import com.example.meettify.dto.comment.UpdateCommentDTO;
 import com.example.meettify.dto.member.ResponseMemberDTO;
 import com.example.meettify.dto.question.ResponseQuestionDTO;
@@ -11,6 +10,7 @@ import com.example.meettify.exception.comment.CommentException;
 import com.example.meettify.exception.member.MemberException;
 import com.example.meettify.service.answer.AnswerCommentService;
 import com.example.meettify.service.member.MemberService;
+import com.example.meettify.service.notification.NotificationService;
 import com.example.meettify.service.question.QuestionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -34,6 +34,7 @@ public class AdminController implements AdminControllerDocs {
     private final MemberService memberService;
     private final QuestionService questionService;
     private final AnswerCommentService answerCommentService;
+    private final NotificationService notificationService;
 
     // 모든 회원 정보 가져오기
     @Override
@@ -95,7 +96,9 @@ public class AdminController implements AdminControllerDocs {
                                           @AuthenticationPrincipal UserDetails userDetails) {
         try {
             String email = userDetails.getUsername() != null ? userDetails.getUsername() : "";
-            ResponseCommentDTO response = answerCommentService.createAnswerComment(questionId, answer, email);
+            ResponseAnswerCommentDTO response = answerCommentService.createAnswerComment(questionId, answer, email);
+            // 문의글에 답변 달린 알람 보내기
+            notificationService.notifyMessage(response.getWriterEmail(), "문의글에 답변이 달렸습니다.");
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
             throw new CommentException(e.getMessage());
@@ -105,10 +108,24 @@ public class AdminController implements AdminControllerDocs {
     // 답변 수정
     @Override
     @PutMapping("/{questionId}/answer/{answerId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> updateAnswer(@PathVariable Long answerId,
                                           @RequestBody UpdateCommentDTO answer) {
         try {
-            ResponseCommentDTO response = answerCommentService.updateAnswerComment(answerId, answer);
+            ResponseAnswerCommentDTO response = answerCommentService.updateAnswerComment(answerId, answer);
+            return ResponseEntity.ok().body(response);
+        } catch (Exception e) {
+            throw new CommentException(e.getMessage());
+        }
+    }
+
+    // 답변 삭제
+    @Override
+    @DeleteMapping("/{questionId}/answer/{answerId}" )
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> deleteAnswer(@PathVariable Long answerId) {
+        try {
+            String response = answerCommentService.deleteAnswerComment(answerId);
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
             throw new CommentException(e.getMessage());

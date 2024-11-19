@@ -21,4 +21,7 @@ public interface AdminControllerDocs {
 
     @Operation(summary = "문의글 답변 수정", description = "문의글 답변 수정 API")
     ResponseEntity<?> updateAnswer(Long answerId, UpdateCommentDTO answer);
+
+    @Operation(summary = "문의글 답변 삭제", description = "문으기를 답변 삭제 API")
+    ResponseEntity<?> deleteAnswer(Long answerId);
 }
