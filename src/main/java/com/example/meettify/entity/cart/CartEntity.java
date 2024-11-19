@@ -39,9 +39,10 @@ public class CartEntity extends BaseEntity {
     private List<CartItemEntity> cartItems = new ArrayList<>();
 
     // 장바구니 생성
-    public static void createCart(MemberEntity member) {
-        CartEntity.builder()
+    public static CartEntity saveCart(MemberEntity member) {
+        return CartEntity.builder()
                 .member(member)
+                .totalCount(0)
                 .cartItems(new ArrayList<>())
                 .build();
     }
