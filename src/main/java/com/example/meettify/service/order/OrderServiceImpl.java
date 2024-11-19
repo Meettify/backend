@@ -1,13 +1,10 @@
 package com.example.meettify.service.order;
 
-import com.example.meettify.config.metric.TimeTrace;
 import com.example.meettify.dto.member.AddressDTO;
 import com.example.meettify.dto.order.RequestOrderDTO;
 import com.example.meettify.dto.order.RequestOrderServiceDTO;
 import com.example.meettify.dto.order.ResponseOrderDTO;
 import com.example.meettify.dto.order.ResponseOrderItemDTO;
-import com.example.meettify.dto.pay.RequestPaymentDTO;
-import com.example.meettify.entity.cart.CartEntity;
 import com.example.meettify.entity.cart.CartItemEntity;
 import com.example.meettify.entity.item.ItemEntity;
 import com.example.meettify.entity.member.MemberEntity;
@@ -19,10 +16,7 @@ import com.example.meettify.exception.order.OrderException;
 import com.example.meettify.repository.cart.CartItemRepository;
 import com.example.meettify.repository.item.ItemRepository;
 import com.example.meettify.repository.member.MemberRepository;
-import com.example.meettify.repository.order.OrderItemRepository;
 import com.example.meettify.repository.order.OrderRepository;
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -240,6 +234,7 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+    // 결제 취소시 주문 취소
     public String cancelOrder(String orderUUID) {
         try {
             // 주문번호로 주문 정보 가져오기

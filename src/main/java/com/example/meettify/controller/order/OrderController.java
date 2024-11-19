@@ -53,7 +53,8 @@ public class OrderController implements OrderControllerDocs{
     @Override
     @GetMapping("/my-order")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> getOrders(UserDetails userDetails, Pageable pageable) {
+    public ResponseEntity<?> getOrders(@AuthenticationPrincipal UserDetails userDetails,
+                                       Pageable pageable) {
         try {
             String email = userDetails.getUsername();
             Page<ResponseOrderDTO> myOrders = orderService.getMyOrders(email, pageable);

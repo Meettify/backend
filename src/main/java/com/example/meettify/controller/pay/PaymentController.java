@@ -3,7 +3,6 @@ package com.example.meettify.controller.pay;
 import com.example.meettify.config.iamport.ImportConfig;
 import com.example.meettify.config.pay.PaymentClient;
 import com.example.meettify.dto.member.AddressDTO;
-import com.example.meettify.dto.order.RequestOrderDTO;
 import com.example.meettify.dto.order.ResponseOrderDTO;
 import com.example.meettify.dto.pay.*;
 import com.example.meettify.exception.order.OrderException;
@@ -52,10 +51,11 @@ public class PaymentController implements PaymentControllerDocs {
                 // 결제 성공 시 주문 정보 저장
                 ResponseOrderDTO response = orderService.saveOrder(pay.getOrders(), email, address, pay.getOrderUid());
                 // 결제 정보를 저장
-                paymentService.savePayment(pay, email, address,paymentIamportResponse);
+                ResponsePaymentDTO responsePaymentDTO = paymentService.savePayment(pay, email, address, paymentIamportResponse);
                 log.info(response);
+                log.info(responsePaymentDTO);
                 // 결제 알림
-                notificationService.notifyMessage(email);
+                notificationService.notifyMessage(email, "결제하셨습니다.");
 
                 return paymentIamportResponse;
             } else {
@@ -94,7 +94,7 @@ public class PaymentController implements PaymentControllerDocs {
             // 결제 성공 시 주문 정보 저장
             orderService.saveOrder(tossPay.getOrders(), email, address, tossPay.getOrderUid());
             // 결제 알림
-            notificationService.notifyMessage(email);
+            notificationService.notifyMessage(email, "토스로 결제 :" + response.getTotalAmount() +"원이 결제되었습니다.");
             return response;
         } catch (PaymentConfirmException e) {
             throw new PaymentConfirmException(e.getMessage());
