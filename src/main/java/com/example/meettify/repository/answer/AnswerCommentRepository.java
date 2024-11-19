@@ -12,4 +12,9 @@ public interface AnswerCommentRepository extends JpaRepository<AnswerCommentEnti
     "join fetch a.member m " +
     "where a.answerId = :answerId")
     Optional<AnswerCommentEntity> findByAnswerId(@Param("answerId") Long answerId);
+
+    @Query("select a from answer a " +
+            "join fetch a.question q " +
+            "where a.answerId = :answerId")
+    Optional<AnswerCommentEntity> findByAnswerIdForDelete(@Param("answerId") Long answerId);
 }

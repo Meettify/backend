@@ -7,6 +7,8 @@ import com.example.meettify.dto.member.ResponseMemberDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Map;
+
 public interface MemberService {
     // 회원가입
     ResponseMemberDTO signUp(MemberServiceDTO member);
@@ -24,5 +26,4 @@ public interface MemberService {
     ResponseMemberDTO getMember(Long memberId);
     // 전체적인 회원 가져오기 - 관리자 기능
     Page<ResponseMemberDTO> getMembers(Pageable pageable, String email);
-
 }

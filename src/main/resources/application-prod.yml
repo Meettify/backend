@@ -80,6 +80,7 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
 
+
 jwt:
   secret_key: ${JWT_SECRET}
   access:
@@ -168,3 +169,5 @@ payment:
   base-url: https://api.tosspayments.com/v1/payments
   confirm-endpoint: /confirm
   cancel-endpoint: /%s/cancel #cancel 엔드포인트 추가
+
+

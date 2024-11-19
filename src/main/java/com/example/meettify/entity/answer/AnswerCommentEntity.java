@@ -2,16 +2,12 @@ package com.example.meettify.entity.answer;
 
 import com.example.meettify.config.auditing.entity.BaseEntity;
 import com.example.meettify.dto.comment.CreateAnswerDTO;
-import com.example.meettify.dto.comment.CreateCommentDTO;
 import com.example.meettify.dto.comment.UpdateCommentDTO;
-import com.example.meettify.entity.community.CommunityEntity;
 import com.example.meettify.entity.member.MemberEntity;
 import com.example.meettify.entity.question.QuestionEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
 
 
 /*
@@ -21,7 +17,6 @@ import java.util.List;
  * */
 @Entity(name = "answer")
 @Getter
-@ToString(exclude = {"member", "community", "parent", "children"})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
@@ -41,14 +36,18 @@ public class AnswerCommentEntity extends BaseEntity {
     @JoinColumn(name = "question_id")
     private QuestionEntity question;
 
+    private String writerEmail;
+
     // 생성
     public static AnswerCommentEntity saveComment(CreateAnswerDTO comment,
                                                   MemberEntity member,
-                                                  QuestionEntity question) {
+                                                  QuestionEntity question,
+                                                  String email) {
         return AnswerCommentEntity.builder()
                 .answer(comment.getComment())
                 .member(member)
                 .question(question)
+                .writerEmail(email)
                 .build();
     }
 

@@ -1,6 +1,7 @@
 package com.example.meettify.service.answer;
 
 import com.example.meettify.dto.comment.CreateAnswerDTO;
+import com.example.meettify.dto.comment.ResponseAnswerCommentDTO;
 import com.example.meettify.dto.comment.ResponseCommentDTO;
 import com.example.meettify.dto.comment.UpdateCommentDTO;
 import com.example.meettify.entity.answer.AnswerCommentEntity;
@@ -26,33 +27,58 @@ public class AnswerCommentServiceImpl implements AnswerCommentService {
     private final QuestionRepository questionRepository;
 
     @Override
-    public ResponseCommentDTO createAnswerComment(Long questionId, CreateAnswerDTO answer, String email) {
+    public ResponseAnswerCommentDTO createAnswerComment(Long questionId, CreateAnswerDTO answer, String email) {
         try {
             // 관리자 회원 조회
             MemberEntity findAdmin = memberRepository.findByMemberEmail(email);
             // 문의글 조회
-            QuestionEntity findQuestion = questionRepository.findById(questionId)
+            QuestionEntity findQuestion = questionRepository.findByQuestionId(questionId)
                     .orElseThrow(() -> new BoardException("문의글이 존재하지 않습니다."));
 
-            AnswerCommentEntity makeAnswer = AnswerCommentEntity.saveComment(answer, findAdmin, findQuestion);
+            AnswerCommentEntity makeAnswer = AnswerCommentEntity.saveComment(
+                    answer, findAdmin, findQuestion, findQuestion.getMember().getNickName());
             AnswerCommentEntity saveAnswer = answerCommentRepository.save(makeAnswer);
-            return ResponseCommentDTO.changeDTO(saveAnswer, findAdmin.getNickName());
+
+            // 문의글에 답변 달려서 문의글 상태를 변경
+            findQuestion.changeReplyO();
+
+            return ResponseAnswerCommentDTO.createResponse(saveAnswer, findAdmin.getMemberEmail());
         } catch (Exception e) {
             throw new CommentException("답변 생성하는데 실패했습니다.");
         }
     }
 
     @Override
-    public ResponseCommentDTO updateAnswerComment(Long answerId, UpdateCommentDTO answer) {
+    public ResponseAnswerCommentDTO updateAnswerComment(Long answerId, UpdateCommentDTO answer) {
         try {
             AnswerCommentEntity findAnswer = answerCommentRepository.findByAnswerId(answerId)
                     .orElseThrow(() -> new CommentException("답변이 존재하지 않습니다."));
             // 답변 수정
             findAnswer.updateComment(answer);
             AnswerCommentEntity saveAnswer = answerCommentRepository.save(findAnswer);
-            return ResponseCommentDTO.changeDTO(saveAnswer, findAnswer.getMember().getNickName());
+            return ResponseAnswerCommentDTO.updateResponse(saveAnswer, findAnswer.getMember().getNickName());
         } catch (Exception e) {
             throw new CommentException("답변을 수정하는데 실패했습니다.");
+        }
+    }
+
+    @Override
+    public String deleteAnswerComment(Long answerId) {
+        try {
+            AnswerCommentEntity findAnswer = answerCommentRepository.findByAnswerIdForDelete(answerId)
+                    .orElseThrow(() -> new CommentException("답변이 존재하지 않습니다."));
+
+            // 답변 삭제
+            answerCommentRepository.delete(findAnswer);
+            QuestionEntity findQuestion = questionRepository.findById(findAnswer.getQuestion().getQuestionId())
+                    .orElseThrow(() -> new BoardException("문의글이 존재하지 않습니다."));
+            log.info("findQuestion: {}", findQuestion);
+            // 문의글 상태 변경
+            findQuestion.changeReplyX();
+
+            return "답변을 삭제하셨습니다.";
+        } catch (Exception e) {
+            return "답변 삭제 실패";
         }
     }
 }

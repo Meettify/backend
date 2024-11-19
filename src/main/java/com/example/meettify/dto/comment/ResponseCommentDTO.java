@@ -1,5 +1,6 @@
 package com.example.meettify.dto.comment;
 
+import com.example.meettify.entity.answer.AnswerCommentEntity;
 import com.example.meettify.entity.comment.CommentEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -41,6 +42,17 @@ public class ResponseCommentDTO {
                 .createdAt(comment.getRegTime())
                 .nickName(nickName)
                 .parentCommentId(parentCommentId)
+                .build();
+    }
+
+    // 어드민이 문의글 답변
+    public static ResponseCommentDTO changeDTO(AnswerCommentEntity answer, String nickName) {
+        return ResponseCommentDTO.builder()
+                .commentId(answer.getAnswerId())
+                .comment(answer.getAnswer())
+                .createdAt(answer.getRegTime())
+                .nickName(nickName)
+                .parentCommentId(answer.getAnswerId())
                 .build();
     }
 
