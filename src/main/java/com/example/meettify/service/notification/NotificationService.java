@@ -57,7 +57,7 @@ public class NotificationService {
     }
 
     // 채팅 수신 알림 - receiver에게
-    public void notifyMessage(String receiver) {
+    public void notifyMessage(String receiver, String message) {
         // 5. 수신자 정보 조회
         MemberEntity findMember = memberRepository.findByMemberEmail(receiver);
 
@@ -69,7 +69,7 @@ public class NotificationService {
             SseEmitter sseEmitterReceiver = customNotificationRepository.findById(memberId);
             // 8. 알림 메시지 전송 및 해제
             try {
-                sseEmitterReceiver.send(SseEmitter.event().name("addMessage").data("결제 메시지가 왔습니다."));
+                sseEmitterReceiver.send(SseEmitter.event().name("addMessage").data(message));
             } catch (Exception e) {
                 customNotificationRepository.deleteById(memberId);
             }
