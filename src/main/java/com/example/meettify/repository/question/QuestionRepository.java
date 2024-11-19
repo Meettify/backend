@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-public interface QuestionRepository extends JpaRepository<QuestionEntity, Long> {
+public interface QuestionRepository extends JpaRepository<QuestionEntity, Long>, CustomQuestionRepository {
     @Query("select q from questions q" +
             " join fetch q.member" +
             " where q.questionId = :questionId")

@@ -36,9 +36,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         HttpServletRequest httpServletRequest = request;
         String method = request.getMethod();
-        log.info("method {} " , method);
         String requestURI = request.getRequestURI();
-        log.info("requestURI {} " , requestURI);
 
         // 허용된 경로와 메서드 조합을 정의
         // 해당 경로는 토큰검사를 하지 않음
@@ -75,13 +73,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 허용된 경로와 메서드 조합을 통해 검증
         for (Map.Entry<String, List<String>> entry : publicPaths.entrySet()) {
             String pathPattern = entry.getKey();
-            log.info("pathPattern {} " , pathPattern);
             List<String> allowedMethods = entry.getValue();
-            log.info("allowedMethods {} " , allowedMethods);
 
             // AntPathMatcher를 사용한 경로 매칭 및 메서드 검증
             if (pathMatcher.match(pathPattern, requestURI) && allowedMethods.contains(method)) {
-                log.info("검사를 패스합니다.");
                 // 허용된 경로 및 메서드에 해당하면 필터 제외
                 filterChain.doFilter(request, response);
                 return;

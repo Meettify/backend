@@ -1,18 +1,11 @@
 package com.example.meettify.config.oauth;
 
-import com.example.meettify.config.jwt.JwtProvider;
 import com.example.meettify.config.security.PrincipalDetails;
-import com.example.meettify.dto.jwt.TokenDTO;
 import com.example.meettify.dto.member.role.UserRole;
-import com.example.meettify.entity.jwt.TokenEntity;
 import com.example.meettify.entity.member.MemberEntity;
-import com.example.meettify.repository.jwt.TokenRepository;
 import com.example.meettify.repository.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.modelmapper.ModelMapper;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -20,9 +13,6 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /*
  *   worker : 유요한
@@ -34,9 +24,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PrincipalOAuthUserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
     private final MemberRepository memberRepository;
-    private final JwtProvider jwtProvider;
-    private final TokenRepository tokenRepository;
-    private final ModelMapper modelMapper;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {

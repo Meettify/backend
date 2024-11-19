@@ -111,13 +111,25 @@ public class QuestionServiceImpl implements QuestionService{
     // 내 문의글 보기
     @Override
     @Transactional(readOnly = true)
-    public Page<ResponseQuestionDTO> getAllQuestions(Pageable pageable, String memberEmail) {
+    public Page<ResponseQuestionDTO> getMyAllQuestions(Pageable pageable, String memberEmail) {
         try {
             Page<QuestionEntity> findAllQuestions = questionRepository.findAllByMember(memberEmail, pageable);
             return findAllQuestions
                     .map(q -> ResponseQuestionDTO.changeDTO(q, q.getMember().getNickName()));
         } catch (Exception e) {
             throw new BoardException("문의글 조회하는데 실패했습니다. : " + e.getMessage());
+        }
+    }
+
+    // 모든 문의글 보기 - 관리자
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ResponseQuestionDTO> getAllQuestions(Pageable pageable) {
+        try {
+            Page<QuestionEntity> findAllQuestions = questionRepository.findAllQuestions(pageable);
+            return findAllQuestions.map(q -> ResponseQuestionDTO.changeDTO(q, q.getMember().getNickName()));
+        } catch (Exception e) {
+            throw new BoardException("모든 문의글을 가져오는데 실패했습니다.");
         }
     }
 }

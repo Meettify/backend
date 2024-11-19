@@ -2,7 +2,6 @@ package com.example.meettify.service.member;
 
 import com.example.meettify.config.jwt.JwtProvider;
 import com.example.meettify.config.login.LoginAttemptConfig;
-import com.example.meettify.config.metric.TimeTrace;
 import com.example.meettify.dto.jwt.TokenDTO;
 import com.example.meettify.dto.member.MemberServiceDTO;
 import com.example.meettify.dto.member.UpdateMemberServiceDTO;
@@ -18,8 +17,8 @@ import com.example.meettify.repository.member.MemberRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.modelmapper.ModelMapper;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -60,7 +59,8 @@ public class MemberServiceImpl implements MemberService {
             MemberEntity saveMember = memberRepository.save(memberEntity);
             ResponseMemberDTO response = ResponseMemberDTO.changeDTO(saveMember);
             // 장바구니 생성
-            CartEntity.createCart(saveMember);
+            CartEntity savedCart = CartEntity.saveCart(saveMember);
+            cartRepository.save(savedCart);
             log.info("response : {}", response);
             return response;
         } catch (Exception e) {
@@ -94,7 +94,7 @@ public class MemberServiceImpl implements MemberService {
                 MemberEntity findMember = findMemberEntity(email);
                 log.info("findMember : {}", findMember);
 
-                if(loginAttemptConfig.isBlocked(email)) {
+                if (loginAttemptConfig.isBlocked(email)) {
                     log.error("Member is blocked for 1 day");
                     throw new LockedException("Member is blocked for 1 day");
                 }
@@ -110,11 +110,11 @@ public class MemberServiceImpl implements MemberService {
                     token = jwtProvider.createToken(email, authorities, findMember.getMemberId());
 
                     // 토큰이 있으면 업데이트
-                    if(tokenEntity != null) {
+                    if (tokenEntity != null) {
                         tokenEntity.updateToken(token);
                     }
 
-                    if(tokenEntity == null) {
+                    if (tokenEntity == null) {
                         tokenEntity = TokenEntity.changeEntity(token);
                     }
 
@@ -193,7 +193,7 @@ public class MemberServiceImpl implements MemberService {
             MemberEntity findMember = findMemberEntity(email);
 
             // 회원이 비어있지 않고 넘어온 Id가 DB에 등록된 id가 일치할 때
-            if(findMember.getMemberId().equals(memberId)) {
+            if (findMember.getMemberId().equals(memberId)) {
                 // 장바구니 조회
                 CartEntity findCart = cartRepository.findByMemberMemberId(memberId);
                 // 장바구니 삭제
@@ -204,7 +204,7 @@ public class MemberServiceImpl implements MemberService {
             }
             throw new MemberException("회원 id가 일치하지 않습니다.");
         } catch (EntityNotFoundException e) {
-            throw new MemberException(e.getMessage());
+            throw new MemberException("회원 삭제하는데 실패했습니다.");
         }
     }
 
@@ -217,6 +217,17 @@ public class MemberServiceImpl implements MemberService {
             return ResponseMemberDTO.changeDTO(findMember);
         } catch (Exception e) {
             throw new MemberException(e.getMessage());
+        }
+    }
+
+    // 관리자가 회원 정보를 가져오기
+    @Override
+    public Page<ResponseMemberDTO> getMembers(Pageable pageable, String email) {
+        try {
+            Page<MemberEntity> findAllMembers = memberRepository.findAll(pageable, email, UserRole.USER);
+            return findAllMembers.map(ResponseMemberDTO::changeDTO);
+        } catch (Exception e) {
+            throw new MemberException("회원 정보들을 가져오는데 실패했습니다.");
         }
     }
 }

@@ -1,7 +1,6 @@
 package com.example.meettify.dto.comment;
 
 import com.example.meettify.entity.answer.AnswerCommentEntity;
-import com.example.meettify.entity.comment.CommentEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -12,14 +11,14 @@ import java.util.List;
 /*
  *   worker  : 유요한
  *   work    : 프론트에게 반환할 댓글 클래스
- *   date    : 2024/10/17
+ *   date    : 2024/11/18
  * */
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Builder
-public class ResponseCommentDTO {
+public class ResponseAnswerCommentDTO {
     @Schema(description = "댓글 번호")
     private Long commentId;
     @Schema(description = "댓글")
@@ -28,31 +27,31 @@ public class ResponseCommentDTO {
     private LocalDateTime createdAt;
     @Schema(description = "작성 닉네임")
     private String nickName;
-    @Schema(description = "부모 번호")
-    private Long parentCommentId;
+    @Schema(description = "문의글 작성자 닉네임")
+    private String writerEmail;
 
     @Builder.Default
-    private List<ResponseCommentDTO> children = new ArrayList<>();  // 자식 댓글 리스트
+    private List<ResponseAnswerCommentDTO> children = new ArrayList<>();  // 자식 댓글 리스트
 
     // DTO로 변환
-    public static ResponseCommentDTO changeDTO(CommentEntity comment, String nickName, Long parentCommentId) {
-        return ResponseCommentDTO.builder()
-                .commentId(comment.getCommentId())
-                .comment(comment.getComment())
-                .createdAt(comment.getRegTime())
-                .nickName(nickName)
-                .parentCommentId(parentCommentId)
+    public static ResponseAnswerCommentDTO createResponse(AnswerCommentEntity answer,
+                                                     String email) {
+        return ResponseAnswerCommentDTO.builder()
+                .commentId(answer.getAnswerId())
+                .comment(answer.getAnswer())
+                .createdAt(answer.getRegTime())
+                .nickName(email)
+                .writerEmail(email)
                 .build();
     }
 
     // 어드민이 문의글 답변
-    public static ResponseCommentDTO changeDTO(AnswerCommentEntity answer, String nickName) {
-        return ResponseCommentDTO.builder()
+    public static ResponseAnswerCommentDTO updateResponse(AnswerCommentEntity answer, String nickName) {
+        return ResponseAnswerCommentDTO.builder()
                 .commentId(answer.getAnswerId())
                 .comment(answer.getAnswer())
                 .createdAt(answer.getRegTime())
                 .nickName(nickName)
-                .parentCommentId(answer.getAnswerId())
                 .build();
     }
 

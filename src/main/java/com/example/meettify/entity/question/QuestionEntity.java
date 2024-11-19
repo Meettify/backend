@@ -3,6 +3,7 @@ package com.example.meettify.entity.question;
 import com.example.meettify.config.auditing.entity.BaseEntity;
 import com.example.meettify.dto.board.CreateBoardDTO;
 import com.example.meettify.dto.board.UpdateQuestionDTO;
+import com.example.meettify.dto.question.ReplyStatus;
 import com.example.meettify.entity.member.MemberEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,6 +26,8 @@ public class QuestionEntity extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private MemberEntity member;
+    @Embedded
+    private ReplyStatus replyStatus;
 
     // 엔티티 생성
     public static QuestionEntity saveEntity(CreateBoardDTO question, MemberEntity member) {
@@ -32,6 +35,7 @@ public class QuestionEntity extends BaseEntity {
                 .title(question.getTitle())
                 .content(question.getContent())
                 .member(member)
+                .replyStatus(ReplyStatus.REPLY_X)
                 .build();
     }
 
@@ -40,4 +44,13 @@ public class QuestionEntity extends BaseEntity {
         this.title = question.getTitle();
         this.content = question.getContent();
     }
+
+    // 문의글 상태 바뀌기
+    public void changeReplyO() {
+        this.replyStatus = ReplyStatus.REPLY_O;
+    }
+    public void changeReplyX() {
+        this.replyStatus = ReplyStatus.REPLY_X;
+    }
+
 }
