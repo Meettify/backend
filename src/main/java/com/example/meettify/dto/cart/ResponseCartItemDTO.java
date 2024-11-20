@@ -1,6 +1,7 @@
 package com.example.meettify.dto.cart;
 
 import com.example.meettify.dto.item.ResponseItemDTO;
+import com.example.meettify.dto.item.status.ItemCartStatus;
 import com.example.meettify.entity.cart.CartItemEntity;
 import com.example.meettify.entity.item.ItemEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -20,6 +21,9 @@ public class ResponseCartItemDTO {
     private int itemCount;
     @Schema(description = "장바구니 상품")
     private ResponseItemDTO item;
+    @Schema(description = "장바구니 상품 상태")
+    private ItemCartStatus itemCartStatus; // CART_O or CART_X
+
 
     // 엔티티를 DTO로 변환
     public static ResponseCartItemDTO changeDTO(CartItemEntity cartItem,
@@ -31,6 +35,7 @@ public class ResponseCartItemDTO {
                 .itemPrice(item.getItemPrice())
                 .itemCount(cartItem.getCartCount())
                 .item(responseItem)
+                .itemCartStatus(cartItem.getItemCartStatus())
                 .build();
     }
 
@@ -41,6 +46,7 @@ public class ResponseCartItemDTO {
                 .itemPrice(cartItem.getItem().getItemPrice())
                 .itemCount(cartItem.getCartCount())
                 .item(ResponseItemDTO.changeDTO(cartItem.getItem()))
+                .itemCartStatus(cartItem.getItemCartStatus())
                 .build();
     }
 }

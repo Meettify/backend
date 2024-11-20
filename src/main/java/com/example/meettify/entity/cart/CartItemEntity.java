@@ -1,6 +1,7 @@
 package com.example.meettify.entity.cart;
 
 import com.example.meettify.dto.cart.RequestCartServiceDTO;
+import com.example.meettify.dto.item.status.ItemCartStatus;
 import com.example.meettify.entity.item.ItemEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -35,6 +36,11 @@ public class CartItemEntity {
     @JoinColumn(name = "item_id")
     private ItemEntity item;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "item_cart_status")
+    private ItemCartStatus itemCartStatus = ItemCartStatus.CART_X;
+
+
     // 장바구니 상품 추가
     public static CartItemEntity addCartItem(RequestCartServiceDTO cartItem,
                                              CartEntity cart,
@@ -52,6 +58,7 @@ public class CartItemEntity {
             this.cartCount = this.cartCount + cartItem.getItemCount();
         }
     }
+
     // 장바구니 수정
     public void updateCart(Long cartItemId, int count) {
         if(cartItemId.equals(this.cartItemId)) {
@@ -67,5 +74,9 @@ public class CartItemEntity {
     // 장바구니 상품 개수 변경
     public void setCount(int count) {
         this.cartCount = Math.max(0, this.cartCount - count);
+    }
+
+    public void changeCartStatus(ItemCartStatus itemCartStatus) {
+        this.itemCartStatus = itemCartStatus;
     }
 }

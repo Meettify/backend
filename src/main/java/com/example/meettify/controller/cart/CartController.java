@@ -72,6 +72,7 @@ public class CartController implements CartControllerDocs{
         }
     }
 
+    // 장바구니 조회
     @Override
     @GetMapping("/{cartId}")
     @PreAuthorize("hasRole('ROLE_USER')")
@@ -80,6 +81,19 @@ public class CartController implements CartControllerDocs{
         try {
             String email = userDetails.getUsername();
             ResponseCartDTO response = cartService.cartDetail(cartId, email);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            throw new CartException(e.getMessage());
+        }
+    }
+
+    // 장바구니 상품들 조회
+    @Override
+    @GetMapping("/cart-items")
+    public ResponseEntity<?> getCartItems(@AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            String email = userDetails.getUsername();
+            List<ResponseCartItemDTO> response = cartService.getCartItems(email);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             throw new CartException(e.getMessage());

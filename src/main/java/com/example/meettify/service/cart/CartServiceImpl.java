@@ -3,7 +3,9 @@ package com.example.meettify.service.cart;
 import com.example.meettify.config.metric.TimeTrace;
 import com.example.meettify.dto.cart.RequestCartServiceDTO;
 import com.example.meettify.dto.cart.ResponseCartDTO;
+import com.example.meettify.dto.cart.ResponseCartItemDTO;
 import com.example.meettify.dto.cart.UpdateCartServiceDTO;
+import com.example.meettify.dto.item.status.ItemCartStatus;
 import com.example.meettify.entity.cart.CartEntity;
 import com.example.meettify.entity.cart.CartItemEntity;
 import com.example.meettify.entity.item.ItemEntity;
@@ -82,6 +84,7 @@ public class CartServiceImpl implements CartService{
             if(findCartItem == null) {
                 // 기존에 상품이 없으니 새롭게 추가
                 findCartItem = CartItemEntity.addCartItem(cart, findCart, findItem);
+                findCartItem.changeCartStatus(ItemCartStatus.CART_O); // 사용자별 상태 변경
             } else {
                 throw new CartException("기존에 장바구니에 담았습니다.");
             }
@@ -197,6 +200,20 @@ public class CartServiceImpl implements CartService{
             throw new MemberException("해당 유저의 장바구니가 아닙니다.");
         } catch (Exception e) {
             throw new CartException("장바구니 조회하는데 실패했습니다. : " + e.getMessage());
+        }
+    }
+
+    // 장바구니 상품들 조회
+    @Override
+    public List<ResponseCartItemDTO> getCartItems(String email) {
+        try {
+            // 장바구니 상품들 조회
+            List<CartItemEntity> findCartItems = cartItemRepository.findByCart_MemberMemberEmail(email);
+            return findCartItems.stream()
+                    .map(ResponseCartItemDTO::changeDetailDTO)
+                    .toList();
+        } catch (Exception e) {
+            throw new CartException("장바구니 상품들을 조회하는 것에 실패했습니다.");
         }
     }
 }

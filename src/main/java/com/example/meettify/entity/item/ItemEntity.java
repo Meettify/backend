@@ -4,6 +4,7 @@ import com.example.meettify.config.auditing.entity.BaseEntity;
 import com.example.meettify.dto.item.CreateItemServiceDTO;
 import com.example.meettify.dto.item.UpdateItemDTO;
 import com.example.meettify.dto.item.UpdateItemServiceDTO;
+import com.example.meettify.dto.item.status.ItemCartStatus;
 import com.example.meettify.dto.item.status.ItemStatus;
 import com.example.meettify.dto.meet.category.Category;
 import com.example.meettify.exception.stock.OutOfStockException;
@@ -57,7 +58,6 @@ public class ItemEntity extends BaseEntity {
     @Column(name = "item_category")
     @Enumerated(EnumType.STRING)
     private Category itemCategory;
-
 
     // 상품 엔티티 생성
     public static ItemEntity createEntity(CreateItemServiceDTO item) {
@@ -136,4 +136,5 @@ public class ItemEntity extends BaseEntity {
     public void changeStatus() {
         this.itemStatus = ItemStatus.SELL;
     }
+
 }

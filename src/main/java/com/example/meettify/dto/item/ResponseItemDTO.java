@@ -1,5 +1,6 @@
 package com.example.meettify.dto.item;
 
+import com.example.meettify.dto.item.status.ItemCartStatus;
 import com.example.meettify.dto.item.status.ItemStatus;
 import com.example.meettify.dto.meet.category.Category;
 import com.example.meettify.entity.item.ItemEntity;
@@ -7,6 +8,7 @@ import com.example.meettify.entity.item.ItemImgEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import net.minidev.json.annotate.JsonIgnore;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,16 +26,26 @@ import java.util.stream.Collectors;
 @ToString
 @Getter
 public class ResponseItemDTO {
+    @Schema(description = "상품 번호")
     private Long itemId;
+    @Schema(description = "상품 이름")
     private String itemName;
+    @Schema(description = "상품 가격")
     private int itemPrice;
+    @Schema(description = "상품 설명")
     private String itemDetails;
+    @Schema(description = "상품 상태")
     private ItemStatus itemStatus;
     @Builder.Default
+    @JsonIgnore
     private List<ResponseItemImgDTO> images = new ArrayList<>();
+    @Schema(description = "상품 수량")
     // 재고 수량
     private int itemCount;
+    @Schema(description = "상품 카테고리")
     private Category itemCategory;
+    @Schema(description = "상품 장바구니 상태")
+    private ItemCartStatus itemCartStatus;
 
     // 엔티티 -> DTO
     public static ResponseItemDTO changeDTO(ItemEntity item) {
@@ -54,6 +66,7 @@ public class ResponseItemDTO {
                 .images(imagesDTO)
                 .itemCategory(item.getItemCategory())
                 .itemCount(item.getItemCount())
+                .itemCartStatus(item.getItemCartStatus())
                 .build();
     }
 }
