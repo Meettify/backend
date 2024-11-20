@@ -2,6 +2,7 @@ package com.example.meettify.service.cart;
 
 import com.example.meettify.dto.cart.RequestCartServiceDTO;
 import com.example.meettify.dto.cart.ResponseCartDTO;
+import com.example.meettify.dto.cart.ResponseCartItemDTO;
 import com.example.meettify.dto.cart.UpdateCartServiceDTO;
 
 import java.util.List;
@@ -15,4 +16,6 @@ public interface CartService {
     ResponseCartDTO updateCartItem(Long cartId, List<UpdateCartServiceDTO> carts, String email);
     // 장바구니 조회
     ResponseCartDTO cartDetail(Long cartId, String email);
+    // 장바구니 상태 보기
+    List<ResponseCartItemDTO> getCartItems(String email);
 }
