@@ -3,7 +3,6 @@ package com.example.meettify.service.cart;
 import com.example.meettify.config.metric.TimeTrace;
 import com.example.meettify.dto.cart.RequestCartServiceDTO;
 import com.example.meettify.dto.cart.ResponseCartDTO;
-import com.example.meettify.dto.cart.ResponseCartItemDTO;
 import com.example.meettify.dto.cart.UpdateCartServiceDTO;
 import com.example.meettify.entity.cart.CartEntity;
 import com.example.meettify.entity.cart.CartItemEntity;
@@ -22,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /*
  *   writer  : 유요한
@@ -76,6 +74,11 @@ public class CartServiceImpl implements CartService{
             CartItemEntity findCartItem = cartItemRepository.findByItem_ItemId(cart.getItemId());
             log.info("----------------");
             log.info(findCartItem);
+
+            if(cart.getItemCount() > findItem.getItemCount()) {
+                throw new CartException("장바구니 개수가 " + cart.getItemCount() + "개, 상품 개수 : " + findItem.getItemCount() +"개입니다.");
+            }
+
             if(findCartItem == null) {
                 // 기존에 상품이 없으니 새롭게 추가
                 findCartItem = CartItemEntity.addCartItem(cart, findCart, findItem);
