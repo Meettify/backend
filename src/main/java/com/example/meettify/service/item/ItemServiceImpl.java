@@ -10,6 +10,7 @@
     import com.example.meettify.entity.member.MemberEntity;
     import com.example.meettify.exception.item.ItemException;
     import com.example.meettify.exception.member.MemberException;
+    import com.example.meettify.repository.cart.CartItemRepository;
     import com.example.meettify.repository.item.ItemRepository;
     import com.example.meettify.repository.member.MemberRepository;
     import com.example.meettify.service.search.RedisSearchLogService;
@@ -38,10 +39,10 @@
         private final ItemRepository itemRepository;
         private final S3ImageUploadService s3ImageUploadService;
         private final RedisSearchLogService redisSearchLogService;
+        private final CartItemRepository cartItemRepository;
 
         // 상품 등록 메서드
         @Override
-        @TimeTrace
         public ResponseItemDTO createItem(CreateItemServiceDTO item, List<MultipartFile> files, String memberEmail) {
             try {
                 MemberEntity findMember = memberRepository.findByMemberEmail(memberEmail);
@@ -73,7 +74,6 @@
 
         // 상품 수정 메서드
         @Override
-        @TimeTrace
         public ResponseItemDTO updateItem(Long itemId,
                                           UpdateItemServiceDTO updateItemDTO,
                                           List<MultipartFile> files) {
@@ -135,7 +135,6 @@
 
         // 상품 삭제 메서드
         @Override
-        @TimeTrace
         public String deleteItem(Long itemId) {
             try {
                 ItemEntity findItem = itemRepository.findById(itemId)
@@ -145,6 +144,7 @@
                 findItem.getImages().forEach(
                         img -> s3ImageUploadService.deleteFile(img.getUploadImgPath(), img.getUploadImgName())
                 );
+                cartItemRepository.deleteByItem_ItemId(itemId);
                 // 상품 삭제
                 itemRepository.deleteById(itemId);
                 log.info("Successfully deleted item with id: {}", itemId);
