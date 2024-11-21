@@ -1,6 +1,7 @@
 package com.example.meettify.dto.meet;
 
 import com.example.meettify.entity.meet.MeetMemberEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -21,6 +22,7 @@ public class ResponseMeetMemberDTO {
     private Long meetMemberId;
     private String nickName;
     private MeetRole meetRole;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime joinDate;
 
 

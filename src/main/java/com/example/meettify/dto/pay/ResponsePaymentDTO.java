@@ -1,6 +1,7 @@
 package com.example.meettify.dto.pay;
 
 import com.example.meettify.entity.pay.PaymentEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -23,6 +24,7 @@ public class ResponsePaymentDTO {
     @Schema(description = "결제 방법")
     private String payMethod;
     @Schema(description = "결제 시간")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime payTime;
 
     public static ResponsePaymentDTO changePayment(PaymentEntity pay) {

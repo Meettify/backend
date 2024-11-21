@@ -1,6 +1,7 @@
 package com.example.meettify.dto.pay;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,7 +24,9 @@ public class ResponseTossPaymentConfirmDTO {
     @Schema(description = "주문 이름")
     private String orderName;       // 주문이름
     @Schema(description = "승인 시간")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-mm-dd")
     private LocalDateTime requestedAt;     // 승인시간
     @Schema(description = "결제 승인 시간")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime approvedAt;      // 결제 승인 시간
 }

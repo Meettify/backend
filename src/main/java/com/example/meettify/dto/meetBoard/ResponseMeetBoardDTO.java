@@ -3,6 +3,7 @@ package com.example.meettify.dto.meetBoard;
 
 import com.example.meettify.entity.meetBoard.MeetBoardEntity;
 import com.example.meettify.entity.meetBoard.MeetBoardImageEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,6 +20,7 @@ public class ResponseMeetBoardDTO {
     private String meetBoardTitle;
     private String meetBoardContent;
     private List<String> images;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime postDate;
 
 

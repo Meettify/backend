@@ -2,6 +2,7 @@ package com.example.meettify.dto.order;
 
 import com.example.meettify.dto.member.AddressDTO;
 import com.example.meettify.entity.order.OrderEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -28,6 +29,7 @@ public class ResponseOrderDTO {
     @Schema(description = "주문 랜덤 번호")
     private String orderUUIDId;
     @Schema(description = "주문 시간")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime orderTime;
 
 
