@@ -48,4 +48,7 @@ public interface CommunityRepository extends JpaRepository<CommunityEntity, Long
     Page<CommunityEntity> findAllByMemberEmail(@Param("memberEmail") String memberEmail, Pageable pageable);
 
     long countByMemberMemberEmail(String memberEmail);
+
+    @Query("SELECT COUNT (c) from communities c")
+    long countAllItems();
 }

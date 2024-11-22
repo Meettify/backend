@@ -53,5 +53,5 @@ public interface ItemControllerDocs {
     ResponseEntity<?> changeItemStatus(Long itemId);
 
     @Operation(summary = "전체 상품 수", description = "전체 상품 수 카운트 API")
-    ResponseEntity<?> countItems(UserDetails userDetails);
+    ResponseEntity<?> countItems();
 }

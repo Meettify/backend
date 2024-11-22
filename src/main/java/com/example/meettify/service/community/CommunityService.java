@@ -42,4 +42,7 @@ public interface CommunityService {
     // 내 커뮤니티 글 수
     long countMyCommunity(String memberEmail);
 
+    // 모든 커뮤니티 글 수
+    long countAllCommunity();
+
 }

@@ -8,4 +8,5 @@ import org.springframework.data.domain.Pageable;
 public interface CustomQuestionRepository {
     Page<QuestionEntity> findAllQuestions(Pageable page);
     ResponseCountDTO getQuestionStatistics(String email);
+
 }

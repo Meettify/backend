@@ -189,8 +189,9 @@ public class CommunityController implements CommunityControllerDocs {
         }
     }
 
+    // 내 문의글 수 카운트
     @Override
-    @GetMapping("/count-community")
+    @GetMapping("/count-my-community")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> countCommunity(@AuthenticationPrincipal UserDetails userDetails) {
        try {
@@ -200,5 +201,18 @@ public class CommunityController implements CommunityControllerDocs {
        } catch (Exception e) {
            throw new BoardException(e.getMessage());
        }
+    }
+
+    // 모든 문의글 수 카운트
+    @Override
+    @GetMapping("/count-community")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> countAllItems() {
+        try {
+            long responseCount = communityService.countAllCommunity();
+            return ResponseEntity.ok(responseCount);
+        } catch (Exception e) {
+            throw new BoardException(e.getMessage());
+        }
     }
 }

@@ -218,9 +218,8 @@ public class ItemController implements ItemControllerDocs{
     @Override
     @GetMapping("/count-items")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> countItems(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<?> countItems() {
         try {
-            String email = userDetails.getUsername();
             long responseCount = itemService.countItems();
             return ResponseEntity.ok().body(responseCount);
         } catch (Exception e) {

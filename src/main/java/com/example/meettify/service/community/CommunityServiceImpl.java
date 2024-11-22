@@ -272,4 +272,17 @@ public class CommunityServiceImpl implements CommunityService {
             throw new BoardException("커뮤니티 수량을 가져오는데 실패");
         }
     }
+
+    // 모든 커뮤니티 수
+    @Override
+    @Transactional(readOnly = true)
+    public long countAllCommunity() {
+        try {
+            long count = communityRepository.countAllItems();
+            log.info("countAllCommunity {}", count);
+            return count;
+        } catch (Exception e) {
+            throw new BoardException("커뮤니티 수량을 가져오는데 실패");
+        }
+    }
 }
