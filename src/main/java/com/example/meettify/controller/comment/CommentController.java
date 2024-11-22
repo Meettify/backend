@@ -38,7 +38,7 @@ public class CommentController implements CommentControllerDocs{
             String email = userDetails.getUsername();
             ResponseCommentDTO response = commentService.createComment(communityId, comment, email);
             // 알림 구현
-            notificationService.notifyCommentForCommunity(communityId);
+            notificationService.notifyCommentForCommunity(communityId, "댓글이 달렸습니다.");
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {

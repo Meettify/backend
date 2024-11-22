@@ -3,25 +3,31 @@ package com.example.meettify.controller.notification;
 import com.example.meettify.service.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.awt.event.TextEvent;
+
+import static org.springframework.http.MediaType.TEXT_EVENT_STREAM_VALUE;
+
 @RestController
-@RequestMapping("/api/v1/notification")
+@RequestMapping("/api/v1/notify")
 @RequiredArgsConstructor
 @Log4j2
 public class NotificationController implements NotificationControllerDocs {
     private final NotificationService notificationService;
 
     // 메시지 알림
-    @GetMapping("/subscribe")
+    // SSE 통신을 위해서는 produces로 반환할 데이터 타입을 "text/event-stream"으로 해주어야 함
+    @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
-    public SseEmitter subscribe(@AuthenticationPrincipal UserDetails userDetails) {
+    public SseEmitter subscribe(@AuthenticationPrincipal UserDetails userDetails,
+                                @RequestHeader(value = "last-event-id", required = false, defaultValue = "") final String lastEventId) {
         try {
 
             if (userDetails == null) {
@@ -29,13 +35,27 @@ public class NotificationController implements NotificationControllerDocs {
             }
 
             String email = userDetails.getUsername();
-            SseEmitter response = notificationService.subscribe(email);
+            SseEmitter response = notificationService.subscribe(email, lastEventId);
 
             log.info("Subscribed to email: " + email);
             log.info("response: " + response);
             return response;
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    // 알림 읽기
+    @GetMapping("/{notification-id}")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> readNotification(@PathVariable("notification-id") final Long notificationId,
+                                              @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            String email = userDetails.getUsername();
+            notificationService.readNotification(notificationId, email);
+            return ResponseEntity.ok().body("알림을 읽었습니다.");
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
         }
     }
 }
