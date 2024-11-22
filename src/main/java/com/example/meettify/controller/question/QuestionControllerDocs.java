@@ -25,4 +25,6 @@ public interface QuestionControllerDocs {
     @Operation(summary = "내 문의 조회", description = "내 문의 조회 API")
     ResponseEntity<?> getMyQuestions(Pageable pageable, UserDetails userDetails);
 
+    @Operation(summary = "내 문의글 수량", description = "내 문의글 수량 체크 API")
+    ResponseEntity<?> countMyQuestions(UserDetails userDetails);
 }

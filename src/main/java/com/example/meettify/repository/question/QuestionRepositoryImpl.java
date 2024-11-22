@@ -1,5 +1,7 @@
 package com.example.meettify.repository.question;
 
+import com.example.meettify.dto.question.ReplyStatus;
+import com.example.meettify.dto.question.ResponseCountDTO;
 import com.example.meettify.entity.member.QMemberEntity;
 import com.example.meettify.entity.question.QuestionEntity;
 import com.example.meettify.exception.board.BoardException;
@@ -16,6 +18,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.example.meettify.entity.member.QMemberEntity.memberEntity;
 import static com.example.meettify.entity.question.QQuestionEntity.questionEntity;
@@ -57,6 +62,59 @@ public class QuestionRepositoryImpl implements CustomQuestionRepository{
             return PageableExecutionUtils.getPage(result, page, count::fetchOne);
         } catch (Exception e) {
             throw new BoardException("데이터베이스에서 문의글을 가져오는 것을 실패했습니다.");
+        }
+    }
+
+
+    @Override
+    public ResponseCountDTO getQuestionStatistics(String email) {
+        try {
+//            // 전체 문의글 수
+//            long totalQuestions = Optional.ofNullable(
+//                    queryFactory
+//                            .select(questionEntity.count())
+//                            .from(questionEntity)
+//                            .where(questionEntity.member.memberEmail.eq(email))
+//                            .fetchOne()
+//            ).orElse(0L);
+//            // 답글 완료 수 (REPLY_O)
+//            long completedReplies = Optional.ofNullable(
+//                    queryFactory
+//                            .select(questionEntity.count())
+//                            .from(questionEntity)
+//                            .where(questionEntity.replyStatus.eq(ReplyStatus.REPLY_O),
+//                                    questionEntity.member.memberEmail.eq(email))
+//                            .fetchOne()
+//            ).orElse(0L);
+//            // 답글 미완료 수 (REPLY_X)
+//
+//            long pendingReplies = Optional.ofNullable(
+//                    queryFactory
+//                            .select(questionEntity.count())
+//                            .from(questionEntity)
+//                            .where(questionEntity.replyStatus.eq(ReplyStatus.REPLY_X),
+//                                    questionEntity.member.memberEmail.eq(email))
+//                            .fetchOne()
+//            ).orElse(0L);
+            Map<ReplyStatus, Long> statistics = queryFactory
+                    .select(questionEntity.replyStatus, questionEntity.count())
+                    .from(questionEntity)
+                    .where(questionEntity.member.memberEmail.eq(email)) // 조건 추가
+                    .groupBy(questionEntity.replyStatus)
+                    .fetch()
+                    .stream()
+                    .collect(Collectors.toMap(
+                            tuple -> tuple.get(0, ReplyStatus.class),
+                            tuple -> tuple.get(1, Long.class)
+                    ));
+
+            long totalQuestions = statistics.values().stream().mapToLong(Long::longValue).sum();
+            long completedReplies = statistics.getOrDefault(ReplyStatus.REPLY_O, 0L);
+            long pendingReplies = statistics.getOrDefault(ReplyStatus.REPLY_X, 0L);
+
+            return ResponseCountDTO.of(totalQuestions, completedReplies, pendingReplies);
+        } catch (Exception e) {
+            throw new BoardException("데이터베이스에서 문의글 수량을 가져오는 것을 실패했습니다.");
         }
     }
 }

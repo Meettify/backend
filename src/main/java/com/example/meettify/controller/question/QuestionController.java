@@ -2,6 +2,7 @@ package com.example.meettify.controller.question;
 
 import com.example.meettify.dto.board.CreateBoardDTO;
 import com.example.meettify.dto.board.UpdateQuestionDTO;
+import com.example.meettify.dto.question.ResponseCountDTO;
 import com.example.meettify.dto.question.ResponseQuestionDTO;
 import com.example.meettify.exception.board.BoardException;
 import com.example.meettify.service.question.QuestionService;
@@ -116,6 +117,18 @@ public class QuestionController implements QuestionControllerDocs{
 
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
+            throw new BoardException(e.getMessage());
+        }
+    }
+
+    @Override
+    @GetMapping("/my-questions")
+    public ResponseEntity<?> countMyQuestions(@AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            String email = userDetails.getUsername();
+            ResponseCountDTO response = questionService.countMyAllQuestions(email);
+            return ResponseEntity.ok(response);
+        }  catch (Exception e) {
             throw new BoardException(e.getMessage());
         }
     }
