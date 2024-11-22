@@ -267,7 +267,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = true)
     public long countMyOrders(String email) {
         try {
-            long count = orderRepository.countByMemberEmail(email);
+            long count = orderRepository.countByMemberMemberEmail(email);
             log.info("countMyOrders: {}", count);
             return count;
         } catch (Exception e) {

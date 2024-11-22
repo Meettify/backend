@@ -188,4 +188,17 @@ public class CommunityController implements CommunityControllerDocs {
             throw new BoardException(e.getMessage());
         }
     }
+
+    @Override
+    @GetMapping("/count-community")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<?> countCommunity(@AuthenticationPrincipal UserDetails userDetails) {
+       try {
+           String email = userDetails.getUsername();
+           long responseCount = communityService.countMyCommunity(email);
+           return ResponseEntity.ok(responseCount);
+       } catch (Exception e) {
+           throw new BoardException(e.getMessage());
+       }
+    }
 }

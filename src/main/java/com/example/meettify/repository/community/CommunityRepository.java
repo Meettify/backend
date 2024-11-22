@@ -46,4 +46,6 @@ public interface CommunityRepository extends JpaRepository<CommunityEntity, Long
     "order by c.communityId desc ",
     countQuery = "select count(c) from communities c where c.member.memberEmail = :memberEmail")
     Page<CommunityEntity> findAllByMemberEmail(@Param("memberEmail") String memberEmail, Pageable pageable);
+
+    long countByMemberMemberEmail(String memberEmail);
 }
