@@ -25,4 +25,6 @@ public interface QuestionService {
     Page<ResponseQuestionDTO> getAllQuestions(Pageable pageable);
     // 내 문의글 수
     ResponseCountDTO countMyAllQuestions(String memberEmail);
+    // 모든 문의글 수
+    ResponseCountDTO countAllQuestions();
 }

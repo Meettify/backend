@@ -121,12 +121,27 @@ public class QuestionController implements QuestionControllerDocs{
         }
     }
 
+    // 내 문의글 수
     @Override
-    @GetMapping("/my-questions")
+    @GetMapping("/count-my-questions")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> countMyQuestions(@AuthenticationPrincipal UserDetails userDetails) {
         try {
             String email = userDetails.getUsername();
             ResponseCountDTO response = questionService.countMyAllQuestions(email);
+            return ResponseEntity.ok(response);
+        }  catch (Exception e) {
+            throw new BoardException(e.getMessage());
+        }
+    }
+
+    // 모든 문의글 수
+    @Override
+    @GetMapping("/count-questions")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> countQuestions() {
+        try {
+            ResponseCountDTO response = questionService.countAllQuestions();
             return ResponseEntity.ok(response);
         }  catch (Exception e) {
             throw new BoardException(e.getMessage());

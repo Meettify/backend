@@ -138,8 +138,25 @@ public class QuestionServiceImpl implements QuestionService{
     @Override
     @Transactional(readOnly = true)
     public ResponseCountDTO countMyAllQuestions(String memberEmail) {
-        ResponseCountDTO findCount = questionRepository.getQuestionStatistics(memberEmail);
-        log.info("count {}", findCount);
-        return findCount;
+        try {
+            ResponseCountDTO findCount = questionRepository.countMyQuestions(memberEmail);
+            log.info("count {}", findCount);
+            return findCount;
+        } catch (Exception e) {
+            throw new BoardException("문의글를 카운트하는데 실패했습니다.");
+        }
+    }
+
+    // 모든 문의글 수
+    @Override
+    @Transactional(readOnly = true)
+    public ResponseCountDTO countAllQuestions() {
+        try {
+            ResponseCountDTO findCount = questionRepository.countAllQuestions();
+            log.info("count {}", findCount);
+            return findCount;
+        } catch (Exception e) {
+            throw new BoardException("문의글를 카운트하는데 실패했습니다.");
+        }
     }
 }
