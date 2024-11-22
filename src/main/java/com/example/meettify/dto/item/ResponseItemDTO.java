@@ -44,8 +44,6 @@ public class ResponseItemDTO {
     private int itemCount;
     @Schema(description = "상품 카테고리")
     private Category itemCategory;
-    @Schema(description = "상품 장바구니 상태")
-    private ItemCartStatus itemCartStatus;
 
     // 엔티티 -> DTO
     public static ResponseItemDTO changeDTO(ItemEntity item) {
@@ -66,7 +64,6 @@ public class ResponseItemDTO {
                 .images(imagesDTO)
                 .itemCategory(item.getItemCategory())
                 .itemCount(item.getItemCount())
-                .itemCartStatus(item.getItemCartStatus())
                 .build();
     }
 }
