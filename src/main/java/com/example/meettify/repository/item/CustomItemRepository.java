@@ -21,4 +21,6 @@ public interface CustomItemRepository {
     List<ItemEntity> findItemsByCategoriesAndKeyword(Set<Category> categories, String keyword);
 
     Page<ItemEntity> findAllByWait(Pageable page);
+
+    long countAll();
 }

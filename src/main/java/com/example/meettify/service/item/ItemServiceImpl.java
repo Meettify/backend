@@ -253,4 +253,16 @@
                 throw new ItemException("상품의 상태를 변경하는데 실패했습니다.");
             }
         }
+
+        @Override
+        @Transactional(readOnly = true)
+        public long countItems() {
+            try {
+                long countAll = itemRepository.countAll();
+                log.info("countAll: {}", countAll);
+                return countAll;
+            } catch (Exception e) {
+                throw new ItemException("상품의 수량을 가져오는데 실패했습니다.");
+            }
+        }
     }

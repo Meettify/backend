@@ -38,4 +38,8 @@ public interface ItemService {
 
     // 상품 컨펌
     String changeStatusItem(Long itemId);
+
+    // 상품 카운트
+    long countItems();
+
 }

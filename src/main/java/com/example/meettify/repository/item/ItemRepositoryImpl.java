@@ -24,6 +24,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.example.meettify.entity.item.QItemEntity.itemEntity;
@@ -202,6 +203,20 @@ public class ItemRepositoryImpl implements CustomItemRepository {
             return PageableExecutionUtils.getPage(result, page, count::fetchOne);
         } catch (Exception e) {
             log.error("Index out of bounds while fetching items: " + e.getMessage());
+            throw new ItemException("상품을 조회하는데 실패했습니다. : " + e.getMessage());
+        }
+    }
+
+    @Override
+    public long countAll() {
+        try {
+            return Optional.ofNullable(
+                    queryFactory
+                            .select(itemEntity.count())
+                            .from(itemEntity)
+                            .fetchOne()
+            ).orElse(0L);
+        } catch (Exception e) {
             throw new ItemException("상품을 조회하는데 실패했습니다. : " + e.getMessage());
         }
     }
