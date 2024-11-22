@@ -38,6 +38,7 @@ public class CartItemEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "item_cart_status")
+    @Builder.Default
     private ItemCartStatus itemCartStatus = ItemCartStatus.CART_X;
 
 
