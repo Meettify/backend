@@ -82,13 +82,28 @@ public class OrderController implements OrderControllerDocs{
         }
     }
 
+    // 내 주문 수 카운트
     @Override
-    @GetMapping("/count-order")
+    @GetMapping("/count-my-order")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> countMyOrder(@AuthenticationPrincipal UserDetails userDetails) {
         try {
             String email = userDetails.getUsername();
             long responseCount = orderService.countMyOrders(email);
+            return ResponseEntity.ok(responseCount);
+        } catch (Exception e) {
+            throw new OrderException(e.getMessage());
+        }
+    }
+
+    // 모든 주문 수 카운트
+    @Override
+    @GetMapping("/count-order")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> countOrder(@AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            String email = userDetails.getUsername();
+            long responseCount = orderService.countAll();
             return ResponseEntity.ok(responseCount);
         } catch (Exception e) {
             throw new OrderException(e.getMessage());

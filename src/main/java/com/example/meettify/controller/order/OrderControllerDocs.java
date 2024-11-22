@@ -23,4 +23,7 @@ public interface OrderControllerDocs {
 
     @Operation(summary = "내 주문수", description = "내 주문수를 보는 API")
     ResponseEntity<?> countMyOrder(UserDetails userDetails);
+
+    @Operation(summary = "모든 주문수", description = "모든 주문수를 보는 API")
+    ResponseEntity<?> countOrder(UserDetails userDetails);
 }
