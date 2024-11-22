@@ -262,4 +262,16 @@ public class OrderServiceImpl implements OrderService {
             throw new OrderException("주문 취소하는데 실패했습니다.");
         }
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countMyOrders(String email) {
+        try {
+            long count = orderRepository.countByMemberEmail(email);
+            log.info("countMyOrders: {}", count);
+            return count;
+        } catch (Exception e) {
+            throw new OrderException("주문 수량을 가져오는데 실패했습니다.");
+        }
+    }
 }

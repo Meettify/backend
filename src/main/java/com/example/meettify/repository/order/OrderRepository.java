@@ -21,4 +21,6 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
     @Query("select o from orders o where o.orderUUIDid = :orderUid")
     OrderEntity findByOrderUUIDid(@Param("orderUid") String orderUUIDid);
 
+    long countByMemberEmail(String memberEmail);
+
 }

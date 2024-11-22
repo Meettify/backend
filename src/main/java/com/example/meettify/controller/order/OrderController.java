@@ -81,4 +81,17 @@ public class OrderController implements OrderControllerDocs{
             throw new OrderException(e.getMessage());
         }
     }
+
+    @Override
+    @GetMapping("/count-order")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<?> countMyOrder(@AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            String email = userDetails.getUsername();
+            long responseCount = orderService.countMyOrders(email);
+            return ResponseEntity.ok(responseCount);
+        } catch (Exception e) {
+            throw new OrderException(e.getMessage());
+        }
+    }
 }
