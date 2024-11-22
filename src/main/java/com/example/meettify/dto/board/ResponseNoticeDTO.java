@@ -1,6 +1,7 @@
 package com.example.meettify.dto.board;
 
 import com.example.meettify.entity.notice.NoticeEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -27,6 +28,7 @@ public class ResponseNoticeDTO {
     private String nickName;
 
     @Schema(description = "게시글 작성 시간")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime regTime;
 
     // 공지사항 엔티티를 DTO로 변환하는 작업

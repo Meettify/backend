@@ -1,6 +1,7 @@
 package com.example.meettify.dto.board;
 
 import com.example.meettify.entity.community.CommunityEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -29,6 +30,7 @@ public class ResponseCommunityDTO {
     private String nickName;
 
     @Schema(description = "게시글 작성 시간")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime regTime;
 
     @Schema(description = "게시글 이미지")

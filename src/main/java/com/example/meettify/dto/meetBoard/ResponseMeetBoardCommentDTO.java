@@ -3,6 +3,7 @@ package com.example.meettify.dto.meetBoard;
 
 
 import com.example.meettify.entity.meetBoard.MeetBoardCommentEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -22,6 +23,7 @@ public class ResponseMeetBoardCommentDTO {
     private Long parentComment;
     private String commentNickName;
     private String content;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime postDate;
     private MeetBoardCommentPermissionDTO permissionDTO;
 

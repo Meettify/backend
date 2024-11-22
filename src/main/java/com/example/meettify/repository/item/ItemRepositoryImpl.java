@@ -161,7 +161,7 @@ public class ItemRepositoryImpl implements CustomItemRepository {
                 .fetchOne();
     }
 
-    // 카테고리 별로 쿼워드를 동적으로 조회
+    // 카테고리 별로 키워드를 동적으로 조회
     @Override
     public List<ItemEntity> findItemsByCategoriesAndKeyword(Set<Category> categories, String keyword) {
         try {

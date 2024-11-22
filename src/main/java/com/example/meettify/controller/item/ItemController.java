@@ -49,7 +49,6 @@ public class ItemController implements ItemControllerDocs{
             }
             CreateItemServiceDTO changeServiceDTO = modelMapper.map(item, CreateItemServiceDTO.class);
             // 새로 담긴 상품을 관리자들에게 알림을 보냄
-            notificationService.notifyNewItemCreated(item.getItemName());
             String email = userDetails.getUsername();
             ResponseItemDTO response = itemService.createItem(changeServiceDTO, files, email);
             return ResponseEntity.ok().body(response);

@@ -1,6 +1,7 @@
 package com.example.meettify.dto.question;
 
 import com.example.meettify.entity.question.QuestionEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -27,6 +28,7 @@ public class ResponseQuestionDTO {
     private String nickName;
 
     @Schema(description = "문의글 작성 시간")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime regTime;
 
     @Schema(description = "답글상태")

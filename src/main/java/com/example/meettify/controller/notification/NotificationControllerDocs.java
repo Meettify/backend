@@ -8,5 +8,5 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @Tag(name = "알림", description = "알림 API")
 public interface NotificationControllerDocs {
     @Operation(summary = "알림 구독", description = "알림 구독하는 API")
-    SseEmitter subscribe(UserDetails userDetails);
+    SseEmitter subscribe(UserDetails userDetails, final String lastEventId);
 }

@@ -2,6 +2,7 @@ package com.example.meettify.dto.comment;
 
 import com.example.meettify.entity.answer.AnswerCommentEntity;
 import com.example.meettify.entity.comment.CommentEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -25,6 +26,7 @@ public class ResponseCommentDTO {
     @Schema(description = "댓글")
     private String comment;
     @Schema(description = "답변 등록 시간")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime createdAt;
     @Schema(description = "작성 닉네임")
     private String nickName;
