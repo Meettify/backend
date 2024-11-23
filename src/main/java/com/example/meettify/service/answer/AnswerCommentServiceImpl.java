@@ -17,6 +17,8 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -26,6 +28,7 @@ public class AnswerCommentServiceImpl implements AnswerCommentService {
     private final MemberRepository memberRepository;
     private final QuestionRepository questionRepository;
 
+    // 답변하기
     @Override
     public ResponseAnswerCommentDTO createAnswerComment(Long questionId, CreateAnswerDTO answer, String email) {
         try {
@@ -35,8 +38,10 @@ public class AnswerCommentServiceImpl implements AnswerCommentService {
             QuestionEntity findQuestion = questionRepository.findByQuestionId(questionId)
                     .orElseThrow(() -> new BoardException("문의글이 존재하지 않습니다."));
 
+            // 답변 엔티티 생성
             AnswerCommentEntity makeAnswer = AnswerCommentEntity.saveComment(
                     answer, findAdmin, findQuestion, findQuestion.getMember().getNickName());
+            // 답변 저장
             AnswerCommentEntity saveAnswer = answerCommentRepository.save(makeAnswer);
 
             // 문의글에 답변 달려서 문의글 상태를 변경
@@ -48,6 +53,7 @@ public class AnswerCommentServiceImpl implements AnswerCommentService {
         }
     }
 
+    // 답변 수정
     @Override
     public ResponseAnswerCommentDTO updateAnswerComment(Long answerId, UpdateCommentDTO answer) {
         try {
@@ -62,6 +68,7 @@ public class AnswerCommentServiceImpl implements AnswerCommentService {
         }
     }
 
+    // 답변 삭제
     @Override
     public String deleteAnswerComment(Long answerId) {
         try {
@@ -81,4 +88,5 @@ public class AnswerCommentServiceImpl implements AnswerCommentService {
             return "답변 삭제 실패";
         }
     }
+
 }
