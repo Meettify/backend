@@ -27,4 +27,10 @@ public interface OrderService {
 
     // 주문 취소
     String cancelOrder(String orderUUID);
+
+    // 내 주문 수
+    long countMyOrders(String email);
+
+    // 모든 주문 수
+    long countAll();
 }

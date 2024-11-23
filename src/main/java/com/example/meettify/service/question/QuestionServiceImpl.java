@@ -2,6 +2,7 @@ package com.example.meettify.service.question;
 
 import com.example.meettify.dto.board.CreateBoardDTO;
 import com.example.meettify.dto.board.UpdateQuestionDTO;
+import com.example.meettify.dto.question.ResponseCountDTO;
 import com.example.meettify.dto.question.ResponseQuestionDTO;
 import com.example.meettify.entity.member.MemberEntity;
 import com.example.meettify.entity.question.QuestionEntity;
@@ -130,6 +131,32 @@ public class QuestionServiceImpl implements QuestionService{
             return findAllQuestions.map(q -> ResponseQuestionDTO.changeDTO(q, q.getMember().getNickName()));
         } catch (Exception e) {
             throw new BoardException("모든 문의글을 가져오는데 실패했습니다.");
+        }
+    }
+
+    // 내 문의글 수 보기
+    @Override
+    @Transactional(readOnly = true)
+    public ResponseCountDTO countMyAllQuestions(String memberEmail) {
+        try {
+            ResponseCountDTO findCount = questionRepository.countMyQuestions(memberEmail);
+            log.info("count {}", findCount);
+            return findCount;
+        } catch (Exception e) {
+            throw new BoardException("문의글를 카운트하는데 실패했습니다.");
+        }
+    }
+
+    // 모든 문의글 수
+    @Override
+    @Transactional(readOnly = true)
+    public ResponseCountDTO countAllQuestions() {
+        try {
+            ResponseCountDTO findCount = questionRepository.countAllQuestions();
+            log.info("count {}", findCount);
+            return findCount;
+        } catch (Exception e) {
+            throw new BoardException("문의글를 카운트하는데 실패했습니다.");
         }
     }
 }

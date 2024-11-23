@@ -213,4 +213,17 @@ public class ItemController implements ItemControllerDocs{
             throw new ItemException(e.getMessage());
         }
     }
+
+    // 모든 상품 카운트
+    @Override
+    @GetMapping("/count-items")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> countItems() {
+        try {
+            long responseCount = itemService.countItems();
+            return ResponseEntity.ok().body(responseCount);
+        } catch (Exception e) {
+            throw new ItemException(e.getMessage());
+        }
+    }
 }

@@ -188,4 +188,31 @@ public class CommunityController implements CommunityControllerDocs {
             throw new BoardException(e.getMessage());
         }
     }
+
+    // 내 문의글 수 카운트
+    @Override
+    @GetMapping("/count-my-community")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<?> countCommunity(@AuthenticationPrincipal UserDetails userDetails) {
+       try {
+           String email = userDetails.getUsername();
+           long responseCount = communityService.countMyCommunity(email);
+           return ResponseEntity.ok(responseCount);
+       } catch (Exception e) {
+           throw new BoardException(e.getMessage());
+       }
+    }
+
+    // 모든 문의글 수 카운트
+    @Override
+    @GetMapping("/count-community")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> countAllItems() {
+        try {
+            long responseCount = communityService.countAllCommunity();
+            return ResponseEntity.ok(responseCount);
+        } catch (Exception e) {
+            throw new BoardException(e.getMessage());
+        }
+    }
 }

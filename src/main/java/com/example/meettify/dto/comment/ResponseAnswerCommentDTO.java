@@ -29,7 +29,7 @@ public class ResponseAnswerCommentDTO {
     private LocalDateTime createdAt;
     @Schema(description = "작성 닉네임")
     private String nickName;
-    @Schema(description = "문의글 작성자 닉네임")
+    @Schema(description = "문의글 작성자 이메일")
     private String writerEmail;
 
     @Builder.Default
@@ -57,8 +57,12 @@ public class ResponseAnswerCommentDTO {
                 .build();
     }
 
-    // 부모 댓글 ID 반환
-    public Long getParentId() {
-        return children != null  ? this.commentId : null;
+    public static ResponseAnswerCommentDTO change(AnswerCommentEntity answer, String nickName) {
+        return ResponseAnswerCommentDTO.builder()
+                .commentId(answer.getAnswerId())
+                .comment(answer.getAnswer())
+                .createdAt(answer.getRegTime())
+                .nickName(nickName)
+                .build();
     }
 }

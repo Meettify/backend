@@ -21,4 +21,15 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
     @Query("select o from orders o where o.orderUUIDid = :orderUid")
     OrderEntity findByOrderUUIDid(@Param("orderUid") String orderUUIDid);
 
+    // 유저 주문 수
+    long countByMemberMemberEmail(String memberEmail);
+
+    // 모든 주문 수
+    @Query("SELECT COUNT(o) FROM orders o")
+    long countAllOrders();
+
+    // 모든 주문 내역
+    @EntityGraph(attributePaths = {"orderItems", "orderItems.item", "member"})
+    @Query("SELECT o FROM orders o ORDER BY o.orderId DESC")
+    Page<OrderEntity> findAll(Pageable page);
 }

@@ -39,4 +39,10 @@ public interface CommunityService {
     // 본인 커뮤니티 글 보기
     Page<ResponseCommunityDTO> getMyBoards(Pageable pageable, String memberEmail);
 
+    // 내 커뮤니티 글 수
+    long countMyCommunity(String memberEmail);
+
+    // 모든 커뮤니티 글 수
+    long countAllCommunity();
+
 }

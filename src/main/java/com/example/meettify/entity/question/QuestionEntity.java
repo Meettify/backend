@@ -4,9 +4,13 @@ import com.example.meettify.config.auditing.entity.BaseEntity;
 import com.example.meettify.dto.board.CreateBoardDTO;
 import com.example.meettify.dto.board.UpdateQuestionDTO;
 import com.example.meettify.dto.question.ReplyStatus;
+import com.example.meettify.entity.answer.AnswerCommentEntity;
 import com.example.meettify.entity.member.MemberEntity;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity(name = "questions")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -21,13 +25,20 @@ public class QuestionEntity extends BaseEntity {
 
     @Column(length = 300, nullable = false)
     private String title;
+
     @Column(length = 3000, nullable = false)
     private String content;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private MemberEntity member;
+
     @Embedded
     private ReplyStatus replyStatus;
+
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<AnswerCommentEntity> answerComments = new ArrayList<>();
 
     // 엔티티 생성
     public static QuestionEntity saveEntity(CreateBoardDTO question, MemberEntity member) {

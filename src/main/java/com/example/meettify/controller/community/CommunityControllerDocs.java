@@ -42,4 +42,10 @@ public interface CommunityControllerDocs {
 
     @Operation(summary = "본인 커뮤니티 작성 내역 보기", description = "본인 커뮤니티 작성 내역 보기 API")
     ResponseEntity<?> getCommunities(Pageable pageable, UserDetails userDetails);
+
+    @Operation(summary = "본인 커뮤니티 수량 보기", description = "본인 커뮤니티 작성 수량 보기 API")
+    ResponseEntity<?> countCommunity(UserDetails userDetails);
+
+    @Operation(summary = "모든 커뮤니티 수량 보기", description = "모든 커뮤니티 작성 수량 보기 API")
+    ResponseEntity<?> countAllItems();
 }

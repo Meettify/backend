@@ -259,4 +259,30 @@ public class CommunityServiceImpl implements CommunityService {
             throw new BoardException("커뮤니티 글을 가져오는데 실패했습니다. : " + e.getMessage());
         }
     }
+
+    // 내 커뮤니티 수
+    @Override
+    @Transactional(readOnly = true)
+    public long countMyCommunity(String memberEmail) {
+        try {
+            long count = communityRepository.countByMemberMemberEmail(memberEmail);
+            log.info("countMyCommunity {}", count);
+            return count;
+        } catch (Exception e) {
+            throw new BoardException("커뮤니티 수량을 가져오는데 실패");
+        }
+    }
+
+    // 모든 커뮤니티 수
+    @Override
+    @Transactional(readOnly = true)
+    public long countAllCommunity() {
+        try {
+            long count = communityRepository.countAllItems();
+            log.info("countAllCommunity {}", count);
+            return count;
+        } catch (Exception e) {
+            throw new BoardException("커뮤니티 수량을 가져오는데 실패");
+        }
+    }
 }

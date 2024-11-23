@@ -262,4 +262,29 @@ public class OrderServiceImpl implements OrderService {
             throw new OrderException("주문 취소하는데 실패했습니다.");
         }
     }
+
+    // 내 주문 카운트
+    @Override
+    @Transactional(readOnly = true)
+    public long countMyOrders(String email) {
+        try {
+            long count = orderRepository.countByMemberMemberEmail(email);
+            log.info("countMyOrders: {}", count);
+            return count;
+        } catch (Exception e) {
+            throw new OrderException("주문 수량을 가져오는데 실패했습니다.");
+        }
+    }
+
+    // 모든 주문 수 카운트
+    @Override
+    public long countAll() {
+        try {
+            long count = orderRepository.countAllOrders();
+            log.info("countAllOrders: {}", count);
+            return count;
+        } catch (Exception e) {
+            throw new OrderException("주문 수량을 가져오는데 실패했습니다.");
+        }
+    }
 }
