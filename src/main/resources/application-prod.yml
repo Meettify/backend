@@ -19,7 +19,7 @@ spring:
     # 데이터베이스 플랫폼을 지정
     database-platform: org.hibernate.dialect.MySQL8Dialect
     # JPA Open EntityManager in View 패턴을 활성화 또는 비활성화
-    open-in-view: true
+    open-in-view: false
     # JPA 처리 시에 발생하는 SQL을 보여줄 것인지 결정합니다.
     show-sql: true
     hibernate:

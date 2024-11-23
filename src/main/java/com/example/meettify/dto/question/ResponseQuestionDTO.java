@@ -33,7 +33,7 @@ public class ResponseQuestionDTO {
     private String nickName;
 
     @Schema(description = "문의글 작성 시간")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime regTime;
 
     @Schema(description = "답글상태")
