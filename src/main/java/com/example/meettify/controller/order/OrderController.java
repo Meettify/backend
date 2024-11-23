@@ -8,6 +8,7 @@ import com.example.meettify.exception.order.OrderException;
 import com.example.meettify.service.order.OrderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.jetbrains.annotations.NotNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +32,7 @@ public class OrderController implements OrderControllerDocs{
     private final ModelMapper modelMapper;
 
 
+    // 임시 주문 정보 보기
     @Override
     @PostMapping("/tempOrder")
     @PreAuthorize("hasRole('ROLE_USER')")
@@ -53,29 +55,48 @@ public class OrderController implements OrderControllerDocs{
     @Override
     @GetMapping("/my-order")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> getOrders(@AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<?> getMyOrders(@AuthenticationPrincipal UserDetails userDetails,
                                        Pageable pageable) {
         try {
             String email = userDetails.getUsername();
             Page<ResponseOrderDTO> myOrders = orderService.getMyOrders(email, pageable);
-            Map<String, Object> response = new HashMap<>();
-            // 현재 페이지의 아이템 목록
-            response.put("contents",myOrders.getContent());
-            // 현재 페이지 번호
-            response.put("nowPageNumber",  myOrders.getNumber() + 1);
-            // 전체 페이지 수
-            response.put("totalPage", myOrders.getTotalPages());
-            // 한 페이지에 출력되는 데이터 개수
-            response.put("pageSize", myOrders.getSize());
-            // 다음 페이지 존재 여부
-            response.put("hasNextPage", myOrders.hasNext());
-            // 이전 페이지 존재 여부
-            response.put("hasPreviousPage", myOrders.hasPrevious());
-            // 첫 번째 페이지 여부
-            response.put("isFirstPage", myOrders.isFirst());
-            // 마지막 페이지 여부
-            response.put("isLastPage", myOrders.isLast());
+            Map<String, Object> response = responsePageInfo(myOrders);
 
+            return ResponseEntity.ok().body(response);
+        }  catch (Exception e) {
+            throw new OrderException(e.getMessage());
+        }
+    }
+
+    private static @NotNull Map<String, Object> responsePageInfo(Page<ResponseOrderDTO> myOrders) {
+        Map<String, Object> response = new HashMap<>();
+        // 현재 페이지의 아이템 목록
+        response.put("contents", myOrders.getContent());
+        // 현재 페이지 번호
+        response.put("nowPageNumber",  myOrders.getNumber() + 1);
+        // 전체 페이지 수
+        response.put("totalPage", myOrders.getTotalPages());
+        // 한 페이지에 출력되는 데이터 개수
+        response.put("pageSize", myOrders.getSize());
+        // 다음 페이지 존재 여부
+        response.put("hasNextPage", myOrders.hasNext());
+        // 이전 페이지 존재 여부
+        response.put("hasPreviousPage", myOrders.hasPrevious());
+        // 첫 번째 페이지 여부
+        response.put("isFirstPage", myOrders.isFirst());
+        // 마지막 페이지 여부
+        response.put("isLastPage", myOrders.isLast());
+        return response;
+    }
+
+    // 모든 주문 보기
+    @Override
+    @GetMapping("")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> getOrders(Pageable pageable) {
+        try {
+            Page<ResponseOrderDTO> myOrders = orderService.getOrders(pageable);
+            Map<String, Object> response = responsePageInfo(myOrders);
             return ResponseEntity.ok().body(response);
         }  catch (Exception e) {
             throw new OrderException(e.getMessage());

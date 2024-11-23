@@ -14,7 +14,10 @@ import java.util.List;
 public interface OrderControllerDocs {
 
     @Operation(summary = "내 주문보기", description = "내 주문을 보는 API")
-    ResponseEntity<?> getOrders(UserDetails userDetails, Pageable pageable);
+    ResponseEntity<?> getMyOrders(UserDetails userDetails, Pageable pageable);
+
+    @Operation(summary = "모든 주문보기", description = "모든 주문을 보는 API")
+    ResponseEntity<?> getOrders(Pageable pageable);
 
     @Operation(summary = "임시 주문보기", description = "임시로 주문을 보는 API")
     ResponseEntity<?> createTempOrder(List<RequestOrderDTO> orders,
