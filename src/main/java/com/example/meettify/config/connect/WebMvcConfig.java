@@ -12,6 +12,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .allowedOrigins("http://localhost:5173", "do2867lf6anbu.cloudfront.net")
                 .allowedHeaders("Authorization", "Content-Type")
                 .allowCredentials(true)
+                .exposedHeaders("Cache-Control", "Content-Type", "X-Accel-Buffering")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS");
     }
 }
