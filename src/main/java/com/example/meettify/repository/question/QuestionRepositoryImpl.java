@@ -79,8 +79,8 @@ public class QuestionRepositoryImpl implements CustomQuestionRepository{
                     queryFactory
                             .select(questionEntity.count())
                             .from(questionEntity)
-                            .where(questionEntity.replyStatus.eq(ReplyStatus.REPLY_O),
-                                    questionEntity.member.memberEmail.eq(email))
+                            .where(questionEntity.replyStatus.eq(ReplyStatus.REPLY_O)
+                                    .and(questionEntity.member.memberEmail.eq(email)))
                             .fetchOne()
             ).orElse(0L);
             // 답글 미완료 수 (REPLY_X)
@@ -89,8 +89,9 @@ public class QuestionRepositoryImpl implements CustomQuestionRepository{
                     queryFactory
                             .select(questionEntity.count())
                             .from(questionEntity)
-                            .where(questionEntity.replyStatus.eq(ReplyStatus.REPLY_X),
-                                    questionEntity.member.memberEmail.eq(email))
+                            .where(questionEntity.replyStatus.eq(ReplyStatus.REPLY_X)
+                                            .and(questionEntity.member.memberEmail.eq(email))
+                                    )
                             .fetchOne()
             ).orElse(0L);
 
