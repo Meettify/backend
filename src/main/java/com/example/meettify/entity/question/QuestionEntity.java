@@ -33,7 +33,7 @@ public class QuestionEntity extends BaseEntity {
     @JoinColumn(name = "member_id")
     private MemberEntity member;
 
-    @Embedded
+    @Enumerated(EnumType.STRING)
     private ReplyStatus replyStatus;
 
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
