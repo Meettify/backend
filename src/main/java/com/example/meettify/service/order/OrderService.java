@@ -33,4 +33,7 @@ public interface OrderService {
 
     // 모든 주문 수
     long countAll();
+
+    // 모든 주문 내역 보기
+    Page<ResponseOrderDTO> getOrders(Pageable page);
 }

@@ -70,6 +70,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // API 권한 설정
                         .requestMatchers("/", "/**").permitAll()
+
                         // 유저
                         .requestMatchers("/api/v1/members/**").permitAll() // 모든 멤버 관련 요청 허용
                         .requestMatchers(HttpMethod.PUT, "/api/v1/members/").hasAnyRole("USER", "ADMIN")
@@ -81,6 +82,16 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/v1/notice/{noticeId}").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/notice/{noticeId}").hasRole("ADMIN")
 
+                        // 문의글
+                        .requestMatchers(HttpMethod.POST,"/api/v1/questions").hasRole("USER")
+                        .requestMatchers(HttpMethod.PUT,"/api/v1/questions/{questionId}").hasRole("USER")
+                        .requestMatchers(HttpMethod.DELETE,"/api/v1/questions/{questionId}").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET,"/api/v1/questions/{questionId}").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET,"/api/v1/questions/my-questions").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET,"/api/v1/questions/count-my-questions").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET,"/api/v1/questions/count-questions").hasRole("ADMIN")
+
+
                         // 상품
                         .requestMatchers("/api/v1/items/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/items").hasRole("ADMIN")
@@ -88,6 +99,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/items/{itemId}").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/items/item-list").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/items/confirm/{itemId}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/items/count-items").hasRole("ADMIN")
 
 
                         // 커뮤니티
@@ -96,6 +108,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/v1/community/{communityId}").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/community/{communityId}").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/community/my-community").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/community/count-my-community").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/community/count-community").hasRole("ADMIN")
 
                         // 댓글
                         .requestMatchers("/api/v1/{communityId}/comment/**").permitAll()
@@ -110,12 +124,17 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/carts/{cartItemId}").hasAnyRole("USER", "ADMIN")
 
                         // 주문하기
-                        .requestMatchers(HttpMethod.POST, "/api/v1/orders/tempOrder").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/orders/my-order").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/orders/tempOrder").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/orders/my-order").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/orders").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/orders/count-my-order").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/orders/count-order").hasRole("ADMIN")
 
                         // 결제하기
-                        .requestMatchers(HttpMethod.GET, "/api/v1/payment/verify").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/payment/cancel").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/payment/verify").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/payment/confirm").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/payment/iamport/cancel").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/payment/toss/cancel").hasRole("USER")
 
                         //모임
                         .requestMatchers("/api/v1/meets/**").permitAll()
@@ -149,8 +168,18 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/search/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/v1/search").permitAll()
 
+                        // 관리자
+                        .requestMatchers(HttpMethod.GET, "/api/v1/admin/members").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/admin/questions").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/admin/{questionId}/answer").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/admin/{questionId}/answer/{answerId}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/admin/{questionId}/answer/{answerId}").hasRole("ADMIN")
+
                         // 알림
-                        .requestMatchers("/api/v1/notification/subscribe").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/api/v1/notify/subscribe").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/api/v1/notify/{notification-id}").hasAnyRole("USER", "ADMIN")
+                        // SSE 연결을 위해
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         // Swagger 리소스에 대한 접근 허용
                         .requestMatchers("/swagger-resources/**").permitAll()
@@ -203,7 +232,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "do2867lf6anbu.cloudfront.net")); // 허용할 Origin
+        // Spring Boot 2.4+부터는 setAllowedOrigins 대신 setAllowedOriginPatterns를 사용하는 것이 권장
+        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:5173", "do2867lf6anbu.cloudfront.net")); // 허용할 Origin
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 허용할 메서드
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type")); // 허용할 헤더
         configuration.setAllowCredentials(true); // 인증 정보 허용

@@ -37,7 +37,7 @@ public class PaymentController implements PaymentControllerDocs {
 
 
     // 아임포트 결제 검증
-    @GetMapping("/verify")
+    @PostMapping("/verify")
     @PreAuthorize("hasRole('ROLE_USER')")
     public IamportResponse<Payment> payForOrder(@RequestBody RequestPaymentDTO pay,
                                                 @RequestBody AddressDTO address,

@@ -278,6 +278,7 @@ public class OrderServiceImpl implements OrderService {
 
     // 모든 주문 수 카운트
     @Override
+    @Transactional(readOnly = true)
     public long countAll() {
         try {
             long count = orderRepository.countAllOrders();
@@ -285,6 +286,21 @@ public class OrderServiceImpl implements OrderService {
             return count;
         } catch (Exception e) {
             throw new OrderException("주문 수량을 가져오는데 실패했습니다.");
+        }
+    }
+
+    // 모든 주문 내역 보기
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ResponseOrderDTO> getOrders(Pageable page) {
+        try {
+            Page<OrderEntity> findOrders = orderRepository.findAll(page);
+            log.info("findOrders: {}", findOrders);
+            return findOrders
+                    .map(ResponseOrderDTO::viewChangeDTO);
+        } catch (Exception e) {
+            log.error("주문 조회 중 에러 발생: " + e.getMessage(), e);
+            throw new OrderException("주문 조회 실패 했습니다. : " + e.getMessage());
         }
     }
 }

@@ -139,6 +139,8 @@ public class QuestionServiceImpl implements QuestionService{
     @Transactional(readOnly = true)
     public ResponseCountDTO countMyAllQuestions(String memberEmail) {
         try {
+            log.info("----------------------------");
+            log.info("동작 체크");
             ResponseCountDTO findCount = questionRepository.countMyQuestions(memberEmail);
             log.info("count {}", findCount);
             return findCount;
