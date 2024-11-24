@@ -1,6 +1,7 @@
 package com.example.meettify.controller.notification;
 
 import com.example.meettify.service.notification.NotificationService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.MediaType;
@@ -27,19 +28,24 @@ public class NotificationController implements NotificationControllerDocs {
     @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     public SseEmitter subscribe(@AuthenticationPrincipal UserDetails userDetails,
-                                @RequestHeader(value = "last-event-id", required = false, defaultValue = "") final String lastEventId) {
+                                @RequestHeader(value = "last-event-id", required = false, defaultValue = "") final String lastEventId,
+                                HttpServletResponse response) {
         try {
 
             if (userDetails == null) {
                 throw new IllegalArgumentException("인증 정보가 필요합니다.");
             }
 
+            response.setHeader("Connection", "keep-alive");
+            response.setHeader("Cache-Control", "no-cache");
+            response.setHeader("X-Accel-Buffering", "no");
+
             String email = userDetails.getUsername();
-            SseEmitter response = notificationService.subscribe(email, lastEventId);
+            SseEmitter responseEmitter = notificationService.subscribe(email, lastEventId);
 
             log.info("Subscribed to email: " + email);
-            log.info("response: " + response);
-            return response;
+            log.info("response: " + responseEmitter);
+            return responseEmitter;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
