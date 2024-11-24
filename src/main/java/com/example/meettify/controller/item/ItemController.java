@@ -9,6 +9,7 @@ import com.example.meettify.service.notification.NotificationService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.jetbrains.annotations.NotNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -130,28 +131,33 @@ public class ItemController implements ItemControllerDocs{
             log.info("condition : " + condition);
             log.info("상품 조회 {}", items);
 
-            Map<String, Object> response = new HashMap<>();
-            // 현재 페이지의 아이템 목록
-            response.put("items", items.getContent());
-            // 현재 페이지 번호
-            response.put("nowPageNumber", items.getNumber() + 1);
-            // 전체 페이지 수
-            response.put("totalPage", items.getTotalPages());
-            // 한 페이지에 출력되는 데이터 개수
-            response.put("pageSize", items.getSize());
-            // 다음 페이지 존재 여부
-            response.put("hasNextPage", items.hasNext());
-            // 이전 페이지 존재 여부
-            response.put("hasPreviousPage", items.hasPrevious());
-            // 첫 번째 페이지 여부
-            response.put("isFirstPage", items.isFirst());
-            // 마지막 페이지 여부
-            response.put("isLastPage", items.isLast());
+            Map<String, Object> response = responseItemInfo(items);
 
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
             throw new ItemException(e.getMessage());
         }
+    }
+
+    private static @NotNull Map<String, Object> responseItemInfo(Page<ResponseItemDTO> items) {
+        Map<String, Object> response = new HashMap<>();
+        // 현재 페이지의 아이템 목록
+        response.put("items", items.getContent());
+        // 현재 페이지 번호
+        response.put("nowPageNumber", items.getNumber() + 1);
+        // 전체 페이지 수
+        response.put("totalPage", items.getTotalPages());
+        // 한 페이지에 출력되는 데이터 개수
+        response.put("pageSize", items.getSize());
+        // 다음 페이지 존재 여부
+        response.put("hasNextPage", items.hasNext());
+        // 이전 페이지 존재 여부
+        response.put("hasPreviousPage", items.hasPrevious());
+        // 첫 번째 페이지 여부
+        response.put("isFirstPage", items.isFirst());
+        // 마지막 페이지 여부
+        response.put("isLastPage", items.isLast());
+        return response;
     }
 
     @Override
@@ -168,6 +174,7 @@ public class ItemController implements ItemControllerDocs{
         }
     }
 
+    // 신청 상품 확인
     @Override
     @GetMapping("/item-list")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -177,23 +184,7 @@ public class ItemController implements ItemControllerDocs{
             log.info("condition : " + items);
             log.info("상품 조회 {}", items);
 
-            Map<String, Object> response = new HashMap<>();
-            // 현재 페이지의 아이템 목록
-            response.put("items", items.getContent());
-            // 현재 페이지 번호
-            response.put("nowPageNumber", items.getNumber() + 1);
-            // 전체 페이지 수
-            response.put("totalPage", items.getTotalPages());
-            // 한 페이지에 출력되는 데이터 개수
-            response.put("pageSize", items.getSize());
-            // 다음 페이지 존재 여부
-            response.put("hasNextPage", items.hasNext());
-            // 이전 페이지 존재 여부
-            response.put("hasPreviousPage", items.hasPrevious());
-            // 첫 번째 페이지 여부
-            response.put("isFirstPage", items.isFirst());
-            // 마지막 페이지 여부
-            response.put("isLastPage", items.isLast());
+            Map<String, Object> response = responseItemInfo(items);
 
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
