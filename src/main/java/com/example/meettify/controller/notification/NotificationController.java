@@ -39,6 +39,7 @@ public class NotificationController implements NotificationControllerDocs {
             response.setHeader("Connection", "keep-alive");
             response.setHeader("Cache-Control", "no-cache");
             response.setHeader("X-Accel-Buffering", "no");
+            response.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
 
             String email = userDetails.getUsername();
             SseEmitter responseEmitter = notificationService.subscribe(email, lastEventId);
