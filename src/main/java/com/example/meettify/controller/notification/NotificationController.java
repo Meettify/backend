@@ -27,6 +27,7 @@ public class NotificationController implements NotificationControllerDocs {
     // SSE 통신을 위해서는 produces로 반환할 데이터 타입을 "text/event-stream"으로 해주어야 함
     @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @CrossOrigin(origins = "http://localhost:5173")
     public SseEmitter subscribe(@AuthenticationPrincipal UserDetails userDetails,
                                 @RequestHeader(value = "last-event-id", required = false, defaultValue = "") final String lastEventId,
                                 HttpServletResponse response) {
