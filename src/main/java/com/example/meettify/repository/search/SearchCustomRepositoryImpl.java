@@ -52,7 +52,7 @@ public class SearchCustomRepositoryImpl {
                 .selectFrom(QCommunityEntity.communityEntity)
                 .where(keywordLikeCommunity(keyword))
                 .orderBy(QCommunityEntity.communityEntity.regTime.desc())
-                .limit(5)
+                .limit(10)
                 .fetch();
 
          HashMap<String,List> response = new HashMap<String, List>();

@@ -1,0 +1,112 @@
+package com.example.meettify.service.chat;
+
+import com.example.meettify.document.chat.ChatMessage;
+import com.example.meettify.dto.chat.*;
+import com.example.meettify.entity.chat_room.ChatRoomEntity;
+import com.example.meettify.entity.member.MemberEntity;
+import com.example.meettify.exception.chat.ChatRoomException;
+import com.example.meettify.repository.chat.ChatMessageRepository;
+import com.example.meettify.repository.chat.ChatRoomRepository;
+import com.example.meettify.repository.member.MemberRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Service
+@Transactional
+@Log4j2
+@RequiredArgsConstructor
+public class ChatServiceImpl implements ChatService {
+    private final ChatRoomRepository chatRoomRepository;
+    private final ChatMessageRepository chatMessageRepository;
+    private final MemberRepository memberRepository;
+
+    @Override
+    public void sendMessage(ChatMessageDTO message) {
+        try {
+            ChatMessage chatMessage = ChatMessage.create(message);
+            // 몽고 디비에 저장
+            chatMessageRepository.save(chatMessage);
+        } catch (Exception e) {
+            log.error(e);
+
+        }
+    }
+
+    // 채팅방의 채팅 내역 조회
+    @Override
+    public List<ChatMessageDTO> getMessagesByRoomId(Long roomId) {
+        List<ChatMessage> findChatByRoomId = chatMessageRepository.findByRoomId(roomId);
+        return findChatByRoomId
+                .stream().map(ChatMessageDTO::change)
+                .toList();
+    }
+
+    // 단체 채팅하는 채팅방 생성
+    @Override
+    public ChatRoomDTO createRoom(String roomName, String email) {
+        try {
+            // 회원 조회
+            MemberEntity findMember = memberRepository.findByMemberEmail(email);
+            // 채팅방 엔티티 생성
+            ChatRoomEntity chatRoomEntity = ChatRoomEntity.create(roomName, findMember.getNickName(), RoomStatus.OPEN);
+            // 채팅방 디비에 저장
+            ChatRoomEntity saveChatRoom = chatRoomRepository.save(chatRoomEntity);
+            return ChatRoomDTO.change(saveChatRoom);
+        } catch (Exception e) {
+            throw new ChatRoomException("채팅방을 생성하는데 실패했습니다.");
+        }
+    }
+
+    // 본인에게 해당된
+    @Override
+    public List<ChatRoomDTO> getRooms(String email) {
+        try {
+            // 회원 조회
+            MemberEntity findMember = memberRepository.findByMemberEmail(email);
+            // 본인의 채팅방 모두 조회
+            List<ChatRoomEntity> findAllByMember = chatRoomRepository.findChatRoomsByCreatedOrInvited(findMember.getNickName(), findMember.getMemberId());
+            return findAllByMember.stream()
+                    .map(ChatRoomDTO::change)
+                    .toList();
+        } catch (Exception e) {
+            throw new ChatRoomException("채팅방을 조회하는데 실패했습니다.");
+        }
+    }
+
+    // 채팅방 입장시 체크
+    @Override
+    public boolean joinRoom(String roomInviteUid, String email, Long roomId) {
+        // 회원 조회
+        MemberEntity findMember = memberRepository.findByMemberEmail(email);
+        // 방번호와 초대받은 회원번호가 일치한지 조회
+        ChatRoomEntity findChatRoom = chatRoomRepository.findChatRoomsByInviteMember(findMember.getMemberId(), roomId);
+
+        if (findChatRoom == null) {
+            log.info("초대받지 않은 유저입니다.");
+            return false;
+        }
+
+        if (!findChatRoom.getRoomInviteUid().equals(roomInviteUid)) {
+            throw new ChatRoomException("해당 채팅방의 초대번호와 일치하지 않습니다.");
+        }
+        return true;
+    }
+
+    @Override
+    public ResponseAccessRoomIdDTO applyRoomAccess(Long roomId, String email) {
+        try {
+            // 회원 조회
+            MemberEntity findMember = memberRepository.findByMemberEmail(email);
+            ChatRoomEntity findChatRoom = chatRoomRepository.findById(roomId)
+                    .orElseThrow(() -> new ChatRoomException("채팅방이 존재하지 않습니다."));
+            findChatRoom.getInviteMemberIds().add(findMember.getMemberId());
+            return ResponseAccessRoomIdDTO.of(findChatRoom.getRoomInviteUid());
+        } catch (Exception e) {
+            throw new ChatRoomException(e.getMessage());
+        }
+    }
+}

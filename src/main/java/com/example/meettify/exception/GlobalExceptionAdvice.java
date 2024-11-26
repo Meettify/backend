@@ -4,6 +4,8 @@ import com.example.meettify.config.slack.RequestInfo;
 import com.example.meettify.config.slack.SlackUtil;
 import com.example.meettify.exception.board.BoardException;
 import com.example.meettify.exception.cart.CartException;
+import com.example.meettify.exception.chat.ChatException;
+import com.example.meettify.exception.chat.ChatRoomException;
 import com.example.meettify.exception.comment.CommentException;
 import com.example.meettify.exception.externalService.ExternalServiceException;
 import com.example.meettify.exception.file.FileDownloadException;
@@ -121,6 +123,40 @@ public class GlobalExceptionAdvice {
     public ResponseEntity<ErrorResponse> handleBoardException(BoardException e, HttpServletRequest request) {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setError("게시글 에러 발생");
+        errorResponse.setMessage(e.getMessage());
+        errorResponse.setTimestamp(now); // 오류 발생 시간
+        errorResponse.setPath(request.getRequestURI()); // 요청된 경로
+        errorResponse.setMethod(request.getMethod()); // 요청 메서드
+
+        slackUtil.sendAlert(e, new RequestInfo(request)); // Slack 알림 전송
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(errorResponse);
+    }
+
+    // 채팅방 예외처리
+    @ExceptionHandler(ChatRoomException.class)
+    public ResponseEntity<ErrorResponse> handleBoardException(ChatRoomException e, HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setError("채팅방 에러 발생");
+        errorResponse.setMessage(e.getMessage());
+        errorResponse.setTimestamp(now); // 오류 발생 시간
+        errorResponse.setPath(request.getRequestURI()); // 요청된 경로
+        errorResponse.setMethod(request.getMethod()); // 요청 메서드
+
+        slackUtil.sendAlert(e, new RequestInfo(request)); // Slack 알림 전송
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(errorResponse);
+    }
+
+    // 채팅 예외처리
+    @ExceptionHandler(ChatException.class)
+    public ResponseEntity<ErrorResponse> handleBoardException(ChatException e, HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setError("채팅방 에러 발생");
         errorResponse.setMessage(e.getMessage());
         errorResponse.setTimestamp(now); // 오류 발생 시간
         errorResponse.setPath(request.getRequestURI()); // 요청된 경로
