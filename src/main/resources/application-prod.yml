@@ -47,6 +47,9 @@ spring:
       host: redis
       port: 6379
       password: ${REDIS_PASSWORD}
+    mongodb:
+      uri: ${MONGODB_URI}
+      database: chat
 
   security:
     oauth2:

@@ -35,6 +35,15 @@ services:
       timeout: 5s
       retries: 3
 
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"   # mongodb 기본 포트
+    environment:
+      MONGODB_URI: ${MONGODB_URI}
+      MONGODB_DATABASE: chat
+
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
@@ -131,6 +140,7 @@ services:
       REDIS_PORT: 6379  # Redis 포트
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       WEBHOOK: ${WEBHOOK}
+      MONGODB_URI: ${MONGODB_URI}
     depends_on:
       - mysql  # MySQL 서비스에 의존
       - redis  # Redis 서비스에 의존
