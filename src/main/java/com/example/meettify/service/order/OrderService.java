@@ -4,7 +4,6 @@ import com.example.meettify.dto.member.AddressDTO;
 import com.example.meettify.dto.order.RequestOrderDTO;
 import com.example.meettify.dto.order.RequestOrderServiceDTO;
 import com.example.meettify.dto.order.ResponseOrderDTO;
-import com.example.meettify.dto.pay.RequestPaymentDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

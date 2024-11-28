@@ -1,9 +1,16 @@
 package com.example.meettify.config.pay;
 
 import com.example.meettify.dto.pay.*;
+import com.example.meettify.entity.member.MemberEntity;
+import com.example.meettify.entity.pay.TossPaymentEntity;
+import com.example.meettify.exception.pay.PayException;
 import com.example.meettify.exception.pay.PaymentConfirmErrorCode;
 import com.example.meettify.exception.pay.PaymentConfirmException;
+import com.example.meettify.repository.member.MemberRepository;
+import com.example.meettify.repository.pay.TossPaymentRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.web.client.ClientHttpRequestFactories;
 import org.springframework.boot.web.client.ClientHttpRequestFactorySettings;
 import org.springframework.http.HttpHeaders;
@@ -22,17 +29,20 @@ import java.time.Duration;
 import java.util.Base64;
 
 @Component
+@Log4j2
 public class PaymentClient {
     private static final String BASIC_DELIMITER = ":";
     private static final String AUTH_HEADER_PREFIX = "Basic ";
-    private static final int CONNECT_TIMEOUT_SECONDS = 1;
+    private static final int CONNECT_TIMEOUT_SECONDS = 3;
     private static final int READ_TIMEOUT_SECONDS = 30;
     private final ObjectMapper objectMapper;
     private final PaymentProperties paymentProperties;
     private final RestClient restClient;
+    private final MemberRepository memberRepository;
+    private final TossPaymentRepository tossPaymentRepository;
 
     public PaymentClient(PaymentProperties paymentProperties,
-                         ObjectMapper objectMapper) {
+                         ObjectMapper objectMapper, MemberRepository memberRepository, TossPaymentRepository tossPaymentRepository) {
         this.paymentProperties = paymentProperties;
         this.objectMapper = objectMapper;
         this.restClient = RestClient.builder()
@@ -41,6 +51,8 @@ public class PaymentClient {
                 .requestInterceptor(new PaymentLoggingInterceptor()) // 로깅 인터셉터 등록
                 .defaultHeader(HttpHeaders.AUTHORIZATION, createPaymentAuthHeader(paymentProperties))
                 .build();
+        this.memberRepository = memberRepository;
+        this.tossPaymentRepository = tossPaymentRepository;
     }
 
     private ClientHttpRequestFactory createPaymentRequestFactory() {
@@ -57,8 +69,9 @@ public class PaymentClient {
     }
 
     // 결제 요청 API 호출
-    public ResponseTossPaymentConfirmDTO confirmPayment(RequestTossPaymentConfirmDTO tossPay) {
-        return restClient.method(HttpMethod.POST)
+    public ResponseTossPaymentConfirmDTO confirmPayment(RequestTossPaymentConfirmDTO tossPay, String email) {
+        MemberEntity findMember = memberRepository.findByMemberEmail(email);
+        ResponseTossPaymentConfirmDTO tossPayDTO = restClient.method(HttpMethod.POST)
                 .uri(paymentProperties.getConfirmUrl())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(tossPay)
@@ -67,6 +80,16 @@ public class PaymentClient {
                     throw new PaymentConfirmException(getPaymentConfirmErrorCode(response));
                 }))
                 .body(ResponseTossPaymentConfirmDTO.class);
+
+        if(tossPayDTO == null) {
+            throw new PayException("토스 결제 값이 반환되지 않았습니다.");
+        }
+        log.info("tossPayDTO {}", tossPayDTO);
+
+        TossPaymentEntity tossPaymentEntity = TossPaymentEntity.savePayment(tossPayDTO, findMember);
+        tossPaymentRepository.save(tossPaymentEntity);
+
+        return tossPayDTO;
     }
 
     // 결제 승인 API 에러 코드 문서
@@ -77,7 +100,7 @@ public class PaymentClient {
     }
 
     // 결제 취소 API 에러 코드 문서
-    public ResponseTossCancelDTO cancelPayment(TossPaymentCancelDTO payment) {
+    public ResponseTossCancelDTO cancelPayment(RequestTossPaymentCancelDTO payment) {
         TossCancelDTO cancel = new TossCancelDTO(payment.getAmount(), payment.getCancelReason());
         return restClient.method(HttpMethod.POST)
                 .uri(paymentProperties.getCancelUrl(payment.getPaymentKey()))

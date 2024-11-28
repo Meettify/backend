@@ -27,13 +27,14 @@ public class ResponseOrderDTO {
     @Builder.Default
     private List<ResponseOrderItemDTO> orderItems = new ArrayList<>();
     @Schema(description = "주문 랜덤 번호")
-    private String orderUUIDId;
+    private String orderUid;
     @Schema(description = "주문 시간")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime orderTime;
+    @Schema(description = "결제 상태")
+    private PayStatus payStatus;
 
-
-    public static ResponseOrderDTO changeDTO(OrderEntity order, AddressDTO address, String orderUUIDId) {
+    public static ResponseOrderDTO changeDTO(OrderEntity order, AddressDTO address, String orderUid) {
         List<ResponseOrderItemDTO> orderItems = order.getOrderItems().stream()
                 .map(ResponseOrderItemDTO::changeDTO)
                 .collect(Collectors.toList());
@@ -43,8 +44,9 @@ public class ResponseOrderDTO {
                 .orderAddress(address)
                 .orderTotalPrice(order.getTotalPrice())
                 .orderItems(orderItems)
-                .orderUUIDId(orderUUIDId)
+                .orderUid(orderUid)
                 .orderTime(order.getRegTime())
+                .payStatus(order.getPayStatus())
                 .build();
     }
 
@@ -59,18 +61,20 @@ public class ResponseOrderDTO {
                 .orderTotalPrice(order.getTotalPrice())
                 .orderItems(orderItems)
                 .orderTime(order.getRegTime())
+                .payStatus(order.getPayStatus())
                 .build();
     }
 
     public static ResponseOrderDTO createDTO(List<ResponseOrderItemDTO> orderItems,
                                              AddressDTO address,
-                                             String orderUUIDId,
+                                             String orderUid,
                                              int orderTotalPrice) {
         return ResponseOrderDTO.builder()
                 .orderAddress(address)
                 .orderTotalPrice(orderTotalPrice)
                 .orderItems(orderItems)
-                .orderUUIDId(orderUUIDId)
+                .orderUid(orderUid)
+                .payStatus(PayStatus.PAY_X)
                 .build();
     }
 }

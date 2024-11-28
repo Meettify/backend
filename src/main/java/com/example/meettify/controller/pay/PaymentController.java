@@ -16,12 +16,11 @@ import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Payment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/payment")
@@ -37,7 +36,7 @@ public class PaymentController implements PaymentControllerDocs {
 
 
     // 아임포트 결제 검증
-    @PostMapping("/verify")
+    @PostMapping("/iamport/confirm")
     @PreAuthorize("hasRole('ROLE_USER')")
     public IamportResponse<Payment> payForOrder(@RequestBody RequestPaymentDTO pay,
                                                 @RequestBody AddressDTO address,
@@ -51,7 +50,7 @@ public class PaymentController implements PaymentControllerDocs {
                 // 결제 성공 시 주문 정보 저장
                 ResponseOrderDTO response = orderService.saveOrder(pay.getOrders(), email, address, pay.getOrderUid());
                 // 결제 정보를 저장
-                ResponsePaymentDTO responsePaymentDTO = paymentService.savePayment(pay, email, address, paymentIamportResponse);
+                ResponsePaymentDTO responsePaymentDTO = paymentService.savePayment(pay, email, paymentIamportResponse);
                 log.info(response);
                 log.info(responsePaymentDTO);
                 // 결제 알림
@@ -73,6 +72,9 @@ public class PaymentController implements PaymentControllerDocs {
     public IamportResponse<Payment> cancelPayment(@RequestBody CancelPaymentDTO cancel) {
         try {
             IamportResponse<Payment> response = paymentService.cancelPayment(cancel);
+            // 주문취소
+            String result = orderService.cancelOrder(cancel.getOrderUid());
+            log.info("result: {}", result);
             log.info(response);
             return response;
         } catch (Exception e) {
@@ -80,22 +82,35 @@ public class PaymentController implements PaymentControllerDocs {
         }
     }
 
+    // 아임포트 결제 정보 조회
+    @Override
+    @GetMapping("/iamport/{orderUid}")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<?> getImportPayInfo(@PathVariable String orderUid) {
+        try {
+            ResponsePaymentDTO response = paymentService.getPayment(orderUid);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            throw new PayException(e.getMessage());
+        }
+    }
+
     // 토스 결제 검증
     @Override
-    @PostMapping("/confirm")
+    @PostMapping("/toss/confirm")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseTossPaymentConfirmDTO confirmTossPayment(@RequestBody RequestTossPaymentConfirmDTO tossPay,
-                                                            @RequestBody AddressDTO address,
-                                                            @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<ResponseTossPaymentConfirmDTO>  confirmTossPayment(@RequestBody RequestTossPaymentConfirmDTO tossPay,
+                                                                              @RequestBody AddressDTO address,
+                                                                              @AuthenticationPrincipal UserDetails userDetails) {
         try {
             String email = userDetails != null ? userDetails.getUsername() : null;
-            ResponseTossPaymentConfirmDTO response = paymentClient.confirmPayment(tossPay);
+            ResponseTossPaymentConfirmDTO response = paymentClient.confirmPayment(tossPay, email);
             log.info(response);
             // 결제 성공 시 주문 정보 저장
             orderService.saveOrder(tossPay.getOrders(), email, address, tossPay.getOrderUid());
             // 결제 알림
             notificationService.notifyMessage(email, "토스로 결제 :" + response.getTotalAmount() +"원이 결제되었습니다.");
-            return response;
+            return ResponseEntity.ok(response);
         } catch (PaymentConfirmException e) {
             throw new PaymentConfirmException(e.getMessage());
         }
@@ -104,19 +119,31 @@ public class PaymentController implements PaymentControllerDocs {
     // 토스 결제 취소
     @PostMapping("/toss/cancel")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseTossCancelDTO cancelTossPayment(@RequestBody TossPaymentCancelDTO payment) {
+    public ResponseEntity<ResponseTossCancelDTO> cancelTossPayment(@RequestBody RequestTossPaymentCancelDTO payment) {
         try {
             // 결제 취소 요청
             ResponseTossCancelDTO cancelResponse = paymentClient.cancelPayment(payment);
 
             // 결제 취소가 성공적으로 이루어진 경우에만 주문 취소
             if ("CANCELED".equals(cancelResponse.getStatus())) { // 취소 상태 확인
-                orderService.cancelOrder(payment.getOrderId());
+                orderService.cancelOrder(payment.getOrderUid());
             }
 
-            return cancelResponse;
+            return ResponseEntity.ok(cancelResponse);
         } catch (PaymentCancelException e) {
             throw new PaymentCancelException(e.getMessage());
+        }
+    }
+
+    @Override
+    @GetMapping("/toss/{orderUid}")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<?> getTossPayInfo(@PathVariable String orderUid) {
+        try {
+            ResponseTossPaymentConfirmDTO response = paymentService.getTossPaymentConfirm(orderUid);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            throw new PayException(e.getMessage());
         }
     }
 }
