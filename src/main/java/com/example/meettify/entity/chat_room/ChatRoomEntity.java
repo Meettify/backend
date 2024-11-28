@@ -20,6 +20,7 @@ public class ChatRoomEntity extends BaseEntity {
     private String roomName;
     private String createdNickName;
     @ElementCollection
+    @Builder.Default
     private List<Long> inviteMemberIds = new ArrayList<>();
     @Enumerated(EnumType.STRING)
     private RoomStatus roomStatus;
