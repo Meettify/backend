@@ -1,6 +1,5 @@
 package com.example.meettify.service.notification;
 
-import com.example.meettify.dto.member.role.UserRole;
 import com.example.meettify.dto.notification.ResponseNotificationDTO;
 import com.example.meettify.entity.community.CommunityEntity;
 import com.example.meettify.entity.member.MemberEntity;
@@ -8,7 +7,6 @@ import com.example.meettify.entity.notification.NotificationEntity;
 import com.example.meettify.exception.board.BoardException;
 import com.example.meettify.exception.member.MemberException;
 import com.example.meettify.repository.community.CommunityRepository;
-import com.example.meettify.repository.item.ItemRepository;
 import com.example.meettify.repository.member.MemberRepository;
 import com.example.meettify.repository.notification.CustomNotificationRepository;
 import com.example.meettify.repository.notification.NotificationRepository;
@@ -21,8 +19,10 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +31,7 @@ import java.util.Map;
 public class NotificationService {
     // SSE 이벤트 타임아웃 시간
     private static final Long DEFAULT_TIMEOUT = 24L * 60 * 60 * 1000;   // SSE 연결 타임아웃 (1일)
+    private static final long DUMMY_EVENT_INTERVAL = 30000; // 30초 간격
     private final CustomNotificationRepository customNotificationRepository;
     private final MemberRepository memberRepository;
     private final CommunityRepository communityRepository;
@@ -72,6 +73,16 @@ public class NotificationService {
             sendLostData(lastEventId, findMember.getMemberId(), sseEmitter);
         }
 
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.scheduleAtFixedRate(() -> {
+            try {
+                sseEmitter.send(SseEmitter.event().name("keepalive").data("ping"));
+            } catch (IOException e) {
+                customNotificationRepository.deleteById(eventId);
+                scheduler.shutdownNow();
+            }
+        }, DUMMY_EVENT_INTERVAL, DUMMY_EVENT_INTERVAL, TimeUnit.MILLISECONDS);
+
         return  sseEmitter;
     }
 
@@ -86,6 +97,7 @@ public class NotificationService {
                     .id(eventId)
                     .data(data));
         } catch (IOException e) {
+            log.error("Failed to send SSE event: {}", e.getMessage());
             customNotificationRepository.deleteById(eventId);
             throw new RuntimeException("알림 서버 연결 오류");
         }

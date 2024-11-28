@@ -66,4 +66,12 @@ public class NotificationController implements NotificationControllerDocs {
             throw new RuntimeException(e.getMessage());
         }
     }
+
+    @GetMapping(path = "/send")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity<SseEmitter> test(@AuthenticationPrincipal UserDetails userDetails) {
+        String email = userDetails.getUsername();
+        notificationService.notifyMessage(email, "SSE 알람 테스트 보내기");
+        return ResponseEntity.ok().build();
+    }
 }
