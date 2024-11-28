@@ -2,8 +2,7 @@ package com.example.meettify.controller.chat;
 
 import com.example.meettify.dto.chat.ChatMessageDTO;
 import com.example.meettify.dto.chat.ChatRoomDTO;
-import com.example.meettify.dto.chat.RequestAccessRoomIdDTO;
-import com.example.meettify.dto.chat.ResponseAccessRoomIdDTO;
+import com.example.meettify.dto.chat.RequestAccessEmailDTO;
 import com.example.meettify.exception.chat.ChatRoomException;
 import com.example.meettify.service.chat.ChatService;
 import lombok.RequiredArgsConstructor;
@@ -51,33 +50,6 @@ public class ChatRoomController implements ChatRoomControllerDocs {
         }
     }
 
-    @Override
-    @PostMapping("/{roomId}")
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
-    public ResponseEntity<?> joinRoom(@RequestBody RequestAccessRoomIdDTO requestAccessRoomId,
-                                      @PathVariable Long roomId,
-                                      @AuthenticationPrincipal UserDetails userDetails) {
-        try {
-            String email = userDetails.getUsername();
-            boolean response = chatService.joinRoom(requestAccessRoomId.getRoomInviteUid(), email, roomId);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            throw new ChatRoomException(e.getMessage());
-        }
-    }
-
-    @Override
-    @PostMapping("/room/{roomId}")
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
-    public ResponseEntity<?> applyRoomAccess(@PathVariable Long roomId,
-                                             @AuthenticationPrincipal UserDetails userDetails) {
-        try {
-            ResponseAccessRoomIdDTO response = chatService.applyRoomAccess(roomId, userDetails.getUsername());
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            throw new ChatRoomException(e.getMessage());
-        }
-    }
 
     @Override
     @GetMapping("/{roomId}/messages")
@@ -88,6 +60,19 @@ public class ChatRoomController implements ChatRoomControllerDocs {
             return ResponseEntity.ok(response);
         } catch (ChatRoomException e) {
             log.error(e.getMessage());
+            throw new ChatRoomException(e.getMessage());
+        }
+    }
+
+    @Override
+    @PostMapping("/{roomId}/access")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    public ResponseEntity<?> joinRoom(@RequestBody RequestAccessEmailDTO accessEmail,
+                                      @PathVariable Long roomId) {
+        try {
+            boolean response = chatService.joinRoom(accessEmail.getAccessEmail(), roomId);
+            return ResponseEntity.ok(response);
+        } catch (ChatRoomException e) {
             throw new ChatRoomException(e.getMessage());
         }
     }

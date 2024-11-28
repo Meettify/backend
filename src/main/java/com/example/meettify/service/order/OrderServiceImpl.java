@@ -1,10 +1,7 @@
 package com.example.meettify.service.order;
 
 import com.example.meettify.dto.member.AddressDTO;
-import com.example.meettify.dto.order.RequestOrderDTO;
-import com.example.meettify.dto.order.RequestOrderServiceDTO;
-import com.example.meettify.dto.order.ResponseOrderDTO;
-import com.example.meettify.dto.order.ResponseOrderItemDTO;
+import com.example.meettify.dto.order.*;
 import com.example.meettify.entity.cart.CartItemEntity;
 import com.example.meettify.entity.item.ItemEntity;
 import com.example.meettify.entity.member.MemberEntity;
@@ -213,7 +210,7 @@ public class OrderServiceImpl implements OrderService {
 
             ResponseOrderDTO orderInfo = (ResponseOrderDTO) session.getAttribute("order_" + orderUUid);
 
-            if (!orderInfo.getOrderUUIDId().equals(orderUUid)) {
+            if (!orderInfo.getOrderUid().equals(orderUUid)) {
                 throw new OrderException("주문 정보와 일치하지 않습니다.");
             }
 
@@ -225,6 +222,8 @@ public class OrderServiceImpl implements OrderService {
             }
 
             OrderEntity saveOrder = orderRepository.save(orderEntity); // 주문 저장
+            // 주문 상태를 결제 상태로 변경
+            saveOrder.changePayStatus(PayStatus.PAY_O);
             return ResponseOrderDTO.changeDTO(saveOrder, address, orderUUid);
         } catch (Exception e) {
             log.error("주문 처리 중 에러 발생: " + e.getMessage(), e);
@@ -255,9 +254,9 @@ public class OrderServiceImpl implements OrderService {
             log.info("findOrder: {}", findOrder);
             findOrder.getOrderItems()
                     .forEach(count -> count.getItem().addItemStock(count.getOrderCount()));
-            // 주문 삭제
-            orderRepository.deleteByOrderUUIDid(orderUUID);
-            return "주문을 삭제했습니다.";
+            // 주문 정보에 결제 취소라고 표시
+            findOrder.changePayStatus(PayStatus.PAY_X);
+            return "주문을 취소했습니다.";
         } catch (Exception e) {
             throw new OrderException("주문 취소하는데 실패했습니다.");
         }

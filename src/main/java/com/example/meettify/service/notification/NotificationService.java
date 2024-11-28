@@ -47,6 +47,7 @@ public class NotificationService {
 
         // SseEmitter 생성후 Map에 저장
         SseEmitter sseEmitter = customNotificationRepository.save(eventId, new SseEmitter(DEFAULT_TIMEOUT));
+        log.info("sseEmitter {}", sseEmitter);
 
 
         // 사용자에게 모든 데이터가 전송되었다면 emitter 삭제
@@ -75,8 +76,7 @@ public class NotificationService {
     }
 
     private static @NotNull String makeTimeIncludeId(MemberEntity findMember) {
-        String eventId = findMember.getMemberId() + "_" + System.currentTimeMillis();
-        return eventId;
+        return findMember.getMemberId() + "_" + System.currentTimeMillis();
     }
 
     private void sendToClient(String eventId, SseEmitter sseEmitter, Object data) {
@@ -112,6 +112,7 @@ public class NotificationService {
         MemberEntity findMember = memberRepository.findByMemberEmail(receiver);
 
         NotificationEntity saveNotification = notificationRepository.save(NotificationEntity.save(findMember, message));
+        log.info("saveNotification {}", saveNotification);
         // 수신자 정보로부터 id 값 추출
         Long memberId = findMember.getMemberId();
 
@@ -119,6 +120,7 @@ public class NotificationService {
         if(customNotificationRepository.containsKey(memberId)) {
             String eventId = makeTimeIncludeId(findMember);
             Map<String, SseEmitter> sseEmitterMap = customNotificationRepository.findAllEmitterStartWithByMemberId(memberId);
+            log.info("sseEmitterMap {}", sseEmitterMap);
             // 8. 알림 메시지 전송 및 해제
             sseEmitterMap.forEach((id, emitter) -> {
 
@@ -151,6 +153,7 @@ public class NotificationService {
         if(customNotificationRepository.containsKey(memberId)) {
             String eventId = makeTimeIncludeId(findCommunity.getMember());
             Map<String, SseEmitter> sseEmitterMap = customNotificationRepository.findAllEmitterStartWithByMemberId(memberId);
+            log.info("sseEmitterMap {}", sseEmitterMap);
             // 8. 알림 메시지 전송 및 해제
             sseEmitterMap.forEach((id, emitter) -> {
 

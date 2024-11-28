@@ -1,7 +1,6 @@
 package com.example.meettify.controller.chat;
 
-import com.example.meettify.dto.chat.ChatMessageDTO;
-import com.example.meettify.dto.chat.RequestAccessRoomIdDTO;
+import com.example.meettify.dto.chat.RequestAccessEmailDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
@@ -14,9 +13,7 @@ public interface ChatRoomControllerDocs {
     @Operation(summary = "채팅방 리스트", description = "채팅방 리스트 API")
     ResponseEntity<?> getRooms(UserDetails userDetails);
     @Operation(summary = "채팅방 입장시 체크", description = "채팅방 입장시 임시번호를 체크하고 해당방에 속해있는지 확인하는 API")
-    ResponseEntity<?> joinRoom(RequestAccessRoomIdDTO requestAccessRoomId, Long roomId, UserDetails userDetails);
-    @Operation(summary = "채팅방 생성", description = "채팅방 생성하는 API")
-    ResponseEntity<?> applyRoomAccess(Long roomId, UserDetails userDetails);
+    ResponseEntity<?> joinRoom(RequestAccessEmailDTO requestAccessRoomId, Long roomId);
     @Operation(summary = "채팅 내역", description = "채팅 내역 API")
     ResponseEntity<?> getMessagesByRoomId(Long roomId);
 }

@@ -2,6 +2,7 @@ package com.example.meettify.entity.order;
 
 import com.example.meettify.config.auditing.entity.BaseEntity;
 import com.example.meettify.dto.member.AddressDTO;
+import com.example.meettify.dto.order.PayStatus;
 import com.example.meettify.entity.member.AddressEntity;
 import com.example.meettify.entity.member.MemberEntity;
 import jakarta.persistence.*;
@@ -37,17 +38,30 @@ public class OrderEntity extends BaseEntity {
     @JsonIgnore
     private List<OrderItemEntity> orderItems = new ArrayList<>();
 
+    // 주문 랜덤 번호
     private String orderUUIDid;
 
+    // 결제 상태
+    @Enumerated(EnumType.STRING)
+    private PayStatus payStatus;
 
-    public static OrderEntity saveOrder(MemberEntity member, AddressDTO address, int totalPrice, String orderUUIDid) {
+
+    public static OrderEntity saveOrder(MemberEntity member,
+                                        AddressDTO address,
+                                        int totalPrice,
+                                        String orderUUIDid) {
         AddressEntity addressEntity = AddressEntity.changeEntity(address);
         return OrderEntity.builder()
                 .member(member)
                 .address(addressEntity)
                 .totalPrice(totalPrice)
                 .orderUUIDid(orderUUIDid)
+                .payStatus(PayStatus.PAY_X)
                 .build();
+    }
+
+    public void changePayStatus(PayStatus payStatus) {
+        this.payStatus = payStatus;
     }
 
     public void addTotalPrice(int totalPrice) {

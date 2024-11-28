@@ -8,8 +8,8 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @ToString
-public class RequestAccessRoomIdDTO {
-    @Schema(description = "방 초대번호")
-    private String roomInviteUid;
+public class RequestAccessEmailDTO {
+    @Schema(description = "채팅방에 입장시킬 유저 이메일")
+    private String accessEmail;
 
 }

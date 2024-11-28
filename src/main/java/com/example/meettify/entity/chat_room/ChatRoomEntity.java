@@ -19,7 +19,6 @@ public class ChatRoomEntity extends BaseEntity {
     private Long roomId;
     private String roomName;
     private String createdNickName;
-    private String roomInviteUid;
     @ElementCollection
     private List<Long> inviteMemberIds = new ArrayList<>();
     @Enumerated(EnumType.STRING)
@@ -28,12 +27,9 @@ public class ChatRoomEntity extends BaseEntity {
     public static ChatRoomEntity create(String roomName,
                                         String createdNickName,
                                         RoomStatus roomStatus) {
-        String roomInviteUid = UUID.randomUUID().toString().replace("-", ""); // 하이픈 제거
-        String shortUid = roomInviteUid.substring(0, 8); // 원하는 길이만큼 자르기
 
         return ChatRoomEntity.builder()
                 .roomName(roomName)
-                .roomInviteUid(shortUid)
                 .createdNickName(createdNickName)
                 .roomStatus(roomStatus)
                 .build();

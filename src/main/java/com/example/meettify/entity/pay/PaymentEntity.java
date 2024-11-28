@@ -13,14 +13,14 @@ import lombok.*;
 
 import java.math.BigDecimal;
 
-@Entity(name = "payment")
+@Entity(name = "iamport_payment")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Getter
 public class PaymentEntity extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "payment_id")
+    @Column(name = "iamport_payment_id")
     private Long paymentId;
 
     @Column(nullable = false, length = 100)
@@ -33,10 +33,7 @@ public class PaymentEntity extends BaseEntity {
     private String orderUid;
 
     @Column(nullable = false)
-    private int amount;
-
-    @Embedded
-    private AddressEntity address;
+    private int count;
 
     private int payPrice;
 
@@ -45,7 +42,6 @@ public class PaymentEntity extends BaseEntity {
     private MemberEntity member;
 
     public static PaymentEntity savePayment(RequestPaymentDTO pay,
-                                            AddressDTO address,
                                             MemberEntity member,
                                             IamportResponse<Payment> iamport) {
 
@@ -71,10 +67,10 @@ public class PaymentEntity extends BaseEntity {
                 .payMethod(iamportPayMethod)
                 .impUid(iamportImpUid)
                 .orderUid(pay.getOrderUid())
-                .amount(pay.getItemCount())
-                .address(AddressEntity.changeEntity(address))
+                .count(pay.getItemCount())
                 .member(member)
                 .payPrice(iamportAmount)
                 .build();
     }
+
 }

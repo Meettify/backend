@@ -30,7 +30,7 @@ public class ResponsePaymentDTO {
     public static ResponsePaymentDTO changePayment(PaymentEntity pay) {
         return ResponsePaymentDTO.builder()
                 .paymentId(pay.getPaymentId())
-                .itemCount(pay.getAmount())
+                .itemCount(pay.getCount())
                 .impUid(pay.getImpUid())
                 .orderUid(pay.getOrderUid())
                 .payMethod(pay.getPayMethod())
