@@ -50,6 +50,8 @@ public class NotificationService {
         SseEmitter sseEmitter = customNotificationRepository.save(eventId, new SseEmitter(DEFAULT_TIMEOUT));
         log.info("sseEmitter {}", sseEmitter);
 
+        // 503 에러를 방지하기 위한 더미 이벤트 전송
+        sendToClient(eventId, sseEmitter, "알림 서버 연결 성공 [memberId = " + findMember.getMemberId() + "]");
 
         // 사용자에게 모든 데이터가 전송되었다면 emitter 삭제
         sseEmitter.onCompletion(() -> {
@@ -64,10 +66,6 @@ public class NotificationService {
             customNotificationRepository.deleteById(eventId);
         });
 
-
-        // 503 에러를 방지하기 위한 더미 이벤트 전송
-        sendToClient(eventId, sseEmitter, "알림 서버 연결 성공 [memberId = " + findMember.getMemberId() + "]");
-
         // 클라이언트가 미수신한 Event 목록이 존재할 경우 전송하여 Event 유실을 예방
         if (hasLostData(lastEventId)) {
             sendLostData(lastEventId, findMember.getMemberId(), sseEmitter);
@@ -81,7 +79,7 @@ public class NotificationService {
                 customNotificationRepository.deleteById(eventId);
                 scheduler.shutdownNow();
             }
-        }, DUMMY_EVENT_INTERVAL, DUMMY_EVENT_INTERVAL, TimeUnit.MILLISECONDS);
+        },0, DUMMY_EVENT_INTERVAL, TimeUnit.MILLISECONDS);
 
         return  sseEmitter;
     }
