@@ -79,34 +79,19 @@ public class ChatServiceImpl implements ChatService {
 
     // 채팅방 입장시 체크
     @Override
-    public boolean joinRoom(String roomInviteUid, String email, Long roomId) {
+    public boolean joinRoom(String email, Long roomId) {
         // 회원 조회
         MemberEntity findMember = memberRepository.findByMemberEmail(email);
         // 방번호와 초대받은 회원번호가 일치한지 조회
-        ChatRoomEntity findChatRoom = chatRoomRepository.findChatRoomsByInviteMember(findMember.getMemberId(), roomId);
+        ChatRoomEntity findChatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new ChatRoomException("채팅방이 존재하지 않습니다."));
 
         if (findChatRoom == null) {
             log.info("초대받지 않은 유저입니다.");
             return false;
         }
-
-        if (!findChatRoom.getRoomInviteUid().equals(roomInviteUid)) {
-            throw new ChatRoomException("해당 채팅방의 초대번호와 일치하지 않습니다.");
-        }
+        // 회원을 채팅방에 초대
+        findChatRoom.getInviteMemberIds().add(findMember.getMemberId());
         return true;
-    }
-
-    @Override
-    public ResponseAccessRoomIdDTO applyRoomAccess(Long roomId, String email) {
-        try {
-            // 회원 조회
-            MemberEntity findMember = memberRepository.findByMemberEmail(email);
-            ChatRoomEntity findChatRoom = chatRoomRepository.findById(roomId)
-                    .orElseThrow(() -> new ChatRoomException("채팅방이 존재하지 않습니다."));
-            findChatRoom.getInviteMemberIds().add(findMember.getMemberId());
-            return ResponseAccessRoomIdDTO.of(findChatRoom.getRoomInviteUid());
-        } catch (Exception e) {
-            throw new ChatRoomException(e.getMessage());
-        }
     }
 }
