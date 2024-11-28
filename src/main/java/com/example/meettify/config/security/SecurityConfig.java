@@ -131,10 +131,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/orders/count-order").hasRole("ADMIN")
 
                         // 결제하기
-                        .requestMatchers(HttpMethod.POST, "/api/v1/payment/verify").hasRole("USER")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/payment/confirm").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/payment/iamport/confirm").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/payment/iamport/{orderUid}").hasRole("USER")
                         .requestMatchers(HttpMethod.POST, "/api/v1/payment/iamport/cancel").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/payment/toss/confirm").hasRole("USER")
                         .requestMatchers(HttpMethod.POST, "/api/v1/payment/toss/cancel").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/payment/toss/{orderUid}").hasRole("USER")
 
                         //모임
                         .requestMatchers("/api/v1/meets/**").permitAll()
@@ -178,6 +180,7 @@ public class SecurityConfig {
                         // 알림
                         .requestMatchers("/api/v1/notify/subscribe").hasAnyRole("USER", "ADMIN")
                         .requestMatchers("/api/v1/notify/{notification-id}").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/api/v1/notify/send").hasAnyRole("USER", "ADMIN")
                         // SSE 연결을 위해
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
