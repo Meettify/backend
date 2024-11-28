@@ -9,7 +9,7 @@ import lombok.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString
+@ToString(exclude = "member")
 @Builder
 public class NotificationEntity extends BaseTimeEntity {
     @Id
