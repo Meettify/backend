@@ -19,6 +19,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -189,5 +190,21 @@ public class NotificationService {
         findNotification.changeRead();
         notificationRepository.save(findNotification);
         log.info("알림 ID {}가 읽음 처리되었습니다.", notificationId);
+    }
+
+    // 알림 삭제
+    public void removeNotification(Long notificationId, String email) throws Exception {
+        NotificationEntity findNotification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new Exception("삭제된 알람입니다."));
+
+        notificationRepository.delete(findNotification);
+        log.info("알림 ID {}가 삭제 처리되었습니다.", notificationId);
+    }
+
+    // 알림 리스트
+    public List<ResponseNotificationDTO> getAllNotifications(String email) {
+        List<NotificationEntity> findAll = notificationRepository.findAllByMemberMemberEmailOrderByRegTimeDesc(email);
+        return findAll.stream().map(ResponseNotificationDTO::changeList)
+                .toList();
     }
 }

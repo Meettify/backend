@@ -1,5 +1,6 @@
 package com.example.meettify.controller.notification;
 
+import com.example.meettify.dto.notification.ResponseNotificationDTO;
 import com.example.meettify.service.notification.NotificationService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.awt.event.TextEvent;
+import java.util.List;
 
 import static org.springframework.http.MediaType.TEXT_EVENT_STREAM_VALUE;
 
@@ -27,7 +29,6 @@ public class NotificationController implements NotificationControllerDocs {
     // SSE 통신을 위해서는 produces로 반환할 데이터 타입을 "text/event-stream"으로 해주어야 함
     @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
-    @CrossOrigin(origins = "http://localhost:5173")
     public SseEmitter subscribe(@AuthenticationPrincipal UserDetails userDetails,
                                 @RequestHeader(value = "last-event-id", required = false, defaultValue = "") final String lastEventId,
                                 HttpServletResponse response) {
@@ -73,5 +74,32 @@ public class NotificationController implements NotificationControllerDocs {
         String email = userDetails.getUsername();
         notificationService.notifyMessage(email, "SSE 알람 테스트 보내기");
         return ResponseEntity.ok().build();
+    }
+
+    // 알림 삭제
+    @Override
+    @DeleteMapping(path = "/{notification-id}")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> removeNotification(@PathVariable("notification-id") Long notificationId,
+                                                @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            String email = userDetails.getUsername();
+            notificationService.removeNotification(notificationId, email);
+            return ResponseEntity.ok().body("알림 삭제가 완료되었습니다.");
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    // 알림 리스트
+    @Override
+    public ResponseEntity<?> getNotifications(@AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            String email = userDetails.getUsername();
+            List<ResponseNotificationDTO> response = notificationService.getAllNotifications(email);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 }
