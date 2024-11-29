@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 
-@Tag(name = "주문하기", description = "주문하기 API")
+@Tag(name = "문의하기", description = "문의하기 API")
 public interface QuestionControllerDocs {
     @Operation(summary = "문의하기", description = "문의하는 API")
     ResponseEntity<?> saveQuestion(CreateBoardDTO question, UserDetails userDetails);
