@@ -15,7 +15,6 @@ public class ResponseNotificationDTO {
     private String eventId;
     private String message;
     private boolean isRead;
-    private String url;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime createdBy;
     private Long notificationId;
@@ -29,6 +28,16 @@ public class ResponseNotificationDTO {
                 .message(message)
                 .createdBy(notification.getRegTime())
                 .notificationId(notification.getId())
+                .isRead(notification.isRead())
+                .build();
+    }
+
+    public static ResponseNotificationDTO changeList(NotificationEntity notification) {
+        return ResponseNotificationDTO.builder()
+                .message(notification.getMessage())
+                .createdBy(notification.getRegTime())
+                .notificationId(notification.getId())
+                .isRead(notification.isRead())
                 .build();
     }
 }
