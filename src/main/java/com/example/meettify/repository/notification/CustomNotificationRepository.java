@@ -48,9 +48,6 @@ public class CustomNotificationRepository {
         emitters.remove(eventId);
     }
 
-    public boolean containsKey(Long memberId) {
-        return emitters.containsKey(memberId);
-    }
 
     public void deleteAllEmitterStartWithId(Long memberId) {
         emitters.forEach(

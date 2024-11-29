@@ -80,9 +80,9 @@ public class NotificationService {
                 customNotificationRepository.deleteById(eventId);
                 scheduler.shutdownNow();
             }
-        },0, DUMMY_EVENT_INTERVAL, TimeUnit.MILLISECONDS);
+        }, 0, DUMMY_EVENT_INTERVAL, TimeUnit.MILLISECONDS);
 
-        return  sseEmitter;
+        return sseEmitter;
     }
 
     private static @NotNull String makeTimeIncludeId(MemberEntity findMember) {
@@ -128,18 +128,19 @@ public class NotificationService {
         Long memberId = findMember.getMemberId();
 
         //  Map에서 memberId로 사용자 검색
-        if(customNotificationRepository.containsKey(memberId)) {
-            String eventId = makeTimeIncludeId(findMember);
-            Map<String, SseEmitter> sseEmitterMap = customNotificationRepository.findAllEmitterStartWithByMemberId(memberId);
-            log.info("sseEmitterMap {}", sseEmitterMap);
-            // 8. 알림 메시지 전송 및 해제
-            sseEmitterMap.forEach((id, emitter) -> {
+        String eventId = makeTimeIncludeId(findMember);
+        Map<String, SseEmitter> sseEmitterMap = customNotificationRepository.findAllEmitterStartWithByMemberId(memberId);
+        log.info("sseEmitterMap {}", sseEmitterMap);
+        log.info("Found SSE Emitters for memberId {}: {}", memberId, sseEmitterMap);
 
-                customNotificationRepository.saveEventCacheId(id, saveNotification);
-                sendNotification(emitter, eventId, id, ResponseNotificationDTO.change(eventId, message, saveNotification));
-            });
-        }
+        // 8. 알림 메시지 전송 및 해제
+        sseEmitterMap.forEach((id, emitter) -> {
+
+            customNotificationRepository.saveEventCacheId(id, saveNotification);
+            sendNotification(emitter, eventId, id, ResponseNotificationDTO.change(eventId, message, saveNotification));
+        });
     }
+
     private void sendNotification(SseEmitter emitter, String eventId, String emitterId, Object data) {
         try {
             emitter.send(SseEmitter.event()
@@ -161,7 +162,6 @@ public class NotificationService {
 
         NotificationEntity saveNotification = notificationRepository.save(NotificationEntity.save(findCommunity.getMember(), message));
 
-        if(customNotificationRepository.containsKey(memberId)) {
             String eventId = makeTimeIncludeId(findCommunity.getMember());
             Map<String, SseEmitter> sseEmitterMap = customNotificationRepository.findAllEmitterStartWithByMemberId(memberId);
             log.info("sseEmitterMap {}", sseEmitterMap);
@@ -171,18 +171,17 @@ public class NotificationService {
                 customNotificationRepository.saveEventCacheId(id, saveNotification);
                 sendNotification(emitter, eventId, id, ResponseNotificationDTO.change(eventId, message, saveNotification));
             });
-        }
     }
 
     // 알림 읽기
     public void readNotification(Long notificationId, String email) throws Exception {
         NotificationEntity findNotification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new Exception("삭제된 알람입니다."));
-        if(Boolean.TRUE.equals(findNotification.isRead())) {
+        if (Boolean.TRUE.equals(findNotification.isRead())) {
             log.info("읽은 알람입니다.");
         }
 
-        if(!findNotification.getMember().getMemberEmail().equals(email)) {
+        if (!findNotification.getMember().getMemberEmail().equals(email)) {
             throw new MemberException("해당 유저의 알림이 아닙니다.");
         }
 
