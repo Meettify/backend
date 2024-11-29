@@ -70,10 +70,10 @@ public class NotificationController implements NotificationControllerDocs {
 
     @GetMapping(path = "/send")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
-    public ResponseEntity<SseEmitter> test(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<?> test(@AuthenticationPrincipal UserDetails userDetails) {
         String email = userDetails.getUsername();
         notificationService.notifyMessage(email, "SSE 알람 테스트 보내기");
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body("SSE 알람 테스트 보내기");
     }
 
     // 알림 삭제
