@@ -69,9 +69,8 @@ public class NotificationController implements NotificationControllerDocs {
     }
 
     @GetMapping(path = "/send")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> test(@AuthenticationPrincipal UserDetails userDetails) {
-        String email = userDetails.getUsername();
+    public ResponseEntity<?> test() {
+        String email = "zxzz010@naver.com";
         notificationService.notifyMessage(email, "SSE 알람 테스트 보내기");
         return ResponseEntity.ok().body("SSE 알람 테스트 보내기");
     }
