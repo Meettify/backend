@@ -92,7 +92,8 @@ public class NotificationController implements NotificationControllerDocs {
 
     // 알림 리스트
     @Override
-    public ResponseEntity<?> getNotifications(@AuthenticationPrincipal UserDetails userDetails, int offset) {
+    public ResponseEntity<?> getNotifications(@AuthenticationPrincipal UserDetails userDetails,
+                                              @RequestParam int offset) {
         try {
             String email = userDetails.getUsername();
             List<ResponseNotificationDTO> response = notificationService.getAllNotifications(email, offset);

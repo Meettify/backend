@@ -100,4 +100,18 @@ public class CartController implements CartControllerDocs{
             throw new CartException(e.getMessage());
         }
     }
+
+    // 장바구니 번호 가져오기
+    @Override
+    @GetMapping("/id")
+    public ResponseEntity<?> getCartId(@AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            String email = userDetails.getUsername();
+            Long response = cartService.getCartId(email);
+            log.info("Getting cart with id {} " , response);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            throw new CartException(e.getMessage());
+        }
+    }
 }

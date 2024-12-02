@@ -25,4 +25,7 @@ public interface CartControllerDocs {
 
     @Operation(summary = "장바구니 상품 조회", description = "장바구니 상품에 뭐가 있는지 알기 위한 API")
     ResponseEntity<?> getCartItems(UserDetails userDetails);
+
+    @Operation(summary = "장바구니 번호 조회", description = "장바구니 번호 반환 API")
+    ResponseEntity<?> getCartId(UserDetails userDetails);
 }

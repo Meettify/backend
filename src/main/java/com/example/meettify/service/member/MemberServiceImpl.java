@@ -14,6 +14,8 @@ import com.example.meettify.exception.member.MemberException;
 import com.example.meettify.repository.cart.CartRepository;
 import com.example.meettify.repository.jwt.TokenRepository;
 import com.example.meettify.repository.member.MemberRepository;
+import com.example.meettify.repository.notification.CustomNotificationRepository;
+import com.example.meettify.repository.notification.NotificationRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -47,6 +49,8 @@ public class MemberServiceImpl implements MemberService {
     private final TokenRepository tokenRepository;
     private final LoginAttemptConfig loginAttemptConfig;
     private final CartRepository cartRepository;
+    private final CustomNotificationRepository customNotificationRepository;
+    private final NotificationRepository notificationRepository;
 
     // 회원가입
     @Override
@@ -194,6 +198,10 @@ public class MemberServiceImpl implements MemberService {
 
             // 회원이 비어있지 않고 넘어온 Id가 DB에 등록된 id가 일치할 때
             if (findMember.getMemberId().equals(memberId)) {
+                // SSE 알림 삭제
+                customNotificationRepository.deleteAllEventCacheStartWithId(memberId);
+                customNotificationRepository.deleteAllEmitterStartWithId(memberId);
+                notificationRepository.deleteByMemberMemberId(memberId);
                 // 장바구니 조회
                 CartEntity findCart = cartRepository.findByMemberMemberId(memberId);
                 // 장바구니 삭제
