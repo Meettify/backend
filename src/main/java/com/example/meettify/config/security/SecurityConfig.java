@@ -122,6 +122,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/v1/carts").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/carts/{cartId}").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/carts/{cartItemId}").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/carts/cart-items").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/carts/id").hasAnyRole("USER", "ADMIN")
 
                         // 주문하기
                         .requestMatchers(HttpMethod.POST, "/api/v1/orders/tempOrder").hasRole("USER")
