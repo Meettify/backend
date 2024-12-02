@@ -47,12 +47,9 @@ public class CartEntity extends BaseEntity {
                 .build();
     }
 
-    // 장바구니 상품 추가
-    public void saveCart(CartItemEntity cartItem,
-                         MemberEntity member) {
+    // 유저 엔티티 추가
+    public void addMember(MemberEntity member) {
         this.member = member;
-        this.totalCount = totalCount + cartItem.getCartCount();
-        this.cartItems.add(cartItem);
     }
 
     // 장바구니 삭제시 totalCount 빼기
@@ -60,10 +57,14 @@ public class CartEntity extends BaseEntity {
         this.totalCount = Math.max(0, totalCount - count);  // 최소 0으로 유지
     }
 
-    // 장바구니 총 개수 수정
-    public void changeCount(int count) {
-        this.totalCount = count;
+    // 장바구니 등록시 총 개수
+    public void plusCount(int count) {
+        this.totalCount = this.totalCount + count;
     }
 
+    // 장바구니 수정시 총 개수
+    public void updateCount(int count) {
+        this.totalCount = count;
+    }
 
 }
