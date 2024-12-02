@@ -203,8 +203,8 @@ public class NotificationService {
 
     // 알림 리스트를 조회와서 레디스에 캐시처리
     @Cacheable(cacheNames = "getNotifications", key = "'notifications:email:' + #email", cacheManager = "cacheManager")
-    public List<ResponseNotificationDTO> getAllNotifications(String email) {
-        List<NotificationEntity> findAll = notificationRepository.findAllByMemberMemberEmailOrderByRegTimeDesc(email);
+    public List<ResponseNotificationDTO> getAllNotifications(String email, int offset) {
+        List<NotificationEntity> findAll = customNotificationRepository.findNotificationsWithLimitAndOffset(email, 10, offset);
         return findAll.stream().map(ResponseNotificationDTO::changeList)
                 .toList();
     }

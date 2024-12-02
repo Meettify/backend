@@ -92,10 +92,10 @@ public class NotificationController implements NotificationControllerDocs {
 
     // 알림 리스트
     @Override
-    public ResponseEntity<?> getNotifications(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<?> getNotifications(@AuthenticationPrincipal UserDetails userDetails, int offset) {
         try {
             String email = userDetails.getUsername();
-            List<ResponseNotificationDTO> response = notificationService.getAllNotifications(email);
+            List<ResponseNotificationDTO> response = notificationService.getAllNotifications(email, offset);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());

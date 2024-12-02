@@ -1,16 +1,22 @@
 package com.example.meettify.repository.notification;
 
+import com.example.meettify.entity.notification.NotificationEntity;
+import jakarta.persistence.EntityManager;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Repository
+@RequiredArgsConstructor
 public class CustomNotificationRepository {
     private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
     private final Map<String, Object> eventCache = new ConcurrentHashMap<>();
+    private final EntityManager entityManager;
 
 
     // 해당 클라이언트를 위한 SseEmitter를 생성하고 Map에 저장한다.
@@ -68,4 +74,14 @@ public class CustomNotificationRepository {
                 }
         );
     }
+
+    public List<NotificationEntity> findNotificationsWithLimitAndOffset(String email, int limit, int offset) {
+        String query = String.format(
+                "SELECT * FROM notification n WHERE n.member_email = '%s' ORDER BY n.reg_time DESC LIMIT %d OFFSET %d",
+                email, limit, offset
+        );
+
+        return entityManager.createNativeQuery(query, NotificationEntity.class).getResultList();
+    }
+
 }

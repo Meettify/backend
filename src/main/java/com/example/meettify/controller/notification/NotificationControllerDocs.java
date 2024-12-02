@@ -16,5 +16,5 @@ public interface NotificationControllerDocs {
     @Operation(summary = "알림 삭제", description = "알림 삭제 API")
     ResponseEntity<?> removeNotification(Long notificationId, UserDetails userDetails);
     @Operation(summary = "알림 리스트", description = "알림 리스트 API")
-    ResponseEntity<?> getNotifications(UserDetails userDetails);
+    ResponseEntity<?> getNotifications(UserDetails userDetails, int offset);
 }
