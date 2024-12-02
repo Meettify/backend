@@ -13,6 +13,7 @@ import com.example.meettify.repository.notification.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -200,10 +201,15 @@ public class NotificationService {
         log.info("알림 ID {}가 삭제 처리되었습니다.", notificationId);
     }
 
-    // 알림 리스트
+    // 알림 리스트를 조회와서 레디스에 캐시처리
+    @Cacheable(cacheNames = "getNotifications", key = "'notifications:email:' + #email", cacheManager = "cacheManager")
     public List<ResponseNotificationDTO> getAllNotifications(String email) {
         List<NotificationEntity> findAll = notificationRepository.findAllByMemberMemberEmailOrderByRegTimeDesc(email);
         return findAll.stream().map(ResponseNotificationDTO::changeList)
                 .toList();
     }
+
+
+
+
 }
