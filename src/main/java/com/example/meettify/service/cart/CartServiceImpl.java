@@ -91,11 +91,11 @@ public class CartServiceImpl implements CartService{
             // 장바구니에 장바구니 상품 담기
             findCart.getCartItems().add(findCartItem);
             // 장바구니 총 개수 수정
-            findCart.changeCount(findCartItem.getCartCount());
+            findCart.plusCount(findCartItem.getCartCount());
             // 재고 수량 확인
             findItem.checkItemStock(cart.getItemCount());
-            // 장바구니에 상품 추가
-            findCart.saveCart(findCartItem, findMember);
+            // 장바구니에 유저 정보 추가
+            findCart.addMember(findMember);
             saveCart = cartRepository.save(findCart);
 
             return ResponseCartDTO.changeDTO(saveCart, email, findItem);
@@ -168,7 +168,7 @@ public class CartServiceImpl implements CartService{
                     .sum();
 
             // 장바구니의 총 개수 업데이트
-            findCart.changeCount(updatedTotalCount);
+            findCart.updateCount(updatedTotalCount);
             // 장바구니에 장바구니 상품담기
             findCart.getCartItems().addAll(findAllCartItems);
 

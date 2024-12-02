@@ -80,6 +80,7 @@ public class CartController implements CartControllerDocs{
                                      @AuthenticationPrincipal UserDetails userDetails) {
         try {
             String email = userDetails.getUsername();
+            log.info("Getting cart with id: " + cartId);
             ResponseCartDTO response = cartService.cartDetail(cartId, email);
             return ResponseEntity.ok(response);
         } catch (Exception e) {

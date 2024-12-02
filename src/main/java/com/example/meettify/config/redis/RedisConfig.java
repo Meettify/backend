@@ -36,6 +36,8 @@ public class RedisConfig {
         redisStandaloneConfiguration.setPassword(password);
         redisStandaloneConfiguration.setPort(port);
 
+        // Lettuce라는 라이브러리를 활용해 Redis 연결을 관리하는 객체를 생성하고
+        // Redis 서버에 대한 정보(host, port)를 설정한다.
         return new LettuceConnectionFactory(redisStandaloneConfiguration);
     }
 

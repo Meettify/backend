@@ -63,6 +63,9 @@ public class CartItemEntity {
     // 장바구니 수정
     public void updateCart(Long cartItemId, int count) {
         if(cartItemId.equals(this.cartItemId)) {
+            // 상품 재고 확인
+            item.checkItemStock(count);
+
             if(cartCount > count) {
                 this.cartCount = Math.max(0, cartCount - count);  // 최소 0으로 유지
             }
