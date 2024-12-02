@@ -216,4 +216,15 @@ public class CartServiceImpl implements CartService{
             throw new CartException("장바구니 상품들을 조회하는 것에 실패했습니다.");
         }
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Long getCartId(String email) {
+        try {
+            CartEntity findCart = cartRepository.findByMemberMemberEmail(email);
+            return findCart.getCartId();
+        } catch (Exception e) {
+            throw new CartException("장바구니 번호를 가져올 수 없습니다.");
+        }
+    }
 }

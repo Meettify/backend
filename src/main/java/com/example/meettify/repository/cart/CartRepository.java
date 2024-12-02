@@ -17,4 +17,6 @@ public interface CartRepository extends JpaRepository<CartEntity, Long> {
             " left join fetch ci.item " + // ItemEntity를 가져옴
             " where c.cartId = :cartId")
     CartEntity findByCartId(@Param("cartId") Long cartId);
+
+    CartEntity findByMemberMemberEmail(String memberEmail);
 }

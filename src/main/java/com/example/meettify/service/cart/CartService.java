@@ -18,4 +18,6 @@ public interface CartService {
     ResponseCartDTO cartDetail(Long cartId, String email);
     // 장바구니 상태 보기
     List<ResponseCartItemDTO> getCartItems(String email);
+    // 장바구니 번호 반환
+    Long getCartId(String email);
 }
