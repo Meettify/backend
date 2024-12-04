@@ -43,7 +43,7 @@ public class CartServiceImpl implements CartService{
     @Override
     public ResponseCartDTO addCartItem(RequestCartServiceDTO cart, String email) {
         try {
-            log.info("----------------");
+
             log.info(email);
             // 회원 조회
             MemberEntity findMember = memberRepository.findByMemberEmail(email);
@@ -51,8 +51,10 @@ public class CartServiceImpl implements CartService{
             // 상품 조회
             ItemEntity findItem = itemRepository.findById(cart.getItemId())
                     .orElseThrow(() -> new ItemException("해당 상품이 존재하지 않습니다."));
-            log.info("----------------");
             log.info(findItem);
+
+            // 재고 수량 확인
+            findItem.checkItemStock(cart.getItemCount());
 
             CartEntity saveCart = null;
 
@@ -92,8 +94,6 @@ public class CartServiceImpl implements CartService{
             findCart.getCartItems().add(findCartItem);
             // 장바구니 총 개수 수정
             findCart.plusCount(findCartItem.getCartCount());
-            // 재고 수량 확인
-            findItem.checkItemStock(cart.getItemCount());
             // 장바구니에 유저 정보 추가
             findCart.addMember(findMember);
             saveCart = cartRepository.save(findCart);
