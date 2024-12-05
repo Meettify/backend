@@ -39,7 +39,6 @@ public class PaymentController implements PaymentControllerDocs {
     @PostMapping("/iamport/confirm")
     @PreAuthorize("hasRole('ROLE_USER')")
     public IamportResponse<Payment> payForOrder(@RequestBody RequestPaymentDTO pay,
-                                                @RequestBody AddressDTO address,
                                                 @AuthenticationPrincipal UserDetails userDetails) throws Exception {
         try {
             log.info("결제 검증 서비스 실행");
@@ -47,6 +46,7 @@ public class PaymentController implements PaymentControllerDocs {
             IamportResponse<Payment> paymentIamportResponse = importConfig.iamportClient().paymentByImpUid(pay.getImpUid());
 
             if (paymentIamportResponse.getResponse().getStatus().equals("paid")) {
+                AddressDTO address = AddressDTO.addAddress(pay.getMemberAddr(), pay.getMemberAddrDetail(), pay.getMemberZipCode());
                 // 결제 성공 시 주문 정보 저장
                 ResponseOrderDTO response = orderService.saveOrder(pay.getOrders(), email, address, pay.getOrderUid());
                 // 결제 정보를 저장
@@ -100,12 +100,12 @@ public class PaymentController implements PaymentControllerDocs {
     @PostMapping("/toss/confirm")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<ResponseTossPaymentConfirmDTO>  confirmTossPayment(@RequestBody RequestTossPaymentConfirmDTO tossPay,
-                                                                              @RequestBody AddressDTO address,
                                                                               @AuthenticationPrincipal UserDetails userDetails) {
         try {
             String email = userDetails != null ? userDetails.getUsername() : null;
             ResponseTossPaymentConfirmDTO response = paymentClient.confirmPayment(tossPay, email);
             log.info(response);
+            AddressDTO address = AddressDTO.addAddress(tossPay.getMemberAddr(), tossPay.getMemberAddrDetail(), tossPay.getMemberZipCode());
             // 결제 성공 시 주문 정보 저장
             orderService.saveOrder(tossPay.getOrders(), email, address, tossPay.getOrderUid());
             // 결제 알림

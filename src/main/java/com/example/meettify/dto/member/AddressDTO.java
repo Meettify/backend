@@ -24,4 +24,14 @@ public class AddressDTO {
                 .memberZipCode(address.getMemberZipCode())
                 .build();
     }
+
+    public static AddressDTO addAddress(String memberAddr,
+                                        String memberAddrDetail,
+                                        String memberZipCode) {
+        return AddressDTO.builder()
+                .memberAddr(memberAddr)
+                .memberAddrDetail(memberAddrDetail)
+                .memberZipCode(memberZipCode)
+                .build();
+    }
 }
