@@ -154,24 +154,25 @@ public class NotificationService {
 
 
     // 댓글 알림 - 게시글 작성자에게
-    public void notifyCommentForCommunity(Long communityId, String message) {
+    public void notifyCommentForCommunity(String email, Long communityId, String message) {
         CommunityEntity findCommunity = communityRepository.findById(communityId)
                 .orElseThrow(() -> new BoardException("커뮤니티 글이 없습니다."));
 
         Long memberId = findCommunity.getMember().getMemberId();
         log.info("커뮤니티 작성자 Id: " + memberId);
 
-        NotificationEntity saveNotification = notificationRepository.save(NotificationEntity.save(findCommunity.getMember(), message));
+        if (!findCommunity.getMember().getMemberEmail().equals(email)) {
+            NotificationEntity saveNotification = notificationRepository.save(NotificationEntity.save(findCommunity.getMember(), message));
 
             String eventId = makeTimeIncludeId(findCommunity.getMember());
             Map<String, SseEmitter> sseEmitterMap = customNotificationRepository.findAllEmitterStartWithByMemberId(memberId);
             log.info("sseEmitterMap {}", sseEmitterMap);
             // 8. 알림 메시지 전송 및 해제
             sseEmitterMap.forEach((id, emitter) -> {
-
                 customNotificationRepository.saveEventCacheId(id, saveNotification);
                 sendNotification(emitter, eventId, id, ResponseNotificationDTO.change(eventId, message, saveNotification));
             });
+        }
     }
 
     // 알림 읽기
