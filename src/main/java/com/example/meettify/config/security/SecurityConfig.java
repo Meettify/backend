@@ -181,8 +181,10 @@ public class SecurityConfig {
 
                         // 알림
                         .requestMatchers("/api/v1/notify/subscribe").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/api/v1/notify/{notification-id}").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/api/v1/notify/send").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/notify/{notification-id}").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/notify/{notification-id}").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/notify/send").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/notify/list").hasAnyRole("USER", "ADMIN")
                         // SSE 연결을 위해
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 

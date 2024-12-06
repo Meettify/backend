@@ -1,6 +1,7 @@
 package com.example.meettify.controller.notification;
 
 import com.example.meettify.dto.notification.ResponseNotificationDTO;
+import com.example.meettify.exception.sse.SseException;
 import com.example.meettify.service.notification.NotificationService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -50,7 +51,7 @@ public class NotificationController implements NotificationControllerDocs {
             log.info("response: " + responseEmitter);
             return responseEmitter;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new SseException(e.getMessage());
         }
     }
 
@@ -92,6 +93,8 @@ public class NotificationController implements NotificationControllerDocs {
 
     // 알림 리스트
     @Override
+    @GetMapping("/list")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> getNotifications(@AuthenticationPrincipal UserDetails userDetails,
                                               @RequestParam int offset) {
         try {
