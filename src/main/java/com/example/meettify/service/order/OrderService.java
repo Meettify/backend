@@ -1,6 +1,7 @@
 package com.example.meettify.service.order;
 
 import com.example.meettify.dto.member.AddressDTO;
+import com.example.meettify.dto.order.PayStatus;
 import com.example.meettify.dto.order.RequestOrderDTO;
 import com.example.meettify.dto.order.RequestOrderServiceDTO;
 import com.example.meettify.dto.order.ResponseOrderDTO;
@@ -34,5 +35,5 @@ public interface OrderService {
     long countAll();
 
     // 모든 주문 내역 보기
-    Page<ResponseOrderDTO> getOrders(Pageable page);
+    Page<ResponseOrderDTO> getOrders(Pageable page, PayStatus payStatus);
 }

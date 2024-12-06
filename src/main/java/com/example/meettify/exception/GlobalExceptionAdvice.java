@@ -20,21 +20,25 @@ import com.example.meettify.exception.pay.PaymentConfirmErrorCode;
 import com.example.meettify.exception.pay.PaymentConfirmException;
 import com.example.meettify.exception.pay.PaymentTimeoutException;
 import com.example.meettify.exception.sessionExpire.SessionExpiredException;
+import com.example.meettify.exception.sse.SseException;
 import com.example.meettify.exception.stock.OutOfStockException;
 import com.example.meettify.exception.not_found.ResourceNotFoundException;
 import com.example.meettify.exception.timeout.RequestTimeoutException;
 import com.example.meettify.exception.validation.DataValidationException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.*;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
@@ -80,6 +84,29 @@ public class GlobalExceptionAdvice {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(errorResponse);
+    }
+
+    // SSE 관련 예외 처리
+    @ExceptionHandler(SseException.class)
+    public void handleMemberException( SseException e,
+                                                                HttpServletRequest request,
+                                                                HttpServletResponse response) throws IOException {
+        // SSE 응답 헤더 설정
+        response.setContentType(MediaType.TEXT_EVENT_STREAM_VALUE);
+        response.setCharacterEncoding("UTF-8");
+
+        // SSE 메시지 작성
+        String errorEvent = "data: {\n" +
+                "  \"error\": \"SSE 통신 에러\",\n" +
+                "  \"message\": \"" + e.getMessage() + "\",\n" +
+                "  \"timestamp\": \"" + System.currentTimeMillis() + "\",\n" +
+                "  \"path\": \"" + request.getRequestURI() + "\",\n" +
+                "  \"method\": \"" + request.getMethod() + "\"\n" +
+                "}\n\n";
+
+        // 스트림에 에러 이벤트 전송
+        response.getWriter().write(errorEvent);
+        response.getWriter().flush();
     }
 
     /**

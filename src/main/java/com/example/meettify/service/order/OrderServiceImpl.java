@@ -291,9 +291,9 @@ public class OrderServiceImpl implements OrderService {
     // 모든 주문 내역 보기
     @Override
     @Transactional(readOnly = true)
-    public Page<ResponseOrderDTO> getOrders(Pageable page) {
+    public Page<ResponseOrderDTO> getOrders(Pageable page, PayStatus payStatus) {
         try {
-            Page<OrderEntity> findOrders = orderRepository.findAll(page);
+            Page<OrderEntity> findOrders = orderRepository.findAllOrders(page, payStatus);
             log.info("findOrders: {}", findOrders);
             return findOrders
                     .map(ResponseOrderDTO::viewChangeDTO);

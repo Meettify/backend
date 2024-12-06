@@ -1,6 +1,7 @@
 package com.example.meettify.controller.order;
 
 import com.example.meettify.dto.member.AddressDTO;
+import com.example.meettify.dto.order.PayStatus;
 import com.example.meettify.dto.order.RequestOrderDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,7 +18,7 @@ public interface OrderControllerDocs {
     ResponseEntity<?> getMyOrders(UserDetails userDetails, Pageable pageable);
 
     @Operation(summary = "모든 주문보기", description = "모든 주문을 보는 API")
-    ResponseEntity<?> getOrders(Pageable pageable);
+    ResponseEntity<?> getOrders(Pageable pageable, PayStatus payStatus);
 
     @Operation(summary = "임시 주문보기", description = "임시로 주문을 보는 API")
     ResponseEntity<?> createTempOrder(List<RequestOrderDTO> orders,
