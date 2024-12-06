@@ -1,6 +1,7 @@
 package com.example.meettify.controller.order;
 
 import com.example.meettify.dto.member.AddressDTO;
+import com.example.meettify.dto.order.PayStatus;
 import com.example.meettify.dto.order.RequestOrderDTO;
 import com.example.meettify.dto.order.RequestOrderServiceDTO;
 import com.example.meettify.dto.order.ResponseOrderDTO;
@@ -93,9 +94,9 @@ public class OrderController implements OrderControllerDocs{
     @Override
     @GetMapping("")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> getOrders(Pageable pageable) {
+    public ResponseEntity<?> getOrders(Pageable pageable, @RequestParam PayStatus payStatus) {
         try {
-            Page<ResponseOrderDTO> myOrders = orderService.getOrders(pageable);
+            Page<ResponseOrderDTO> myOrders = orderService.getOrders(pageable, payStatus);
             Map<String, Object> response = responsePageInfo(myOrders);
             return ResponseEntity.ok().body(response);
         }  catch (Exception e) {
