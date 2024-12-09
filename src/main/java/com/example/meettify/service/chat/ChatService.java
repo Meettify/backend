@@ -19,4 +19,6 @@ public interface ChatService {
     boolean joinRoom(String email, Long roomId);
     // 채팅방에 들어와 있는 유저 리스트 반환
     List<ChatMemberDTO> getRoomMembers(Long roomId);
+    // 채팅방 나가기
+    String leaveRoom(String email, Long roomId);
 }

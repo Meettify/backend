@@ -99,6 +99,7 @@ public class ChatServiceImpl implements ChatService {
 
     // 채팅방에 들어간 유저 리스트
     @Override
+    @Transactional(readOnly = true)
     public List<ChatMemberDTO> getRoomMembers(Long roomId) {
         try {
             // 채팅방 조회
@@ -118,6 +119,29 @@ public class ChatServiceImpl implements ChatService {
             throw new ChatRoomException(e.getMessage());
         } catch (MemberException e) {
             throw new MemberException(e.getMessage());
+        }
+    }
+
+    @Override
+    public String leaveRoom(String email, Long roomId) {
+        try {
+            // 회원 조회
+            MemberEntity findMember = memberRepository.findByMemberEmail(email);
+            // 채팅방 조회
+            ChatRoomEntity findChatRoom = chatRoomRepository.findById(roomId)
+                    .orElseThrow(() -> new ChatRoomException("채팅방이 존재하지 않습니다."));
+
+            // 채팅방의 생성자일 경우
+            if(findMember.getNickName().equals(findChatRoom.getCreatedNickName())) {
+                // 채팅방 삭제
+                chatRoomRepository.delete(findChatRoom);
+                return "채팅방이 삭제되었습니다.";
+            }
+            // 채팅방에서 나갔으므로 채팅방 유저에서 제외
+            findChatRoom.getInviteMemberIds().remove(findMember.getMemberId());
+            return "채팅방에서 나갔습니다.";
+        } catch (ChatRoomException e) {
+            throw new ChatRoomException("채팅방에서 나가는데/삭제하는데 실패했습니다.");
         }
     }
 }
