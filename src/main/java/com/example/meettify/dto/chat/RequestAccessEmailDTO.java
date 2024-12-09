@@ -11,5 +11,4 @@ import lombok.*;
 public class RequestAccessEmailDTO {
     @Schema(description = "채팅방에 입장시킬 유저 이메일")
     private String accessEmail;
-
 }

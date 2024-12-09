@@ -16,4 +16,6 @@ public interface ChatRoomControllerDocs {
     ResponseEntity<?> joinRoom(RequestAccessEmailDTO requestAccessRoomId, Long roomId);
     @Operation(summary = "채팅 내역", description = "채팅 내역 API")
     ResponseEntity<?> getMessagesByRoomId(Long roomId);
+    @Operation(summary = "채팅방 유저 리스트", description = "채팅방 유저 리스트 API")
+    ResponseEntity<?> getRoomMembers(Long roomId);
 }
