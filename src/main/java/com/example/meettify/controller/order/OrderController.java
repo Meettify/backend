@@ -1,10 +1,7 @@
 package com.example.meettify.controller.order;
 
 import com.example.meettify.dto.member.AddressDTO;
-import com.example.meettify.dto.order.PayStatus;
-import com.example.meettify.dto.order.RequestOrderDTO;
-import com.example.meettify.dto.order.RequestOrderServiceDTO;
-import com.example.meettify.dto.order.ResponseOrderDTO;
+import com.example.meettify.dto.order.*;
 import com.example.meettify.exception.order.OrderException;
 import com.example.meettify.service.order.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -37,15 +34,14 @@ public class OrderController implements OrderControllerDocs{
     @Override
     @PostMapping("/tempOrder")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> createTempOrder(@RequestBody List<RequestOrderDTO> orders,
-                                       @RequestBody AddressDTO address,
+    public ResponseEntity<?> createTempOrder(@RequestBody OrderRequestWrapperDTO orderWrapper,
                                        @AuthenticationPrincipal UserDetails userDetails) {
         try {
             String email = userDetails.getUsername();
-            List<RequestOrderServiceDTO> serviceDTOS = orders.stream()
+            List<RequestOrderServiceDTO> serviceDTOS = orderWrapper.getOrders().stream()
                     .map(order -> modelMapper.map(order, RequestOrderServiceDTO.class))
                     .collect(Collectors.toList());
-            ResponseOrderDTO response = orderService.createTempOrder(serviceDTOS, email, address);
+            ResponseOrderDTO response = orderService.createTempOrder(serviceDTOS, email, orderWrapper.getAddress());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             throw new OrderException(e.getMessage());
