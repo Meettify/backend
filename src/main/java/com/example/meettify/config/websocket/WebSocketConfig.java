@@ -39,7 +39,5 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         // 메시지를 보낼 때 관련 경로를 설정해주는 함수
         // 클라이언트가 메시지를 보낼 때 경로 앞에 해당 경로가 붙어 있으면 Broker로 보낸다.
         registry.setApplicationDestinationPrefixes("/sub");
-
-
     }
 }

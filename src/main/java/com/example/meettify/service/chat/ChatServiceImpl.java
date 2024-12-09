@@ -2,9 +2,11 @@ package com.example.meettify.service.chat;
 
 import com.example.meettify.document.chat.ChatMessage;
 import com.example.meettify.dto.chat.*;
+import com.example.meettify.dto.member.ResponseMemberDTO;
 import com.example.meettify.entity.chat_room.ChatRoomEntity;
 import com.example.meettify.entity.member.MemberEntity;
 import com.example.meettify.exception.chat.ChatRoomException;
+import com.example.meettify.exception.member.MemberException;
 import com.example.meettify.repository.chat.ChatMessageRepository;
 import com.example.meettify.repository.chat.ChatRoomRepository;
 import com.example.meettify.repository.member.MemberRepository;
@@ -93,5 +95,53 @@ public class ChatServiceImpl implements ChatService {
         // 회원을 채팅방에 초대
         findChatRoom.getInviteMemberIds().add(findMember.getMemberId());
         return true;
+    }
+
+    // 채팅방에 들어간 유저 리스트
+    @Override
+    @Transactional(readOnly = true)
+    public List<ChatMemberDTO> getRoomMembers(Long roomId) {
+        try {
+            // 채팅방 조회
+            ChatRoomEntity findChatRoom = chatRoomRepository.findById(roomId)
+                    .orElseThrow(() -> new ChatRoomException("채팅방이 존재하지 않습니다."));
+
+            List<MemberEntity> memberList = findChatRoom.getInviteMemberIds()
+                    .stream()
+                    .map(id -> memberRepository.findById(id)
+                            .orElseThrow(() -> new MemberException("유저가 존재하지 않습니다.")))
+                    .toList();
+
+            return memberList
+                    .stream().map(ChatMemberDTO::getMember)
+                    .toList();
+        } catch (ChatRoomException e) {
+            throw new ChatRoomException(e.getMessage());
+        } catch (MemberException e) {
+            throw new MemberException(e.getMessage());
+        }
+    }
+
+    @Override
+    public String leaveRoom(String email, Long roomId) {
+        try {
+            // 회원 조회
+            MemberEntity findMember = memberRepository.findByMemberEmail(email);
+            // 채팅방 조회
+            ChatRoomEntity findChatRoom = chatRoomRepository.findById(roomId)
+                    .orElseThrow(() -> new ChatRoomException("채팅방이 존재하지 않습니다."));
+
+            // 채팅방의 생성자일 경우
+            if(findMember.getNickName().equals(findChatRoom.getCreatedNickName())) {
+                // 채팅방 삭제
+                chatRoomRepository.delete(findChatRoom);
+                return "채팅방이 삭제되었습니다.";
+            }
+            // 채팅방에서 나갔으므로 채팅방 유저에서 제외
+            findChatRoom.getInviteMemberIds().remove(findMember.getMemberId());
+            return "채팅방에서 나갔습니다.";
+        } catch (ChatRoomException e) {
+            throw new ChatRoomException("채팅방에서 나가는데/삭제하는데 실패했습니다.");
+        }
     }
 }

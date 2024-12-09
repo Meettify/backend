@@ -1,9 +1,11 @@
 package com.example.meettify.controller.chat;
 
+import com.example.meettify.dto.chat.ChatMemberDTO;
 import com.example.meettify.dto.chat.ChatMessageDTO;
 import com.example.meettify.dto.chat.ChatRoomDTO;
 import com.example.meettify.dto.chat.RequestAccessEmailDTO;
 import com.example.meettify.exception.chat.ChatRoomException;
+import com.example.meettify.exception.member.MemberException;
 import com.example.meettify.service.chat.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -37,6 +39,7 @@ public class ChatRoomController implements ChatRoomControllerDocs {
         }
     }
 
+    // 채팅방 리스트
     @Override
     @GetMapping("/rooms")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
@@ -50,7 +53,7 @@ public class ChatRoomController implements ChatRoomControllerDocs {
         }
     }
 
-
+    // 채팅방에 속한 채팅 내역 가져오기
     @Override
     @GetMapping("/{roomId}/messages")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
@@ -64,6 +67,7 @@ public class ChatRoomController implements ChatRoomControllerDocs {
         }
     }
 
+    // 채팅방에 들어갈 때 체크
     @Override
     @PostMapping("/{roomId}/access")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
@@ -73,6 +77,38 @@ public class ChatRoomController implements ChatRoomControllerDocs {
             boolean response = chatService.joinRoom(accessEmail.getAccessEmail(), roomId);
             return ResponseEntity.ok(response);
         } catch (ChatRoomException e) {
+            throw new ChatRoomException(e.getMessage());
+        }
+    }
+
+    // 채팅방 유저 리스트 조회
+    @Override
+    @GetMapping("/room/{roomId}")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    public ResponseEntity<?> getRoomMembers(@PathVariable Long roomId) {
+        try {
+            List<ChatMemberDTO> response = chatService.getRoomMembers(roomId);
+            log.info("response: {}", response);
+            return ResponseEntity.ok(response);
+        } catch (ChatRoomException e) {
+            throw new ChatRoomException(e.getMessage());
+        } catch (MemberException e) {
+            throw new MemberException(e.getMessage());
+        }
+    }
+
+    // 채팅방 나가기
+    @Override
+    @DeleteMapping("/{roomId}")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    public ResponseEntity<?> leaveRoom(@PathVariable Long roomId,
+                                       @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            String email = userDetails.getUsername();
+            String response = chatService.leaveRoom(email, roomId);
+            log.info("response: {}", response);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
             throw new ChatRoomException(e.getMessage());
         }
     }

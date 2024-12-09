@@ -15,11 +15,18 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class StompHandler implements ChannelInterceptor {
+    // WebSocket 연결 시 헤더에서 JWT token 유효성 검증
     private final JwtProvider jwtProvider;
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         try {
+            /**
+             * 1. StompHeaderAccessor: Stomp 메세지의 헤더에 접근하는 클래스
+             * 2. 전송된 Stomp 메세지의 Command가 CONNECT인지 검사
+             * 3. StompHeaderAccessor로부터 Authorization 헤더의 JWT 토큰 추출(BEARER <- 이거 제거)
+             * 4. jwtAuthenticationFilter로부터 유효한 토큰인지 확인
+             */
             StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 
             if(accessor.getCommand() == StompCommand.CONNECT) {

@@ -1,5 +1,6 @@
 package com.example.meettify.service.chat;
 
+import com.example.meettify.dto.chat.ChatMemberDTO;
 import com.example.meettify.dto.chat.ChatMessageDTO;
 import com.example.meettify.dto.chat.ChatRoomDTO;
 
@@ -16,4 +17,8 @@ public interface ChatService {
     List<ChatRoomDTO> getRooms(String email);
     // 채팅방에 속해있으면 true
     boolean joinRoom(String email, Long roomId);
+    // 채팅방에 들어와 있는 유저 리스트 반환
+    List<ChatMemberDTO> getRoomMembers(Long roomId);
+    // 채팅방 나가기
+    String leaveRoom(String email, Long roomId);
 }
