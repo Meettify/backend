@@ -39,8 +39,4 @@ public class RequestMeetBoardDTO {
     @NotNull(message = "게시판 내용은 필수입니다.")
     @Pattern(regexp="^[\\S\\s]{1,2500}$", message = "컨텐츠은 1자 이상 2500자 이하이어야 합니다.")
     private String meetBoardContent;
-
-
-
-
 }

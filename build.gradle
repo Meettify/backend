@@ -33,6 +33,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.webjars:sockjs-client:1.1.2'
     implementation 'org.webjars:stomp-websocket:2.3.4'
+    // RabbitMQ
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+    testImplementation 'org.testcontainers:rabbitmq:1.19.0'
+    implementation "org.springframework.boot:spring-boot-starter-reactor-netty" // RabbitMQ에서 브로커 연결 및 통신 설정을 위해 기본으로 사용
     // OAuth2.0
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     // Security
