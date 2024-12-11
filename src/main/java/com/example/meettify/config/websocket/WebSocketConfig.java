@@ -1,23 +1,39 @@
 package com.example.meettify.config.websocket;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
+import org.springframework.web.socket.messaging.SessionConnectedEvent;
+import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
+@Log4j2
 @RequiredArgsConstructor
 @Configuration
 // 웹소켓 활성화 : 스프링에서 제공하는 내장 메시지 브로커(SimpleBroker)를 사용
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private final StompHandler stompHandler;
+    private final StompExceptionHandler stompExceptionHandler;
+    @Value("${spring.rabbitmq.host}")
+    private String host;
+    @Value("${spring.rabbitmq.username}")
+    private String userName;
+    @Value("${spring.rabbitmq.password}")
+    private String password;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry
+                .setErrorHandler(stompExceptionHandler)
                 // 소켓 연결 URI다. 소켓을 연결할 때 다음과 같은 통신이 이루어짐
                 .addEndpoint("/ws/chat")
                 .setAllowedOrigins("http://localhost:5173")
@@ -31,13 +47,38 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     }
 
     @Override
+    public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
+        // 메세지 크기 제한 오류 방지(이 코드가 없으면 byte code를 보낼때 소켓 연결이 끊길 수 있음)
+        registry.setMessageSizeLimit(50 * 1024 * 1024);
+    }
+
+    @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        // 메시지를 받을 때 경로를 설정해주는 함수 - 스프링에서 지원해주는 내장 브로커를 사용하는 함수
-        // "/pub" 이라는 prefix가 붙으면 messageBroker가 해당 경로를 가로챈다.
-        // 클라이언트는 토픽을 구독할 시 /sub 경로로 요청해야 함
-        registry.enableSimpleBroker("/pub");
-        // 메시지를 보낼 때 관련 경로를 설정해주는 함수
-        // 클라이언트가 메시지를 보낼 때 경로 앞에 해당 경로가 붙어 있으면 Broker로 보낸다.
-        registry.setApplicationDestinationPrefixes("/sub");
+
+        registry.setPathMatcher(new AntPathMatcher("."));
+        registry.setUserDestinationPrefix("/sub");           // 클라이언트 구독 경로
+
+        // RabbitMQ 브로커 리레이 설정
+        registry.enableStompBrokerRelay("/exchange", "/queue")
+                .setRelayHost(host)
+                .setRelayPort(61613)
+                .setClientLogin(userName)
+                .setSystemPasscode(password)
+                .setSystemLogin(userName)
+                .setSystemPasscode(password);
+    }
+
+    // 클라이언트가 WebSocket을 통해 서버와 연결했을 때 발생하는 이벤트를 처리
+    @EventListener
+    public void connectEvent(SessionConnectedEvent event) {
+        log.info("session connected {}", event);
+        log.info("연결 성공!!!!!!!!!!!!!!!!!!");
+    }
+
+    // 클라이언트가 WebSocket을 통해 서버와 연결했을 때 발생하는 이벤트를 처리
+    @EventListener
+    public void disconnectEvent(SessionDisconnectEvent event) {
+        log.info("session disconnected {}", event);
+        log.info("연결 끊어짐!!!!!!!!!!!!!!!!!");
     }
 }

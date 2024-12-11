@@ -85,7 +85,18 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
-
+  websocket:
+    stomp:
+      broker-relay:
+        enabled: true
+        path: /ws
+        host: localhost
+        port: 61613
+  rabbitmq:
+    host: rabbitmq
+    username: guest
+    password: guest
+    port: 5672
 
 jwt:
   secret_key: ${JWT_SECRET}
@@ -174,8 +185,8 @@ iamport:
 
 
 payment:
-  secret-key: ${TOSSSECRETKEY}
+  secret_key: ${TOSSSECRETKEY}
+  client_key: ${TOSSCLIENTKEY}
   base-url: https://api.tosspayments.com/v1/payments
   confirm-endpoint: /confirm
   cancel-endpoint: /%s/cancel #cancel 엔드포인트 추가
-

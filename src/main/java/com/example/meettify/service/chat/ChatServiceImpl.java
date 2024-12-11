@@ -5,6 +5,7 @@ import com.example.meettify.dto.chat.*;
 import com.example.meettify.dto.member.ResponseMemberDTO;
 import com.example.meettify.entity.chat_room.ChatRoomEntity;
 import com.example.meettify.entity.member.MemberEntity;
+import com.example.meettify.exception.chat.ChatException;
 import com.example.meettify.exception.chat.ChatRoomException;
 import com.example.meettify.exception.member.MemberException;
 import com.example.meettify.repository.chat.ChatMessageRepository;
@@ -27,14 +28,15 @@ public class ChatServiceImpl implements ChatService {
     private final MemberRepository memberRepository;
 
     @Override
-    public void sendMessage(ChatMessageDTO message) {
+    public ChatMessageDTO sendMessage(ChatMessageDTO message) {
         try {
             ChatMessage chatMessage = ChatMessage.create(message);
             // 몽고 디비에 저장
             chatMessageRepository.save(chatMessage);
+            return ChatMessageDTO.change(chatMessage);
         } catch (Exception e) {
             log.error(e);
-
+            throw new ChatException("메시지를 작성하는데 실패했습니다.");
         }
     }
 

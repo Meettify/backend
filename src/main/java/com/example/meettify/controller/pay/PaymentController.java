@@ -2,7 +2,6 @@ package com.example.meettify.controller.pay;
 
 import com.example.meettify.config.iamport.ImportConfig;
 import com.example.meettify.config.pay.PaymentClient;
-import com.example.meettify.dto.member.AddressDTO;
 import com.example.meettify.dto.order.ResponseOrderDTO;
 import com.example.meettify.dto.pay.*;
 import com.example.meettify.exception.order.OrderException;
@@ -46,9 +45,8 @@ public class PaymentController implements PaymentControllerDocs {
             IamportResponse<Payment> paymentIamportResponse = importConfig.iamportClient().paymentByImpUid(pay.getImpUid());
 
             if (paymentIamportResponse.getResponse().getStatus().equals("paid")) {
-                AddressDTO address = AddressDTO.addAddress(pay.getMemberAddr(), pay.getMemberAddrDetail(), pay.getMemberZipCode());
                 // 결제 성공 시 주문 정보 저장
-                ResponseOrderDTO response = orderService.saveOrder(pay.getOrders(), email, address, pay.getOrderUid());
+                ResponseOrderDTO response = orderService.saveOrder(pay.getOrders(), email, pay.getAddress(), pay.getOrderUid());
                 // 결제 정보를 저장
                 ResponsePaymentDTO responsePaymentDTO = paymentService.savePayment(pay, email, paymentIamportResponse);
                 log.info(response);
@@ -105,9 +103,8 @@ public class PaymentController implements PaymentControllerDocs {
             String email = userDetails != null ? userDetails.getUsername() : null;
             ResponseTossPaymentConfirmDTO response = paymentClient.confirmPayment(tossPay, email);
             log.info(response);
-            AddressDTO address = AddressDTO.addAddress(tossPay.getMemberAddr(), tossPay.getMemberAddrDetail(), tossPay.getMemberZipCode());
             // 결제 성공 시 주문 정보 저장
-            orderService.saveOrder(tossPay.getOrders(), email, address, tossPay.getOrderUid());
+            orderService.saveOrder(tossPay.getOrders(), email, tossPay.getAddress(), tossPay.getOrderUid());
             // 결제 알림
             notificationService.notifyMessage(email, "토스로 결제 :" + response.getTotalAmount() +"원이 결제되었습니다.");
             return ResponseEntity.ok(response);
