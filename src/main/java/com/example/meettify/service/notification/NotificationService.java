@@ -52,6 +52,11 @@ public class NotificationService {
         SseEmitter sseEmitter = customNotificationRepository.save(eventId, new SseEmitter(DEFAULT_TIMEOUT));
         log.info("sseEmitter {}", sseEmitter);
 
+        // 클라이언트가 미수신한 Event 목록이 존재할 경우 전송하여 Event 유실을 예방
+        if (hasLostData(lastEventId)) {
+            sendLostData(lastEventId, findMember.getMemberId(), sseEmitter);
+        }
+
         // 503 에러를 방지하기 위한 더미 이벤트 전송
         sendToClient(eventId, sseEmitter, "알림 서버 연결 성공 [memberId = " + findMember.getMemberId() + "]");
 
@@ -68,10 +73,6 @@ public class NotificationService {
             customNotificationRepository.deleteById(eventId);
         });
 
-        // 클라이언트가 미수신한 Event 목록이 존재할 경우 전송하여 Event 유실을 예방
-        if (hasLostData(lastEventId)) {
-            sendLostData(lastEventId, findMember.getMemberId(), sseEmitter);
-        }
 
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(() -> {
@@ -92,13 +93,25 @@ public class NotificationService {
 
     private void sendToClient(String eventId, SseEmitter sseEmitter, Object data) {
         try {
+            // 데이터 캐시 저장 (유실된 데이터를 처리하기 위함)
+            if(!customNotificationRepository.existsEventCache(eventId)) {
+                customNotificationRepository.saveEventCacheId(eventId, data);
+            }
             sseEmitter.send(SseEmitter.event()
                     .name("connect")
                     .id(eventId)
                     .data(data));
-        } catch (IOException e) {
+
+            // 성공적으로 전송되었다면 데이터 캐시 삭제, emitter는 계속 유지
+            customNotificationRepository.deleteEventCache(eventId);
+        } catch (Exception e) {
+            // Broken pipe 에러면 exception 발생 x
+            if(e.getMessage().contains("Broken pipe")) {
+                log.error("[SSE ERROR] 클라이언트 연결해제 :", e);
+            }
             log.error("Failed to send SSE event: {}", e.getMessage());
             customNotificationRepository.deleteById(eventId);
+
             throw new RuntimeException("알림 서버 연결 오류");
         }
     }
@@ -209,8 +222,4 @@ public class NotificationService {
         return findAll.stream().map(ResponseNotificationDTO::changeList)
                 .toList();
     }
-
-
-
-
 }
