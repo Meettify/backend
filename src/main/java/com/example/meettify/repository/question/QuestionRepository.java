@@ -15,10 +15,4 @@ public interface QuestionRepository extends JpaRepository<QuestionEntity, Long>,
             " where q.questionId = :questionId")
     Optional<QuestionEntity> findByQuestionId(@Param("questionId") Long questionId);
 
-    @Query(value = "select q from questions q" +
-            " join fetch q.member m" +
-            " where m.memberEmail = :memberEmail" +
-    " order by q.questionId desc ",
-    countQuery = "select count(q) from questions q where q.member.memberEmail = :memberEmail")
-    Page<QuestionEntity> findAllByMember(@Param("memberEmail") String memberEmail, Pageable pageable);
 }

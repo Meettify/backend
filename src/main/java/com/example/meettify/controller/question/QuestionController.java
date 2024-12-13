@@ -2,6 +2,7 @@ package com.example.meettify.controller.question;
 
 import com.example.meettify.dto.board.CreateBoardDTO;
 import com.example.meettify.dto.board.UpdateQuestionDTO;
+import com.example.meettify.dto.question.ReplyStatus;
 import com.example.meettify.dto.question.ResponseCountDTO;
 import com.example.meettify.dto.question.ResponseQuestionDTO;
 import com.example.meettify.exception.board.BoardException;
@@ -93,10 +94,12 @@ public class QuestionController implements QuestionControllerDocs{
     @Override
     @GetMapping("/my-questions")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> getMyQuestions(Pageable pageable, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<?> getMyQuestions(Pageable pageable,
+                                            @AuthenticationPrincipal UserDetails userDetails,
+                                            @RequestParam ReplyStatus replyStatus) {
         try {
             String email = userDetails.getUsername();
-            Page<ResponseQuestionDTO> findAllQuestions = questionService.getMyAllQuestions(pageable, email);
+            Page<ResponseQuestionDTO> findAllQuestions = questionService.getMyAllQuestions(pageable, email, replyStatus);
             Map<String, Object> response = new HashMap<>();
             // 현재 페이지의 아이템 목록
             response.put("contents",findAllQuestions.getContent());

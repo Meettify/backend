@@ -2,6 +2,7 @@ package com.example.meettify.service.question;
 
 import com.example.meettify.dto.board.CreateBoardDTO;
 import com.example.meettify.dto.board.UpdateQuestionDTO;
+import com.example.meettify.dto.question.ReplyStatus;
 import com.example.meettify.dto.question.ResponseCountDTO;
 import com.example.meettify.dto.question.ResponseQuestionDTO;
 import org.springframework.data.domain.Page;
@@ -20,9 +21,9 @@ public interface QuestionService {
     // 문의 조회
     ResponseQuestionDTO getQuestion(Long questionId, UserDetails userDetails);
     // 내 문의글 보기
-    Page<ResponseQuestionDTO> getMyAllQuestions(Pageable pageable, String memberEmail);
+    Page<ResponseQuestionDTO> getMyAllQuestions(Pageable pageable, String memberEmail, ReplyStatus replyStatus);
     // 모든 문의글 보기 - 관리자
-    Page<ResponseQuestionDTO> getAllQuestions(Pageable pageable);
+    Page<ResponseQuestionDTO> getAllQuestions(Pageable pageable, ReplyStatus replyStatus);
     // 내 문의글 수
     ResponseCountDTO countMyAllQuestions(String memberEmail);
     // 모든 문의글 수

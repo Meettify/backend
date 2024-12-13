@@ -2,6 +2,7 @@ package com.example.meettify.controller.admin;
 
 import com.example.meettify.dto.comment.CreateAnswerDTO;
 import com.example.meettify.dto.comment.UpdateCommentDTO;
+import com.example.meettify.dto.question.ReplyStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +15,7 @@ public interface AdminControllerDocs {
     ResponseEntity<?> getAllMembers(Pageable page, String memberEmail);
 
     @Operation(summary = "문의글 내역 보기", description = "전체적인 문의글 내역 가져오는 API")
-    ResponseEntity<?> getAllQuestions(Pageable page);
+    ResponseEntity<?> getAllQuestions(Pageable page, ReplyStatus replyStatus);
 
     @Operation(summary = "문의글 답변 달기", description = "문의글에 답변 다는 API")
     ResponseEntity<?> createAnswer(Long questionId, CreateAnswerDTO answer, UserDetails userDetails);
