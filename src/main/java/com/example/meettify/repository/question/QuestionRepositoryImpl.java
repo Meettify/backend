@@ -7,6 +7,7 @@ import com.example.meettify.entity.question.QuestionEntity;
 import com.example.meettify.exception.board.BoardException;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -32,33 +33,22 @@ public class QuestionRepositoryImpl implements CustomQuestionRepository{
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<QuestionEntity> findAllQuestions(Pageable page) {
+    public Page<QuestionEntity> findAllQuestions(Pageable page, ReplyStatus replyStatus) {
         try {
             JPAQuery<QuestionEntity> questions = queryFactory
                     .select(questionEntity)
                     .from(questionEntity)
+                    .where(stateEq(replyStatus))
                     .join(questionEntity.member, memberEntity).fetchJoin()
                     .offset(page.getOffset())
                     .limit(page.getPageSize());
 
             JPAQuery<Long> count = queryFactory
                     .select(questionEntity.count())
-                    .from(questionEntity);
-
-            for (Sort.Order order : page.getSort()) {
-                PathBuilder pathBuilder = new PathBuilder(
-                        questionEntity.getType(),
-                        questionEntity.getMetadata()
-                );
-                PathBuilder sort = pathBuilder.get(order.getProperty());
-
-                questions.orderBy(
-                        new OrderSpecifier<>(
-                                order.isDescending() ? Order.DESC : Order.ASC,
-                                sort != null ? sort : questionEntity.questionId
-                        )
-                );
-            }
+                    .from(questionEntity)
+                    .where(stateEq(replyStatus));
+            // 동적 정렬
+            sort(page, questions);
             List<QuestionEntity> result = questions.fetch();
             return PageableExecutionUtils.getPage(result, page, count::fetchOne);
         } catch (Exception e) {
@@ -66,37 +56,55 @@ public class QuestionRepositoryImpl implements CustomQuestionRepository{
         }
     }
 
+    private static void sort(Pageable page, JPAQuery<QuestionEntity> questions) {
+        for (Sort.Order order : page.getSort()) {
+            PathBuilder pathBuilder = new PathBuilder(
+                    questionEntity.getType(),
+                    questionEntity.getMetadata()
+            );
+            PathBuilder sort = pathBuilder.get(order.getProperty());
+
+            questions.orderBy(
+                    new OrderSpecifier<>(
+                            order.isDescending() ? Order.DESC : Order.ASC,
+                            sort != null ? sort : questionEntity.questionId
+                    )
+            );
+        }
+    }
+
+    public BooleanExpression stateEq(ReplyStatus replyStatus) {
+        return replyStatus == null ? null : questionEntity.replyStatus.eq(replyStatus);
+    }
+
+    @Override
+    public Page<QuestionEntity> findAllByMember(String memberEmail, Pageable page, ReplyStatus replyStatus) {
+        try {
+            JPAQuery<QuestionEntity> questions = queryFactory
+                    .selectFrom(questionEntity)
+                    .where(stateEq(replyStatus), questionEntity.member.memberEmail.eq(memberEmail))
+                    .join(questionEntity.member, memberEntity).fetchJoin()
+                    .offset(page.getOffset())
+                    .limit(page.getPageSize());
+
+            JPAQuery<Long> count = queryFactory
+                    .select(questionEntity.count())
+                    .from(questionEntity)
+                    .where(stateEq(replyStatus), questionEntity.member.memberEmail.eq(memberEmail));
+
+            // 동적 정렬
+            sort(page, questions);
+
+            List<QuestionEntity> result = questions.fetch();
+            return PageableExecutionUtils.getPage(result, page, count::fetchOne);
+        } catch (Exception e) {
+            throw new BoardException("데이터베이스에서 문의글을 가져오는 것을 실패했습니다.");
+        }
+    }
 
     @Override
     public ResponseCountDTO countMyQuestions(String email) {
         try {
-//            // 전체 문의글 수
-//            long totalQuestions = Optional.ofNullable(
-//                    queryFactory
-//                            .select(questionEntity.count())
-//                            .from(questionEntity)
-//                            .where(questionEntity.member.memberEmail.eq(email))
-//                            .fetchOne()
-//            ).orElse(0L);
-//            // 답글 완료 수 (REPLY_O)
-//            long completedReplies = Optional.ofNullable(
-//                    queryFactory
-//                            .select(questionEntity.count())
-//                            .from(questionEntity)
-//                            .where(questionEntity.replyStatus.eq(ReplyStatus.REPLY_O),
-//                                    questionEntity.member.memberEmail.eq(email))
-//                            .fetchOne()
-//            ).orElse(0L);
-//            // 답글 미완료 수 (REPLY_X)
-//
-//            long pendingReplies = Optional.ofNullable(
-//                    queryFactory
-//                            .select(questionEntity.count())
-//                            .from(questionEntity)
-//                            .where(questionEntity.replyStatus.eq(ReplyStatus.REPLY_X),
-//                                    questionEntity.member.memberEmail.eq(email))
-//                            .fetchOne()
-//            ).orElse(0L);
             Map<ReplyStatus, Long> count = queryFactory
                     .select(questionEntity.replyStatus, questionEntity.count())
                     .from(questionEntity)

@@ -31,7 +31,6 @@ public class TossPaymentEntity {
     private String orderUid;
     private String status;
     private Long totalAmount;
-    private String orderName;
     private String paymentKey;    // 결제 키
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -53,7 +52,6 @@ public class TossPaymentEntity {
                 .payMethod(pay.getPayMethod())
                 .orderUid(pay.getOrderUid())
                 .member(member)
-                .orderName(pay.getOrderName())
                 .totalAmount(pay.getTotalAmount())
                 .paymentKey(pay.getPaymentKey())
                 .requestedAt(pay.getRequestedAt())

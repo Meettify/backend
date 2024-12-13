@@ -2,6 +2,7 @@ package com.example.meettify.service.question;
 
 import com.example.meettify.dto.board.CreateBoardDTO;
 import com.example.meettify.dto.board.UpdateQuestionDTO;
+import com.example.meettify.dto.question.ReplyStatus;
 import com.example.meettify.dto.question.ResponseCountDTO;
 import com.example.meettify.dto.question.ResponseQuestionDTO;
 import com.example.meettify.entity.member.MemberEntity;
@@ -112,9 +113,11 @@ public class QuestionServiceImpl implements QuestionService{
     // 내 문의글 보기
     @Override
     @Transactional(readOnly = true)
-    public Page<ResponseQuestionDTO> getMyAllQuestions(Pageable pageable, String memberEmail) {
+    public Page<ResponseQuestionDTO> getMyAllQuestions(Pageable pageable,
+                                                       String memberEmail,
+                                                       ReplyStatus replyStatus) {
         try {
-            Page<QuestionEntity> findAllQuestions = questionRepository.findAllByMember(memberEmail, pageable);
+            Page<QuestionEntity> findAllQuestions = questionRepository.findAllByMember(memberEmail, pageable, replyStatus);
             return findAllQuestions
                     .map(q -> ResponseQuestionDTO.changeDTO(q, q.getMember().getNickName()));
         } catch (Exception e) {
@@ -125,9 +128,10 @@ public class QuestionServiceImpl implements QuestionService{
     // 모든 문의글 보기 - 관리자
     @Override
     @Transactional(readOnly = true)
-    public Page<ResponseQuestionDTO> getAllQuestions(Pageable pageable) {
+    public Page<ResponseQuestionDTO> getAllQuestions(Pageable pageable,
+                                                     ReplyStatus replyStatus) {
         try {
-            Page<QuestionEntity> findAllQuestions = questionRepository.findAllQuestions(pageable);
+            Page<QuestionEntity> findAllQuestions = questionRepository.findAllQuestions(pageable, replyStatus);
             return findAllQuestions.map(q -> ResponseQuestionDTO.changeDTO(q, q.getMember().getNickName()));
         } catch (Exception e) {
             throw new BoardException("모든 문의글을 가져오는데 실패했습니다.");

@@ -118,9 +118,7 @@ public class MemberServiceImpl implements MemberService {
                         tokenEntity.updateToken(token);
                     }
 
-                    if (tokenEntity == null) {
-                        tokenEntity = TokenEntity.changeEntity(token);
-                    }
+                    tokenEntity = TokenEntity.changeEntity(token);
 
                     TokenEntity saveToken = tokenRepository.save(tokenEntity);
                     // 로그인 성공 시 캐시 초기화

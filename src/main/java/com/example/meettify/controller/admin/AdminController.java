@@ -4,6 +4,7 @@ import com.example.meettify.dto.comment.CreateAnswerDTO;
 import com.example.meettify.dto.comment.ResponseAnswerCommentDTO;
 import com.example.meettify.dto.comment.UpdateCommentDTO;
 import com.example.meettify.dto.member.ResponseMemberDTO;
+import com.example.meettify.dto.question.ReplyStatus;
 import com.example.meettify.dto.question.ResponseQuestionDTO;
 import com.example.meettify.exception.board.BoardException;
 import com.example.meettify.exception.comment.CommentException;
@@ -76,9 +77,10 @@ public class AdminController implements AdminControllerDocs {
     @Override
     @GetMapping("/questions")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> getAllQuestions(Pageable page) {
+    public ResponseEntity<?> getAllQuestions(Pageable page,
+                                             @RequestParam ReplyStatus replyStatus) {
         try {
-            Page<ResponseQuestionDTO> questions = questionService.getAllQuestions(page);
+            Page<ResponseQuestionDTO> questions = questionService.getAllQuestions(page, replyStatus);
             Map<String, Object> response = responsePageInfo(questions);
 
             return ResponseEntity.ok().body(response);

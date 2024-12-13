@@ -29,6 +29,7 @@ public class RedisConfig {
     @Value("${spring.data.redis.password}")
     private String password;
 
+    // Redis 와의 연결을 위한 'Connection'을 생성합니다.
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
         RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();
@@ -45,16 +46,23 @@ public class RedisConfig {
     // RedisConnectionFactory 사용: Redis 서버와의 연결을 설정하는 공장 역할을 하는 객체
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
-
         RedisTemplate<String, Object> template = new RedisTemplate<>();
+        // Redis를 연결합니다.
         template.setConnectionFactory(connectionFactory);
 
-
+        // Key-Value 형태로 직렬화를 수행합니다.
         // 직렬화 설정
         // Redis의 키를 StringRedisSerializer를 사용하여 문자열로 직렬화합니다. Redis의 키는 보통 문자열 형태로 저장되므로 이 설정이 적절합니다.
         template.setKeySerializer(new StringRedisSerializer());
         // 값을 GenericJackson2JsonRedisSerializer로 직렬화합니다. 이 설정은 객체를 JSON 형식으로 직렬화하여 Redis에 저장할 수 있도록 해줍니다.
         template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+
+        // Hash Key-Value 형태로 직렬화를 수행합니다.
+        template.setHashKeySerializer(new StringRedisSerializer());
+        template.setHashValueSerializer(new StringRedisSerializer());
+
+        // 기본적으로 직렬화를 수행합니다.
+        template.setDefaultSerializer(new StringRedisSerializer());
         return template;
     }
 
