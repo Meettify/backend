@@ -31,6 +31,11 @@ public class CustomNotificationRepository {
         eventCache.put(eventCacheId, event);
     }
 
+    // 캐시에 존재하는지 체크
+    public boolean existsEventCache(String eventId) {
+        return eventCache.containsKey(eventId);
+    }
+
     // memberId를 사용하여 해당 클라이언트의 SseEmitter 객체를 조회한다.
     // boardcast를 위해 구독 중인 사용자의 SseEmitter를 조회한다.
     public SseEmitter findById(String eventId) {
@@ -84,4 +89,7 @@ public class CustomNotificationRepository {
         return entityManager.createNativeQuery(query, NotificationEntity.class).getResultList();
     }
 
+    public void deleteEventCache(String eventId) {
+        eventCache.remove(eventId);
+    }
 }
