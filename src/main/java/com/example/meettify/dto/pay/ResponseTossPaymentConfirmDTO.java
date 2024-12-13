@@ -22,8 +22,6 @@ public class ResponseTossPaymentConfirmDTO {
     private String status;          // 결제 상태 ("DONE", "CANCELED" 등)
     @Schema(description = "결제 금액")
     private Long totalAmount;       // 결제 금액
-    @Schema(description = "주문 이름")
-    private String orderName;       // 주문이름
     @Schema(description = "승인 시간")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-mm-dd")
     private LocalDateTime requestedAt;     // 승인시간
@@ -39,7 +37,6 @@ public class ResponseTossPaymentConfirmDTO {
                 .orderUid(toss.getOrderUid())
                 .status(toss.getStatus())
                 .totalAmount(toss.getTotalAmount())
-                .orderName(toss.getOrderName())
                 .requestedAt(toss.getRequestedAt())
                 .approvedAt(toss.getApprovedAt())
                 .payMethod(toss.getPayMethod())

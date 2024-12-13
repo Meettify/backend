@@ -3,11 +3,8 @@ package com.example.meettify.service.search;
 import com.example.meettify.dto.search.DeleteSearchLog;
 import com.example.meettify.dto.search.RequestSearchLog;
 import com.example.meettify.dto.search.SearchLog;
-import com.example.meettify.entity.item.ItemEntity;
 import com.example.meettify.entity.member.MemberEntity;
-import com.example.meettify.exception.item.ItemException;
 import com.example.meettify.exception.member.MemberException;
-import com.example.meettify.repository.item.ItemRepository;
 import com.example.meettify.repository.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -27,7 +24,6 @@ import java.util.Objects;
 public class RedisSearchLogService {
     private final MemberRepository memberRepository;
     private final RedisTemplate<String, SearchLog> redisTemplate;
-    private final ItemRepository itemRepository;
 
     public void saveRecentSearchLog(String email, RequestSearchLog searchLog) {
         // 회원 조회

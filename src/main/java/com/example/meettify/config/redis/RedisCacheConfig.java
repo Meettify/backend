@@ -13,6 +13,11 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
 
+/*
+ *   worker : 유요한
+ *   work   : 성능 최적화하거나 자주 쓰이는 데이터들을 레디스에 저장하고 사용하기 위한 클래스
+ *   date   : 2024/12/02
+ * */
 @Configuration
 // SpringBoot의 캐싱 설정을 활성화
 @EnableCaching
