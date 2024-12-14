@@ -2,6 +2,7 @@ package com.example.meettify.entity.pay;
 
 import com.example.meettify.config.auditing.entity.BaseEntity;
 import com.example.meettify.dto.member.AddressDTO;
+import com.example.meettify.dto.order.RequestOrderDTO;
 import com.example.meettify.dto.pay.RequestPaymentDTO;
 import com.example.meettify.dto.pay.RequestTossPaymentConfirmDTO;
 import com.example.meettify.dto.pay.ResponseTossPaymentConfirmDTO;
@@ -17,6 +18,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity(name = "toss_payment")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -39,11 +41,12 @@ public class TossPaymentEntity {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-mm-dd")
     private LocalDateTime requestedAt;     // 승인시간
-    @Schema(description = "결제 승인 시간")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime approvedAt;      // 결제 승인 시간
-    @Schema(description = "결제 방법")
     private String payMethod;
+    @ElementCollection(fetch = FetchType.LAZY)
+    private List<String> orders;
+
 
     public static TossPaymentEntity savePayment(ResponseTossPaymentConfirmDTO pay,
                                                 MemberEntity member) {

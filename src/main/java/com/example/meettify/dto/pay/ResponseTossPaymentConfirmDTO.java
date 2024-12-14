@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -30,6 +31,8 @@ public class ResponseTossPaymentConfirmDTO {
     private LocalDateTime approvedAt;      // 결제 승인 시간
     @Schema(description = "결제 방법")
     private String payMethod;
+    @Schema(description = "주문한 상품 이름들")
+    private List<String> orders;
 
     public static ResponseTossPaymentConfirmDTO change(TossPaymentEntity toss) {
         return ResponseTossPaymentConfirmDTO.builder()
@@ -40,6 +43,7 @@ public class ResponseTossPaymentConfirmDTO {
                 .requestedAt(toss.getRequestedAt())
                 .approvedAt(toss.getApprovedAt())
                 .payMethod(toss.getPayMethod())
+                .orders(toss.getOrders())
                 .build();
     }
 }

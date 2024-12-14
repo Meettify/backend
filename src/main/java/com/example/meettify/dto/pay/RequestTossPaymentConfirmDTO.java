@@ -2,7 +2,6 @@ package com.example.meettify.dto.pay;
 
 import com.example.meettify.dto.member.AddressDTO;
 import com.example.meettify.dto.order.RequestOrderDTO;
-import com.example.meettify.entity.member.AddressEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

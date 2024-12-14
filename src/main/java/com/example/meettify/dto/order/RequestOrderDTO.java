@@ -15,4 +15,6 @@ public class RequestOrderDTO {
     @Schema(description = "상품 개수")
     @Min(value = 1, message = "상품의 최소 개수는 1개입니다.")
     private int itemCount;
+    @Schema(description = "상품 이름")
+    private String itemName;
 }
