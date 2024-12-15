@@ -5,6 +5,7 @@ import com.slack.api.model.block.Blocks;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.block.composition.BlockCompositions;
 import com.slack.api.webhook.WebhookPayloads;
+import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,6 +50,18 @@ public class SlackUtil {
             log.error("Slack alert failed: {}", e.getMessage(), e);
         }
     }
+
+    // Slack 클라이언트 종료 처리
+    @PreDestroy
+    public void shutdownSlackClient() {
+        try {
+            slackClient.close(); // 클라이언트 리소스 정리
+            log.info("Slack client successfully shut down.");
+        } catch (Exception e) {
+            log.error("Failed to shut down Slack client: {}", e.getMessage(), e);
+        }
+    }
+
 
     // 전체 메시지가 담긴 LayoutBlock 생성
     private List<LayoutBlock> generateLayoutBlock(Exception error, RequestInfo request) {

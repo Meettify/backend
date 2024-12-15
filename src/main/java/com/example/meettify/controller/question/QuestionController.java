@@ -96,7 +96,7 @@ public class QuestionController implements QuestionControllerDocs{
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> getMyQuestions(Pageable pageable,
                                             @AuthenticationPrincipal UserDetails userDetails,
-                                            @RequestParam ReplyStatus replyStatus) {
+                                            @RequestParam(required = false) ReplyStatus replyStatus) {
         try {
             String email = userDetails.getUsername();
             Page<ResponseQuestionDTO> findAllQuestions = questionService.getMyAllQuestions(pageable, email, replyStatus);
