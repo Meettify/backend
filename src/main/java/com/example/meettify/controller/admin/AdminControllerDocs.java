@@ -26,4 +26,7 @@ public interface AdminControllerDocs {
     @Operation(summary = "문의글 답변 삭제", description = "문의글 답변 삭제 API")
     ResponseEntity<?> deleteAnswer(Long answerId);
 
+    @Operation(summary = "회원 추방", description = "회원 추방 API")
+    ResponseEntity<?> removeMember(Long memberId);
+
 }

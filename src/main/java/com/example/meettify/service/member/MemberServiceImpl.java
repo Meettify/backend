@@ -9,10 +9,12 @@ import com.example.meettify.dto.member.ResponseMemberDTO;
 import com.example.meettify.dto.member.role.UserRole;
 import com.example.meettify.entity.cart.CartEntity;
 import com.example.meettify.entity.jwt.TokenEntity;
+import com.example.meettify.entity.member.BannedMemberEntity;
 import com.example.meettify.entity.member.MemberEntity;
 import com.example.meettify.exception.member.MemberException;
 import com.example.meettify.repository.cart.CartRepository;
 import com.example.meettify.repository.jwt.TokenRepository;
+import com.example.meettify.repository.member.BannedMemberRepository;
 import com.example.meettify.repository.member.MemberRepository;
 import com.example.meettify.repository.notification.CustomNotificationRepository;
 import com.example.meettify.repository.notification.NotificationRepository;
@@ -35,7 +37,7 @@ import java.util.List;
  *   worker  : 유요한
  *   work    : 유저 기능을 하는 서비스 클래스
  *   date    : 2024/09/19
- *   update  : 2024/10/21
+ *   update  : 2024/12/16
  * */
 
 @Log4j2
@@ -51,15 +53,24 @@ public class MemberServiceImpl implements MemberService {
     private final CartRepository cartRepository;
     private final CustomNotificationRepository customNotificationRepository;
     private final NotificationRepository notificationRepository;
+    private final BannedMemberRepository bannedMemberRepository;
 
     // 회원가입
     @Override
     public ResponseMemberDTO signUp(MemberServiceDTO member) {
         try {
+            // 추방된 회원 메일인지 체크
+            BannedMemberEntity findBannedMember = bannedMemberRepository.findByMemberEmail(member.getMemberEmail());
+
+            if (findBannedMember != null) {
+                throw new MemberException("추방된 회원입니다. 회원 이메일 : "+ findBannedMember.getMemberEmail());
+            }
+
+            // 비밀번호 암호화
             String encodePw = passwordEncoder.encode(member.getMemberPw());
-
+            // 엔티티 생성
             MemberEntity memberEntity = MemberEntity.createMember(member, encodePw);
-
+            // 유저 디비 저장
             MemberEntity saveMember = memberRepository.save(memberEntity);
             ResponseMemberDTO response = ResponseMemberDTO.changeDTO(saveMember);
             // 장바구니 생성
