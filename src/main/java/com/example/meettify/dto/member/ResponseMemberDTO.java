@@ -5,6 +5,8 @@ import com.example.meettify.entity.member.MemberEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 /*
  *   worker  : 유요한
  *   work    : 프론트에게 보내줄 response
@@ -23,6 +25,7 @@ public class ResponseMemberDTO {
     private String memberPw;
     private UserRole memberRole;
     private AddressDTO memberAddr;
+    private LocalDateTime createdAt;
 
     public static ResponseMemberDTO changeDTO(MemberEntity member) {
         return ResponseMemberDTO.builder()
@@ -37,6 +40,7 @@ public class ResponseMemberDTO {
                         .memberAddrDetail(member.getAddress().getMemberAddrDetail())
                         .memberZipCode(member.getAddress().getMemberZipCode())
                         .build())
+                .createdAt(member.getRegTime())
                 .build();
     }
 }
