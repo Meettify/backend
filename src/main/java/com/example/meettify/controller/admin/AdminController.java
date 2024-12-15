@@ -78,7 +78,7 @@ public class AdminController implements AdminControllerDocs {
     @GetMapping("/questions")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> getAllQuestions(Pageable page,
-                                             @RequestParam ReplyStatus replyStatus) {
+                                             @RequestParam(required = false) ReplyStatus replyStatus) {
         try {
             Page<ResponseQuestionDTO> questions = questionService.getAllQuestions(page, replyStatus);
             Map<String, Object> response = responsePageInfo(questions);
