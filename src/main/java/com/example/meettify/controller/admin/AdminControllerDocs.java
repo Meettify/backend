@@ -29,4 +29,7 @@ public interface AdminControllerDocs {
     @Operation(summary = "회원 추방", description = "회원 추방 API")
     ResponseEntity<?> removeMember(Long memberId);
 
+    @Operation(summary = "회원 수", description = "회원 수 카운트 API")
+    ResponseEntity<?> countMembers();
+
 }

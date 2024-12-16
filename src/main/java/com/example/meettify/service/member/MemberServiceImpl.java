@@ -247,4 +247,17 @@ public class MemberServiceImpl implements MemberService {
             throw new MemberException("회원 정보들을 가져오는데 실패했습니다.");
         }
     }
+
+    // 전체 회원 수
+    @Transactional(readOnly = true)
+    @Override
+    public Long countMembers() {
+        try {
+            Long countMembers = memberRepository.countByMembers();
+            log.info("count members : {}", countMembers);
+            return countMembers;
+        } catch (Exception e) {
+            throw new MemberException("회원 수 정보를 가져오는데 실패했습니다.");
+        }
+    }
 }

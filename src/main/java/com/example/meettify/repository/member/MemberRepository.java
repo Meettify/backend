@@ -19,4 +19,6 @@ public interface MemberRepository extends JpaRepository<MemberEntity, Long> {
     @Query("select m from members m " +
     "where m.memberRole = :role and m.memberEmail is null or m.memberEmail = :email")
     Page<MemberEntity> findAll(Pageable pageable, @Param("email") String email, @Param("role") UserRole role);
+    @Query("select count (m) from members m")
+    Long countByMembers();
 }

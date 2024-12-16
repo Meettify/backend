@@ -36,7 +36,11 @@ public interface ItemControllerDocs {
 
     @Operation(summary = "상품 페이징", description = "여러 조건으로 상품을 페이징 처리해서 가져오는 API")
     ResponseEntity<?> searchItemsConditions(Pageable pageable,
-                                            ItemSearchCondition condition);
+                                            String title,
+                                            int minPrice,
+                                            int maxPrice,
+                                            Category category,
+                                            ItemStatus status);
 
     @Operation(summary = "상품 추천", description = "모임 게시글에서 사용할 상품 추천 API")
     ResponseEntity<?> recommendItems(UserDetails userDetails);
