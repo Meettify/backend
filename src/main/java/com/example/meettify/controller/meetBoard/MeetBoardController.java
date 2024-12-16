@@ -84,7 +84,7 @@ public class MeetBoardController implements MeetBoardControllerDocs{
 
     //모임 게시물 등록
     @Override
-    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> makeBoard(@Validated @RequestPart("meetBoard") RequestMeetBoardDTO meetBoard,
                                        @RequestPart(value = "images" , required = false) List<MultipartFile> images,
                                        BindingResult bindingResult,
