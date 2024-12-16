@@ -239,9 +239,9 @@ public class MemberServiceImpl implements MemberService {
 
     // 관리자가 회원 정보를 가져오기
     @Override
-    public Page<ResponseMemberDTO> getMembers(Pageable pageable, String email) {
+    public Page<ResponseMemberDTO> getMembers(Pageable pageable) {
         try {
-            Page<MemberEntity> findAllMembers = memberRepository.findAll(pageable, email, UserRole.USER);
+            Page<MemberEntity> findAllMembers = memberRepository.findAll(pageable, UserRole.USER);
             return findAllMembers.map(ResponseMemberDTO::changeDTO);
         } catch (Exception e) {
             throw new MemberException("회원 정보들을 가져오는데 실패했습니다.");
