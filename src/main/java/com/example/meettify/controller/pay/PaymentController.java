@@ -106,7 +106,7 @@ public class PaymentController implements PaymentControllerDocs {
             // 결제 성공 시 주문 정보 저장
             orderService.saveOrder(tossPay.getOrders(), email, tossPay.getAddress(), tossPay.getOrderUid());
             // 결제 알림
-            notificationService.notifyMessage(email, "토스로 결제 :" + response.getTotalAmount() +"원이 결제되었습니다.");
+            notificationService.notifyMessage(email, "토스로 결제 :" + response.getAmount() +"원이 결제되었습니다.");
             return ResponseEntity.ok(response);
         } catch (PaymentConfirmException e) {
             throw new PaymentConfirmException(e.getMessage());
