@@ -103,6 +103,7 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+    command: rabbitmq-plugins enable rabbitmq_stomp
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq   # 영구 데이터 저장소
       - ./rabbitmq.config:/etc/rabbitmq/rabbitmq.config  # 설정 파일 저장소
