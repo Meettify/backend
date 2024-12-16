@@ -55,7 +55,7 @@ public class TossPaymentEntity {
                 .payMethod(pay.getPayMethod())
                 .orderUid(pay.getOrderUid())
                 .member(member)
-                .totalAmount(pay.getTotalAmount())
+                .totalAmount(pay.getAmount())
                 .paymentKey(pay.getPaymentKey())
                 .requestedAt(pay.getRequestedAt())
                 .approvedAt(pay.getApprovedAt())
