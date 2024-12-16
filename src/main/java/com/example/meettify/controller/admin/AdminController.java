@@ -147,4 +147,16 @@ public class AdminController implements AdminControllerDocs {
             throw new MemberException(e.getMessage());
         }
     }
+
+    // 회원 수 카운트
+    @Override
+    @GetMapping("/users")
+    public ResponseEntity<?> countMembers() {
+        try {
+            Long response = memberService.countMembers();
+            return ResponseEntity.ok().body(response);
+        } catch (Exception e) {
+            throw new MemberException(e.getMessage());
+        }
+    }
 }
