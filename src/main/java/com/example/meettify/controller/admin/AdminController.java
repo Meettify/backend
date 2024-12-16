@@ -43,7 +43,7 @@ public class AdminController implements AdminControllerDocs {
     @Override
     @GetMapping("/members")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> getAllMembers(Pageable page, String memberEmail) {
+    public ResponseEntity<?> getAllMembers(Pageable page, @RequestParam String memberEmail) {
         try {
             Page<ResponseMemberDTO> members = memberService.getMembers(page, memberEmail);
             Map<String, Object> response = responsePageInfo(members);
