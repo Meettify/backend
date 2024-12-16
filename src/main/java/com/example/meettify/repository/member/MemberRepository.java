@@ -16,9 +16,8 @@ public interface MemberRepository extends JpaRepository<MemberEntity, Long> {
     boolean existsByNickName(String nickName);
     MemberEntity findByNickName(String nickName);
     List<MemberEntity> findAllByMemberRole(UserRole role);
-    @Query("select m from members m " +
-    "where m.memberRole = :role and m.memberEmail is null or m.memberEmail = :email")
-    Page<MemberEntity> findAll(Pageable pageable, @Param("email") String email, @Param("role") UserRole role);
+    @Query("select m from members m where m.memberRole = :role")
+    Page<MemberEntity> findAll(Pageable pageable, @Param("role") UserRole role);
     @Query("select count (m) from members m")
     Long countByMembers();
 }

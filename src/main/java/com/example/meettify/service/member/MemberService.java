@@ -25,7 +25,7 @@ public interface MemberService {
     // 화원 조회
     ResponseMemberDTO getMember(Long memberId);
     // 전체적인 회원 가져오기 - 관리자 기능
-    Page<ResponseMemberDTO> getMembers(Pageable pageable, String email);
+    Page<ResponseMemberDTO> getMembers(Pageable pageable);
     // 유저 수 전체 조회
     Long countMembers();
 }
