@@ -64,14 +64,8 @@ public class ItemController implements ItemControllerDocs{
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> updateItem(@PathVariable Long itemId,
                                         @RequestPart UpdateItemDTO item,
-                                        @RequestPart(value = "files", required = false) List<MultipartFile> files,
-                                        @AuthenticationPrincipal UserDetails userDetails) {
+                                        @RequestPart(value = "files", required = false) List<MultipartFile> files) {
         try {
-            String email = userDetails.getUsername();
-            String authority = userDetails.getAuthorities()
-                    .iterator()
-                    .next()
-                    .getAuthority();
             UpdateItemServiceDTO changeServiceDTO = modelMapper.map(item, UpdateItemServiceDTO.class);
             log.info("changeServiceDTO : " + changeServiceDTO);
             ResponseItemDTO response = itemService.updateItem(itemId, changeServiceDTO, files);
