@@ -26,8 +26,7 @@ public interface ItemControllerDocs {
     @Operation(summary = "상품 수정", description = "상품 수정하는 API")
     ResponseEntity<?> updateItem(Long itemId,
                                  UpdateItemDTO item,
-                                 List<MultipartFile> files,
-                                 UserDetails userDetails);
+                                 List<MultipartFile> files);
 
     @Operation(summary = "상품 상세 정보", description = "상품 상세정보를 보는 API")
     ResponseEntity<?> itemDetail(Long itemId);
@@ -37,11 +36,7 @@ public interface ItemControllerDocs {
 
     @Operation(summary = "상품 페이징", description = "여러 조건으로 상품을 페이징 처리해서 가져오는 API")
     ResponseEntity<?> searchItemsConditions(Pageable pageable,
-                                            String title,
-                                            int minPrice,
-                                            int maxPrice,
-                                            Category category,
-                                            ItemStatus status);
+                                            ItemSearchCondition condition);
 
     @Operation(summary = "상품 추천", description = "모임 게시글에서 사용할 상품 추천 API")
     ResponseEntity<?> recommendItems(UserDetails userDetails);

@@ -9,6 +9,7 @@ import com.example.meettify.dto.question.ResponseQuestionDTO;
 import com.example.meettify.exception.board.BoardException;
 import com.example.meettify.exception.comment.CommentException;
 import com.example.meettify.exception.member.MemberException;
+import com.example.meettify.service.admin.AdminService;
 import com.example.meettify.service.answer.AnswerCommentService;
 import com.example.meettify.service.member.MemberService;
 import com.example.meettify.service.notification.NotificationService;
@@ -36,6 +37,7 @@ public class AdminController implements AdminControllerDocs {
     private final QuestionService questionService;
     private final AnswerCommentService answerCommentService;
     private final NotificationService notificationService;
+    private final AdminService adminService;
 
     // 모든 회원 정보 가져오기
     @Override
@@ -134,4 +136,15 @@ public class AdminController implements AdminControllerDocs {
         }
     }
 
+    // 회원 탈퇴
+    @Override
+    @DeleteMapping("/{memberId}")
+    public ResponseEntity<?> removeMember(@PathVariable Long memberId) {
+        try {
+            String response = adminService.removeMember(memberId);
+            return ResponseEntity.ok().body(response);
+        } catch (Exception e) {
+            throw new MemberException(e.getMessage());
+        }
+    }
 }

@@ -64,14 +64,8 @@ public class ItemController implements ItemControllerDocs{
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> updateItem(@PathVariable Long itemId,
                                         @RequestPart UpdateItemDTO item,
-                                        @RequestPart(value = "files", required = false) List<MultipartFile> files,
-                                        @AuthenticationPrincipal UserDetails userDetails) {
+                                        @RequestPart(value = "files", required = false) List<MultipartFile> files) {
         try {
-            String email = userDetails.getUsername();
-            String authority = userDetails.getAuthorities()
-                    .iterator()
-                    .next()
-                    .getAuthority();
             UpdateItemServiceDTO changeServiceDTO = modelMapper.map(item, UpdateItemServiceDTO.class);
             log.info("changeServiceDTO : " + changeServiceDTO);
             ResponseItemDTO response = itemService.updateItem(itemId, changeServiceDTO, files);
@@ -113,20 +107,8 @@ public class ItemController implements ItemControllerDocs{
     @Override
     @GetMapping("/search")
     public ResponseEntity<?> searchItemsConditions(Pageable page,
-                                                   @RequestParam(value = "title", required = false) String title,
-                                                   @RequestParam(value = "minPrice", required = false, defaultValue = "0") int minPrice,
-                                                   @RequestParam(value = "maxPrice", required = false, defaultValue = "0") int maxPrice,
-                                                   @RequestParam(value = "category", required = false) Category category,
-                                                   @RequestParam(value = "status", required = false)ItemStatus status
-                                                   ) {
+                                                    ItemSearchCondition condition) {
         try {
-            ItemSearchCondition condition = ItemSearchCondition.builder()
-                    .title(title)
-                    .minPrice(minPrice)
-                    .maxPrice(maxPrice)
-                    .category(category)
-                    .status(status)
-                    .build();
             Page<ResponseItemDTO> items = itemService.searchItems(condition, page);
             log.info("condition : " + condition);
             log.info("상품 조회 {}", items);
