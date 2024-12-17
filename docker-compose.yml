@@ -104,9 +104,6 @@ services:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
     command: rabbitmq-plugins enable rabbitmq_stomp
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq   # 영구 데이터 저장소
-      - ./rabbitmq.config:/etc/rabbitmq/rabbitmq.config  # 설정 파일 저장소
 
   nginx:
     image: nginx:latest
@@ -173,7 +170,6 @@ services:
       timeout: 5s  # 타임아웃 설정
 
 volumes:
-  rabbitmq_data:
   mysql_data:  # MySQL 데이터 지속성을 위한 볼륨
   grafana_data:  # Grafana 데이터 지속성을 위한 볼륨
   gradle_home:  # Gradle 홈 디렉토리
