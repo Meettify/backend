@@ -36,7 +36,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final ImportConfig importConfig;
     private final TossPaymentRepository tossPaymentRepository;
 
-    // 결제 정보 저장
+    // 아임포트 결제 정보 저장
     public ResponsePaymentDTO savePayment(RequestPaymentDTO pay,
                                           String email,
                                           IamportResponse<Payment> iamport) {
@@ -66,7 +66,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
 
-    // 결제 취소
+    // 아임포트 결제 취소
     public IamportResponse<Payment> cancelPayment(CancelPaymentDTO cancel) {
         try {
             CancelData cancelData = new CancelData(cancel.getImpUid(), true);
@@ -78,7 +78,7 @@ public class PaymentServiceImpl implements PaymentService {
         }
     }
 
-    // 결제 정보 조회
+    // 아임포트 결제 정보 조회
     @Override
     public ResponsePaymentDTO getPayment(String orderUid) {
         try {
@@ -100,4 +100,6 @@ public class PaymentServiceImpl implements PaymentService {
             throw new PayException("결제 정보를 가져오는데 실패했습니다.");
         }
     }
+
+
 }

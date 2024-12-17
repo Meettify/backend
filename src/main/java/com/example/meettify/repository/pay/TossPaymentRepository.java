@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TossPaymentRepository extends JpaRepository<TossPaymentEntity, Long> {
     TossPaymentEntity findByOrderUid(String orderUid);
+
 }

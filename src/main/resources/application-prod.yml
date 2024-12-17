@@ -190,6 +190,8 @@ payment:
   base-url: https://api.tosspayments.com/v1/payments
   confirm-endpoint: /confirm
   cancel-endpoint: /%s/cancel #cancel 엔드포인트 추가
+  success_url: "https://meettify.store/api/v1/payments/toss/success"
+  fail_url: "https://meettify.store/api/v1/payments/toss/fail"
 
 naver:
   client-id: ${CLIENT_ID}

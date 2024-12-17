@@ -8,15 +8,14 @@ import com.example.meettify.exception.pay.PaymentConfirmErrorCode;
 import com.example.meettify.exception.pay.PaymentConfirmException;
 import com.example.meettify.repository.member.MemberRepository;
 import com.example.meettify.repository.pay.TossPaymentRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.ClientHttpRequestFactories;
 import org.springframework.boot.web.client.ClientHttpRequestFactorySettings;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -40,6 +39,8 @@ public class PaymentClient {
     private final RestClient restClient;
     private final MemberRepository memberRepository;
     private final TossPaymentRepository tossPaymentRepository;
+    @Value("${payment.secret_key}")
+    private String secretKey;
 
     public PaymentClient(PaymentProperties paymentProperties,
                          ObjectMapper objectMapper, MemberRepository memberRepository, TossPaymentRepository tossPaymentRepository) {
@@ -70,27 +71,47 @@ public class PaymentClient {
 
     // 결제 요청 API 호출
     public ResponseTossPaymentConfirmDTO confirmPayment(RequestTossPaymentConfirmDTO tossPay, String email) {
-        MemberEntity findMember = memberRepository.findByMemberEmail(email);
-        ResponseTossPaymentConfirmDTO tossPayDTO = restClient.method(HttpMethod.POST)
-                .uri(paymentProperties.getConfirmUrl())
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(tossPay)
-                .retrieve()
-                .onStatus(HttpStatusCode::isError, ((request, response) -> {
-                    throw new PaymentConfirmException(getPaymentConfirmErrorCode(response));
-                }))
-                .body(ResponseTossPaymentConfirmDTO.class);
+        try {
+            MemberEntity findMember = memberRepository.findByMemberEmail(email);
 
-        if(tossPayDTO == null) {
-            throw new PayException("토스 결제 값이 반환되지 않았습니다.");
+            // HTTP 요청 후 응답을 ResponseEntity로 수동 처리
+            ResponseEntity<String> responseEntity = restClient.method(HttpMethod.POST)
+                    .uri(paymentProperties.getConfirmUrl())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + secretKey) // 인증 헤더 추가
+                    .body(tossPay)
+                    .retrieve()
+                    .toEntity(String.class); // 응답을 String으로 받기
+
+            // 응답 상태 코드 및 본문 검증
+            if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
+                // JSON 파싱 및 객체 매핑
+                ResponseTossPaymentConfirmDTO tossPayDTO = parseResponse(responseEntity.getBody());
+                log.info("결제 확인 성공: {}", tossPayDTO);
+
+                // 결제 데이터를 저장
+                TossPaymentEntity tossPaymentEntity = TossPaymentEntity.savePayment(tossPayDTO, findMember);
+                tossPaymentRepository.save(tossPaymentEntity);
+
+                return tossPayDTO;
+            } else {
+                throw new PaymentConfirmException("결제 확인 API 호출 실패: 상태코드 - " + responseEntity.getStatusCode());
+            }
+        } catch (Exception e) {
+            throw new PaymentConfirmException(e.getMessage());
         }
-        log.info("tossPayDTO {}", tossPayDTO);
-
-        TossPaymentEntity tossPaymentEntity = TossPaymentEntity.savePayment(tossPayDTO, findMember);
-        tossPaymentRepository.save(tossPaymentEntity);
-
-        return tossPayDTO;
     }
+
+    // JSON 문자열을 ResponseTossPaymentConfirmDTO로 변환
+    private ResponseTossPaymentConfirmDTO parseResponse(String responseBody) {
+        try {
+            return objectMapper.readValue(responseBody, ResponseTossPaymentConfirmDTO.class);
+        } catch (JsonProcessingException e) {
+            log.error("결제 응답 매핑 실패: {}", responseBody, e);
+            throw new PaymentConfirmException("결제 응답 매핑 실패"+ e);
+        }
+    }
+
 
     // 결제 승인 API 에러 코드 문서
     private PaymentConfirmErrorCode getPaymentConfirmErrorCode(final ClientHttpResponse response) throws IOException {

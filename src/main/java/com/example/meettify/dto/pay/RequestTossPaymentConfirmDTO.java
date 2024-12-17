@@ -10,6 +10,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Getter
@@ -24,11 +25,11 @@ public class RequestTossPaymentConfirmDTO {
     @Schema(description = "토스 결제 키")
     private String paymentKey;    // 결제 키
     @Schema(description = "승인 시간")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime requestedAt;     // 승인시간
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX")
+    private OffsetDateTime requestedAt;
     @Schema(description = "결제 승인 시간")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime approvedAt;      // 결제 승인 시간
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX")
+    private OffsetDateTime approvedAt;
     @Schema(description = "주문 uid")
     private String orderUid;
     @Schema(description = "주문 정보")
