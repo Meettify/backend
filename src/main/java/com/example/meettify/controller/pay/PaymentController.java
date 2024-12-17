@@ -100,6 +100,8 @@ public class PaymentController implements PaymentControllerDocs {
     public ResponseEntity<ResponseTossPaymentConfirmDTO>  confirmTossPayment(@RequestBody RequestTossPaymentConfirmDTO tossPay,
                                                                               @AuthenticationPrincipal UserDetails userDetails) {
         try {
+            log.info("------------------");
+            log.info("토스 결제 시도");
             String email = userDetails != null ? userDetails.getUsername() : null;
             ResponseTossPaymentConfirmDTO response = paymentClient.confirmPayment(tossPay, email);
             log.info(response);

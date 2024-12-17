@@ -24,6 +24,11 @@ repositories {
     maven { url 'https://jitpack.io' }
     maven {url 'https://repo.spring.io/snapshot'} //스냅샷 저장소 추가
 }
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:2023.0.4")
+    }
+}
 
 dependencies {
     // JPA
@@ -36,6 +41,7 @@ dependencies {
     implementation 'org.webjars:stomp-websocket:2.3.4'
     // RabbitMQ
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
+    implementation 'org.testng:testng:7.1.0'
     testImplementation 'org.testcontainers:rabbitmq:1.19.0'
     implementation "org.springframework.boot:spring-boot-starter-reactor-netty" // RabbitMQ에서 브로커 연결 및 통신 설정을 위해 기본으로 사용
     // OAuth2.0
@@ -105,6 +111,9 @@ dependencies {
     implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.9.3'
     // API 요청 및 응답 시 Gson을 통해 JSON을 Java 객체로 직렬화/역직렬화하여 손쉽게 데이터 처리가 가능하게 합니다.
     implementation group: 'com.squareup.retrofit2', name: 'converter-gson', version: '2.3.0'
+    //  Spring Cloud OpenFeign 의존성이 추가
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
 }
 
 tasks.named('bootBuildImage') {
