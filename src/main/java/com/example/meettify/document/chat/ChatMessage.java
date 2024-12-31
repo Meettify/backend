@@ -25,10 +25,6 @@ public class ChatMessage {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd-HH:mm")
     private LocalDateTime writeTime;    // 채팅 시간
     private String sender;
-    private Double lat;      // 위도
-    private Double lng;      // 경도
-    private String title;    // 장소 이름
-    private String address;  // 장소 주소
 
     public static ChatMessage create(ChatMessageDTO chat) {
         return ChatMessage.builder()
@@ -37,10 +33,6 @@ public class ChatMessage {
                 .message(chat.getMessage())
                 .writeTime(chat.getWriteTime())
                 .sender(chat.getSender())
-                .lat(chat.getLat())
-                .lng(chat.getLng())
-                .title(chat.getTitle())
-                .address(chat.getAddress())
                 .build();
     }
 }
