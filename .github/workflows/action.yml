@@ -94,7 +94,7 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
       # 9. Docker 프로젝트 이미지 빌드 그리고 이미지 푸시
-      - name: Build and push Docker image
+      - name: Build and push updated Docker image
         uses: docker/build-push-action@v2
         with:
           context: .
@@ -148,36 +148,17 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            echo "Stopping and removing all containers..."
-            docker-compose down --remove-orphans
-
-            containers=(k6 grafana redis prometheus nginx certbot)
-  
-            for container in "${containers[@]}"; do
-              if [ "$(docker ps -q -f name=$container)" ]; then
-                echo "Stopping $container container..."
-                docker stop $container
-              fi
-
-              if [ "$(docker ps -aq -f name=$container)" ]; then
-                echo "Removing existing $container container..."
-                docker rm -f $container
-                if [ $? -ne 0 ]; then
-                  echo "Failed to remove $container container. Retrying in 5 seconds..."
-                  sleep 5
-                  docker rm -f $container
-                fi
-              else
-                echo "No $container container to remove."
-              fi
-            done
             
             # 사용하지 않는 이미지 및 볼륨 정리
             echo "Cleaning up unused Docker images, containers, and volumes..."
             docker system prune -a --volumes -f
 
-            # 최신 이미지 가져와서 컨테이너 실행
+            # 최신 이미지를 가져와 컨테이너 갱신
+            echo "Pulling the latest images..."
             docker-compose pull
+
+            # 변경 사항 반영 및 컨테이너 재시작
+            echo "Starting updated containers..."
             docker-compose up -d --build
 
 

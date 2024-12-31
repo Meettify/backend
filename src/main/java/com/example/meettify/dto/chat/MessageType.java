@@ -6,5 +6,7 @@ public enum MessageType {
     @Schema(description = "방접속 상태")
     ENTER,
     @Schema(description = "채팅중인 상태")
-    TALK
+    TALK,
+    @Schema(description = "지도 공유")
+    PLACE
 }

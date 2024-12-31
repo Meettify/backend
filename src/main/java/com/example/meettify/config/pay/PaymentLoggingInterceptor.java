@@ -1,5 +1,6 @@
 package com.example.meettify.config.pay;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
@@ -10,6 +11,8 @@ import java.io.IOException;
 
 @Log4j2
 public class PaymentLoggingInterceptor implements ClientHttpRequestInterceptor {
+
+
     @Override
     public ClientHttpResponse intercept(HttpRequest request,
                                         byte[] body,

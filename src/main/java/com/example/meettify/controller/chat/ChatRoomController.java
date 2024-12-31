@@ -29,10 +29,11 @@ public class ChatRoomController implements ChatRoomControllerDocs {
     @PostMapping("/room")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     public ResponseEntity<?> createChatRoom(@RequestParam String roomName,
+                                            @RequestParam Long meetId,
                                             @AuthenticationPrincipal UserDetails userDetails) {
         try {
             String email = userDetails.getUsername();
-            ChatRoomDTO response = chatService.createRoom(roomName, email);
+            ChatRoomDTO response = chatService.createRoom(roomName, email, meetId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             throw new ChatRoomException(e.getMessage());
@@ -107,6 +108,19 @@ public class ChatRoomController implements ChatRoomControllerDocs {
             String email = userDetails.getUsername();
             String response = chatService.leaveRoom(email, roomId);
             log.info("response: {}", response);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            throw new ChatRoomException(e.getMessage());
+        }
+    }
+
+    // 모임글 번호로 채팅방 조회
+    @Override
+    @GetMapping("/{meetId}")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    public ResponseEntity<?> checkChatRoom(@PathVariable Long meetId) {
+        try {
+            boolean response = chatService.checkCreateChatRoom(meetId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             throw new ChatRoomException(e.getMessage());

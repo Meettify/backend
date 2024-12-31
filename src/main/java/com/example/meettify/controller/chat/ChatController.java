@@ -1,6 +1,7 @@
 package com.example.meettify.controller.chat;
 
 import com.example.meettify.dto.chat.ChatMessageDTO;
+import com.example.meettify.dto.chat.MessageType;
 import com.example.meettify.exception.chat.ChatException;
 import com.example.meettify.service.chat.ChatService;
 import lombok.RequiredArgsConstructor;

@@ -8,12 +8,16 @@ import com.example.meettify.dto.member.UpdateMemberServiceDTO;
 import com.example.meettify.dto.member.ResponseMemberDTO;
 import com.example.meettify.dto.member.role.UserRole;
 import com.example.meettify.entity.cart.CartEntity;
+import com.example.meettify.entity.chat_room.ChatRoomEntity;
 import com.example.meettify.entity.jwt.TokenEntity;
+import com.example.meettify.entity.meetBoard.MeetBoardEntity;
 import com.example.meettify.entity.member.BannedMemberEntity;
 import com.example.meettify.entity.member.MemberEntity;
 import com.example.meettify.exception.member.MemberException;
 import com.example.meettify.repository.cart.CartRepository;
+import com.example.meettify.repository.chat.ChatRoomRepository;
 import com.example.meettify.repository.jwt.TokenRepository;
+import com.example.meettify.repository.meetBoard.MeetBoardRepository;
 import com.example.meettify.repository.member.BannedMemberRepository;
 import com.example.meettify.repository.member.MemberRepository;
 import com.example.meettify.repository.notification.CustomNotificationRepository;
@@ -54,6 +58,8 @@ public class MemberServiceImpl implements MemberService {
     private final CustomNotificationRepository customNotificationRepository;
     private final NotificationRepository notificationRepository;
     private final BannedMemberRepository bannedMemberRepository;
+    private final ChatRoomRepository chatRoomRepository;
+    private final MeetBoardRepository meetBoardRepository;
 
     // 회원가입
     @Override
@@ -211,9 +217,14 @@ public class MemberServiceImpl implements MemberService {
                 customNotificationRepository.deleteAllEventCacheStartWithId(memberId);
                 customNotificationRepository.deleteAllEmitterStartWithId(memberId);
                 notificationRepository.deleteByMemberMemberId(memberId);
-                // 장바구니 조회
+                // 채팅방 조회 & 삭제
+                ChatRoomEntity findChatRoom = chatRoomRepository.findByCreatedNickName(findMember.getNickName());
+                chatRoomRepository.delete(findChatRoom);
+                // 모임 게시글 조회 & 삭제
+                MeetBoardEntity findMeetBoard = meetBoardRepository.findByMemberEntityMemberId(memberId);
+                meetBoardRepository.delete(findMeetBoard);
+                // 장바구니 조회 & 삭제
                 CartEntity findCart = cartRepository.findByMemberMemberId(memberId);
-                // 장바구니 삭제
                 cartRepository.deleteById(findCart.getCartId());
                 // 회원 삭제
                 memberRepository.deleteById(memberId);

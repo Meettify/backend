@@ -1,10 +1,7 @@
 package com.example.meettify.service.pay;
 
 import com.example.meettify.dto.member.AddressDTO;
-import com.example.meettify.dto.pay.CancelPaymentDTO;
-import com.example.meettify.dto.pay.RequestPaymentDTO;
-import com.example.meettify.dto.pay.ResponsePaymentDTO;
-import com.example.meettify.dto.pay.ResponseTossPaymentConfirmDTO;
+import com.example.meettify.dto.pay.*;
 import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Payment;
 
@@ -22,5 +19,4 @@ public interface PaymentService {
 
     // 토스 결제 조회
     ResponseTossPaymentConfirmDTO getTossPaymentConfirm(String orderUid);
-
 }

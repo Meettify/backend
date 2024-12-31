@@ -7,10 +7,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -31,6 +28,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @Log4j2
+@RequestMapping("/api/v1/naver")
 public class SearchServeController implements SearchServeControllerDocs{
     @Value("${naver.client-id}")
     private String clientId;
@@ -43,7 +41,7 @@ public class SearchServeController implements SearchServeControllerDocs{
      * @return 검색된 장소 목록
      */
     @Override
-    @GetMapping("/naver/{name}")
+    @GetMapping("/{name}")
     public List<Map<String, String>> naverSearch(@PathVariable String name) {
         return searchPlaceList(name);
     }
@@ -51,7 +49,7 @@ public class SearchServeController implements SearchServeControllerDocs{
 
 
     @Override
-    @GetMapping("/naver")
+    @GetMapping("")
     public List<Map<String, String>> naverSearchDynamic(@RequestParam String query) {
         return searchPlaceList(query);
     }
@@ -62,6 +60,10 @@ public class SearchServeController implements SearchServeControllerDocs{
      * @return 검색된 장소 목록
      */
     private List<Map<String, String>> searchPlaceList(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            throw new IllegalArgumentException("검색어가 유효하지 않습니다.");
+        }
+
         List<Map<String, String>> placeList = new ArrayList<>();
 
         try {
@@ -72,9 +74,15 @@ public class SearchServeController implements SearchServeControllerDocs{
             log.info("encode: {}", encode);
 
             // 네이버 검색 API를 호출하기 위한 URI 생성
-            URI uri = UriComponentsBuilder.fromUriString("https://openapi.naver.com").path("/v1/search/local")
-                    .queryParam("query", encode).queryParam("display", 10).queryParam("start",1)
-                    .queryParam("sort", "random").encode().build().toUri();
+            URI uri = UriComponentsBuilder.fromUriString("https://openapi.naver.com")
+                    .path("/v1/search/local")
+                    .queryParam("query", encode)
+                    .queryParam("display", 10)
+                    .queryParam("start",1)
+                    .queryParam("sort", "random")
+                    .encode()
+                    .build()
+                    .toUri();
             log.info("uri: {}", uri);
 
             // RestTemplate을 사용하여 네이버 API에 요청을 보냄
@@ -104,7 +112,8 @@ public class SearchServeController implements SearchServeControllerDocs{
                 placeList.add(place);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("API 호출 실패", e);
+            throw new RuntimeException("네이버 검색 API 호출에 실패했습니다.");
         }
         return placeList;
     }

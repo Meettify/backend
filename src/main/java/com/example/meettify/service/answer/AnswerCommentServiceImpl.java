@@ -47,7 +47,7 @@ public class AnswerCommentServiceImpl implements AnswerCommentService {
             // 문의글에 답변 달려서 문의글 상태를 변경
             findQuestion.changeReplyO();
 
-            return ResponseAnswerCommentDTO.createResponse(saveAnswer, findAdmin.getMemberEmail());
+            return ResponseAnswerCommentDTO.createResponse(saveAnswer, findQuestion.getMember().getMemberEmail());
         } catch (Exception e) {
             throw new CommentException("답변 생성하는데 실패했습니다.");
         }

@@ -1,26 +1,18 @@
 package com.example.meettify.service.pay;
 
 import com.example.meettify.config.iamport.ImportConfig;
-import com.example.meettify.dto.member.AddressDTO;
-import com.example.meettify.dto.pay.CancelPaymentDTO;
-import com.example.meettify.dto.pay.RequestPaymentDTO;
-import com.example.meettify.dto.pay.ResponsePaymentDTO;
-import com.example.meettify.dto.pay.ResponseTossPaymentConfirmDTO;
+import com.example.meettify.dto.pay.*;
 import com.example.meettify.entity.member.MemberEntity;
-import com.example.meettify.entity.order.OrderEntity;
 import com.example.meettify.entity.pay.PaymentEntity;
 import com.example.meettify.entity.pay.TossPaymentEntity;
 import com.example.meettify.exception.member.MemberException;
 import com.example.meettify.exception.pay.PayException;
 import com.example.meettify.repository.member.MemberRepository;
-import com.example.meettify.repository.order.OrderRepository;
 import com.example.meettify.repository.pay.PaymentRepository;
 import com.example.meettify.repository.pay.TossPaymentRepository;
-import com.example.meettify.service.order.OrderService;
 import com.siot.IamportRestClient.request.CancelData;
 import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Payment;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -100,6 +92,5 @@ public class PaymentServiceImpl implements PaymentService {
             throw new PayException("결제 정보를 가져오는데 실패했습니다.");
         }
     }
-
 
 }

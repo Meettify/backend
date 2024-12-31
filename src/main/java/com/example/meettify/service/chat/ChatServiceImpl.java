@@ -27,6 +27,7 @@ public class ChatServiceImpl implements ChatService {
     private final ChatMessageRepository chatMessageRepository;
     private final MemberRepository memberRepository;
 
+    // 메시지 보낼 때 몽고디비에 저장
     @Override
     public ChatMessageDTO sendMessage(ChatMessageDTO message) {
         try {
@@ -51,21 +52,31 @@ public class ChatServiceImpl implements ChatService {
 
     // 단체 채팅하는 채팅방 생성
     @Override
-    public ChatRoomDTO createRoom(String roomName, String email) {
+    public ChatRoomDTO createRoom(String roomName, String email, Long meetId) {
         try {
             // 회원 조회
             MemberEntity findMember = memberRepository.findByMemberEmail(email);
+            // 모임글로 채팅방 조회
+            ChatRoomEntity findChatRoom = chatRoomRepository.findByMeetId(meetId);
+
+            // 채팅 중복 생성 방지
+            if (findChatRoom != null) {
+                throw new ChatRoomException("이미 채팅방이 생성되었습니다.");
+            }
+
             // 채팅방 엔티티 생성
-            ChatRoomEntity chatRoomEntity = ChatRoomEntity.create(roomName, findMember.getNickName(), RoomStatus.OPEN);
+            ChatRoomEntity chatRoomEntity = ChatRoomEntity.create(roomName, findMember.getNickName(), RoomStatus.OPEN, meetId);
             // 채팅방 디비에 저장
             ChatRoomEntity saveChatRoom = chatRoomRepository.save(chatRoomEntity);
+            // 모임장이 채팅방 유저에 등록
+            saveChatRoom.getInviteMemberIds().add(findMember.getMemberId());
             return ChatRoomDTO.change(saveChatRoom);
         } catch (Exception e) {
             throw new ChatRoomException("채팅방을 생성하는데 실패했습니다.");
         }
     }
 
-    // 본인에게 해당된
+    // 본인에게 해당된 채팅방 리스트 조회
     @Override
     public List<ChatRoomDTO> getRooms(String email) {
         try {
@@ -124,6 +135,7 @@ public class ChatServiceImpl implements ChatService {
         }
     }
 
+    // 채팅방 나가기
     @Override
     public String leaveRoom(String email, Long roomId) {
         try {
@@ -144,6 +156,25 @@ public class ChatServiceImpl implements ChatService {
             return "채팅방에서 나갔습니다.";
         } catch (ChatRoomException e) {
             throw new ChatRoomException("채팅방에서 나가는데/삭제하는데 실패했습니다.");
+        }
+    }
+
+    // 모임글에 채팅방이 존재하는지 조회
+    @Override
+    @Transactional(readOnly = true)
+    public boolean checkCreateChatRoom(Long meetId) {
+        try {
+            // 모임글로 채팅방 조회
+            ChatRoomEntity findChatRoom = chatRoomRepository.findByMeetId(meetId);
+            // 채팅방이 존재하면 true
+            if (findChatRoom != null) {
+                return true;
+            } else {
+                // 채팅방이 존재하지 않으면 false
+                return false;
+            }
+        } catch (Exception e) {
+            throw new ChatRoomException("조회하는데 실패했습니다.");
         }
     }
 }

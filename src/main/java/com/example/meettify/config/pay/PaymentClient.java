@@ -73,15 +73,21 @@ public class PaymentClient {
     public ResponseTossPaymentConfirmDTO confirmPayment(RequestTossPaymentConfirmDTO tossPay, String email) {
         try {
             MemberEntity findMember = memberRepository.findByMemberEmail(email);
+            log.info("--------------------------------------------");
+            log.info("토스 컨펌에 들어옴");
+            log.info("Payment Secret Key: " + secretKey);
 
             // HTTP 요청 후 응답을 ResponseEntity로 수동 처리
             ResponseEntity<String> responseEntity = restClient.method(HttpMethod.POST)
                     .uri(paymentProperties.getConfirmUrl())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .header("Authorization", "Bearer " + secretKey) // 인증 헤더 추가
+                    .header(HttpHeaders.AUTHORIZATION, createPaymentAuthHeader())  // 수정된 헤더 설정
                     .body(tossPay)
                     .retrieve()
-                    .toEntity(String.class); // 응답을 String으로 받기
+                    .toEntity(String.class);
+
+            log.info("--------------------------------------------");
+            log.info("토스 컨펌 데이터 확인 : " + responseEntity);
 
             // 응답 상태 코드 및 본문 검증
             if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
@@ -98,8 +104,14 @@ public class PaymentClient {
                 throw new PaymentConfirmException("결제 확인 API 호출 실패: 상태코드 - " + responseEntity.getStatusCode());
             }
         } catch (Exception e) {
+            log.error(e.getMessage());
             throw new PaymentConfirmException(e.getMessage());
         }
+    }
+    private String createPaymentAuthHeader() {
+        String authValue = paymentProperties.getSecretKey() + ":";
+        byte[] encodedBytes = Base64.getEncoder().encode(authValue.getBytes(StandardCharsets.UTF_8));
+        return "Basic " + new String(encodedBytes);
     }
 
     // JSON 문자열을 ResponseTossPaymentConfirmDTO로 변환
