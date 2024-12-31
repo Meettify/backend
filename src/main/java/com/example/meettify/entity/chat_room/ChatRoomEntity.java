@@ -25,14 +25,18 @@ public class ChatRoomEntity extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private RoomStatus roomStatus;
 
+    private Long meetId;
+
     public static ChatRoomEntity create(String roomName,
                                         String createdNickName,
-                                        RoomStatus roomStatus) {
+                                        RoomStatus roomStatus,
+                                        Long meetId) {
 
         return ChatRoomEntity.builder()
                 .roomName(roomName)
                 .createdNickName(createdNickName)
                 .roomStatus(roomStatus)
+                .meetId(meetId)
                 .build();
     }
 }

@@ -20,4 +20,7 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoomEntity, Long> 
     @Query("SELECT c FROM chat_room c WHERE c.createdNickName = :createdNickName OR :memberId MEMBER OF c.inviteMemberIds")
     List<ChatRoomEntity> findChatRoomsByCreatedOrInvited(@Param("createdNickName") String createdNickName,
                                                          @Param("memberId") Long memberId);
+
+    ChatRoomEntity findByCreatedNickName(String nickName);
+    ChatRoomEntity findByMeetId(Long meetId);
 }

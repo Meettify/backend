@@ -12,7 +12,7 @@ public interface ChatService {
     // 특정 채팅방의 모든 메시지 조회
     List<ChatMessageDTO> getMessagesByRoomId(Long roomId);
     // 채팅방 생성
-    ChatRoomDTO createRoom(String roomName, String email);
+    ChatRoomDTO createRoom(String roomName, String email, Long meetId);
     // 본인이 속한 채팅방 리스트
     List<ChatRoomDTO> getRooms(String email);
     // 채팅방에 속해있으면 true
@@ -21,4 +21,6 @@ public interface ChatService {
     List<ChatMemberDTO> getRoomMembers(Long roomId);
     // 채팅방 나가기
     String leaveRoom(String email, Long roomId);
+    // 채팅방이 생성되었는지 확인
+    boolean checkCreateChatRoom(Long meetId);
 }

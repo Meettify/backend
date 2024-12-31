@@ -22,5 +22,5 @@ public interface MeetBoardRepository extends JpaRepository<MeetBoardEntity, Long
     @Query("SELECT mb FROM meetBoards mb JOIN FETCH mb.memberEntity m WHERE mb.meetEntity.meetId = :meetId")
     Page<MeetBoardEntity> findByMeetIdWithMember(@Param("meetId") Long meetId, Pageable pageable);
 
-
+    MeetBoardEntity findByMemberEntityMemberId(Long memberId);
 }
