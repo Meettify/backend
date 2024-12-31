@@ -103,7 +103,7 @@ public class ItemController implements ItemControllerDocs{
         }
     }
 
-    // http://localhost:8080/api/v1/items/search?name=당&page=1&sort=itemId,asc&place=종로
+    // http://localhost:8080/api/v1/items/search?title=당&page=1&sort=itemId,asc
     @Override
     @GetMapping("/search")
     public ResponseEntity<?> searchItemsConditions(Pageable page,
