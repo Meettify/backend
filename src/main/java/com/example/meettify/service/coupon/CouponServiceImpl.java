@@ -16,17 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CouponServiceImpl implements CouponService{
     private final CouponRepository couponRepository;
 
-    @Override
-    public ResponseCouponDTO createCoupon(RequestCouponDTO coupon) throws Exception {
-        try {
-            CouponEntity couponEntity = CouponEntity.create(coupon);
-            CouponEntity saveCoupon = couponRepository.save(couponEntity);
-            return ResponseCouponDTO.change(saveCoupon);
-        } catch (Exception e) {
-            throw new Exception("쿠폰 생성 실패");
-        }
-    }
-
+    // 쿠폰 조회
     @Override
     @Transactional(readOnly = true)
     public ResponseCouponDTO getCoupon(Long couponId) throws Exception {
@@ -39,6 +29,7 @@ public class CouponServiceImpl implements CouponService{
         }
     }
 
+    // 쿠폰 삭제
     @Override
     public void deleteCoupon(Long couponId) {
         couponRepository.deleteById(couponId);

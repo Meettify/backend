@@ -89,24 +89,35 @@ public class GlobalExceptionAdvice {
     // SSE 관련 예외 처리
     @ExceptionHandler(SseException.class)
     public void handleMemberException( SseException e,
-                                                                HttpServletRequest request,
-                                                                HttpServletResponse response) throws IOException {
-        // SSE 응답 헤더 설정
-        response.setContentType(MediaType.TEXT_EVENT_STREAM_VALUE);
-        response.setCharacterEncoding("UTF-8");
+                                       HttpServletRequest request,
+                                       HttpServletResponse response) throws IOException {
+        // 이미 응답이 커밋된 경우 작업 중단
+        try {
+            if (response.isCommitted()) {
+                return;
+            }
 
-        // SSE 메시지 작성
-        String errorEvent = "data: {\n" +
-                "  \"error\": \"SSE 통신 에러\",\n" +
-                "  \"message\": \"" + e.getMessage() + "\",\n" +
-                "  \"timestamp\": \"" + System.currentTimeMillis() + "\",\n" +
-                "  \"path\": \"" + request.getRequestURI() + "\",\n" +
-                "  \"method\": \"" + request.getMethod() + "\"\n" +
-                "}\n\n";
+            // SSE 응답 헤더 설정
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.setContentType(MediaType.TEXT_EVENT_STREAM_VALUE);
+            response.setCharacterEncoding("UTF-8");
 
-        // 스트림에 에러 이벤트 전송
-        response.getWriter().write(errorEvent);
-        response.getWriter().flush();
+            // SSE 에러 메시지 작성
+            String errorEvent = "data: {\n" +
+                    "  \"error\": \"SSE 통신 에러\",\n" +
+                    "  \"message\": \"" + e.getMessage() + "\",\n" +
+                    "  \"timestamp\": \"" + System.currentTimeMillis() + "\",\n" +
+                    "  \"path\": \"" + request.getRequestURI() + "\",\n" +
+                    "  \"method\": \"" + request.getMethod() + "\"\n" +
+                    "}\n\n";
+
+            // 스트림에 에러 이벤트 전송
+            response.getWriter().write(errorEvent);
+            response.getWriter().flush();
+        } catch (IOException ioException) {
+            // 클라이언트 연결이 끊긴 경우 처리
+            log.error("IOException while handling SSE exception: {}", ioException.getMessage());
+        }
     }
 
     /**

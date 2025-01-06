@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Builder
 public class ResponseNoticeDTO {
     @Schema(description = "게시글 번호", example = "1")
-    private Long boardId;
+    private Long noticeId;
 
     @Schema(description = "게시글 제목")
     @NotNull(message = "게시글 제목은 필 수 입력입니다.")
@@ -34,7 +34,7 @@ public class ResponseNoticeDTO {
     // 공지사항 엔티티를 DTO로 변환하는 작업
     public static ResponseNoticeDTO changeNotice(NoticeEntity notice) {
         return ResponseNoticeDTO.builder()
-                .boardId(notice.getNoticeId())
+                .noticeId(notice.getNoticeId())
                 .title(notice.getTitle())
                 .content(notice.getContent())
                 .nickName(notice.getMember().getNickName())
