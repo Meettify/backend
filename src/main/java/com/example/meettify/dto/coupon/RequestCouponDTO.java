@@ -22,5 +22,5 @@ public class RequestCouponDTO {
 
     @Schema(description = "할인율 퍼센트 or 할인 금액")
     @NotNull(message = "상품 할인율")
-    private int discount;
+    private Long discount;
 }

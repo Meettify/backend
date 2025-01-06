@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString(exclude = "item")
+@ToString
 @Builder
 public class CouponEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,14 +22,13 @@ public class CouponEntity {
     private int quantity;
     // 쿠폰 할인 금액
     private Long salePrice;
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private ItemEntity item;
 
     // 쿠폰 엔티티 생성
     public static CouponEntity create(RequestCouponDTO coupon) {
         return CouponEntity.builder()
                 .expirationDate(coupon.getExpirationDate())
                 .quantity(coupon.getQuantity())
+                .salePrice(coupon.getDiscount())
                 .build();
     }
 
@@ -38,10 +37,5 @@ public class CouponEntity {
     public void decrease() {
         this.quantity -= 1;
     }
-    // 상품있는지 확인
-    public boolean hasItem() {
-        return item != null;
-    }
-
 
 }

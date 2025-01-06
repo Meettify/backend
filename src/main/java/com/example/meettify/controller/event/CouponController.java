@@ -1,4 +1,4 @@
-package com.example.meettify.controller.coupon;
+package com.example.meettify.controller.event;
 
 import com.example.meettify.dto.coupon.RequestCouponDTO;
 import com.example.meettify.dto.coupon.ResponseCouponDTO;
@@ -16,19 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class CouponController implements CouponControllerDocs{
     private final CouponService couponService;
 
-    @Override
-    @PostMapping("")
-    @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> createCoupon(RequestCouponDTO coupon) throws Exception {
-        try {
-            ResponseCouponDTO response = couponService.createCoupon(coupon);
-            log.info("response {}", response);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            throw new Exception(e.getMessage());
-        }
-    }
-
+    // 쿠폰 조회
     @Override
     @GetMapping("/{couponId}")
     @PreAuthorize("hasRole('ROLE_USER')")
@@ -42,6 +30,7 @@ public class CouponController implements CouponControllerDocs{
         }
     }
 
+    // 쿠폰 삭제
     @Override
     @DeleteMapping("/{couponId}")
     @PreAuthorize("hasRole('ROLE_USER')")

@@ -16,18 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class CouponServiceImpl implements CouponService{
     private final CouponRepository couponRepository;
 
-    // 쿠폰 생성
-    @Override
-    public ResponseCouponDTO createCoupon(RequestCouponDTO coupon) throws Exception {
-        try {
-            CouponEntity couponEntity = CouponEntity.create(coupon);
-            CouponEntity saveCoupon = couponRepository.save(couponEntity);
-            return ResponseCouponDTO.change(saveCoupon);
-        } catch (Exception e) {
-            throw new Exception("쿠폰 생성 실패");
-        }
-    }
-
     // 쿠폰 조회
     @Override
     @Transactional(readOnly = true)
