@@ -105,8 +105,6 @@ public class PaymentController implements PaymentControllerDocs {
             String email = userDetails != null ? userDetails.getUsername() : null;
             ResponseTossPaymentConfirmDTO response = paymentClient.confirmPayment(tossPay, email);
             log.info(response);
-            // 결제 성공 시 주문 정보 저장
-            orderService.saveOrder(tossPay.getOrders(), email, tossPay.getAddress(), tossPay.getOrderUid());
             // 결제 알림
             notificationService.notifyMessage(email, "토스로 결제 :" + response.getAmount() +"원이 결제되었습니다.");
             return ResponseEntity.ok(response);
