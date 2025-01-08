@@ -2,15 +2,14 @@ package com.example.meettify.service.chat;
 
 import com.example.meettify.document.chat.ChatMessage;
 import com.example.meettify.dto.chat.*;
-import com.example.meettify.dto.member.ResponseMemberDTO;
 import com.example.meettify.entity.chat_room.ChatRoomEntity;
 import com.example.meettify.entity.member.MemberEntity;
 import com.example.meettify.exception.chat.ChatException;
 import com.example.meettify.exception.chat.ChatRoomException;
 import com.example.meettify.exception.member.MemberException;
-import com.example.meettify.repository.chat.ChatMessageRepository;
-import com.example.meettify.repository.chat.ChatRoomRepository;
-import com.example.meettify.repository.member.MemberRepository;
+import com.example.meettify.repository.mongo.chat.ChatMessageRepository;
+import com.example.meettify.repository.jpa.chat.ChatRoomRepository;
+import com.example.meettify.repository.jpa.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;

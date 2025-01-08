@@ -1,14 +1,12 @@
 package com.example.meettify.service.jwt;
 
 import com.example.meettify.config.jwt.JwtProvider;
-import com.example.meettify.config.metric.TimeTrace;
 import com.example.meettify.dto.jwt.TokenDTO;
 import com.example.meettify.dto.member.role.UserRole;
 import com.example.meettify.entity.jwt.TokenEntity;
 import com.example.meettify.entity.member.MemberEntity;
-import com.example.meettify.exception.member.MemberException;
-import com.example.meettify.repository.jwt.TokenRepository;
-import com.example.meettify.repository.member.MemberRepository;
+import com.example.meettify.repository.redis.jwt.TokenRepository;
+import com.example.meettify.repository.jpa.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.GrantedAuthority;

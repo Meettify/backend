@@ -13,7 +13,7 @@ import java.util.*;
 @Entity(name = "communities")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString
+@ToString(exclude = {"images", "member"})
 @Getter
 @Builder
 public class CommunityEntity extends BaseEntity {

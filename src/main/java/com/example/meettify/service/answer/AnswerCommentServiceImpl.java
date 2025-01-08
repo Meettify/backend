@@ -2,22 +2,19 @@ package com.example.meettify.service.answer;
 
 import com.example.meettify.dto.comment.CreateAnswerDTO;
 import com.example.meettify.dto.comment.ResponseAnswerCommentDTO;
-import com.example.meettify.dto.comment.ResponseCommentDTO;
 import com.example.meettify.dto.comment.UpdateCommentDTO;
 import com.example.meettify.entity.answer.AnswerCommentEntity;
 import com.example.meettify.entity.member.MemberEntity;
 import com.example.meettify.entity.question.QuestionEntity;
 import com.example.meettify.exception.board.BoardException;
 import com.example.meettify.exception.comment.CommentException;
-import com.example.meettify.repository.answer.AnswerCommentRepository;
-import com.example.meettify.repository.member.MemberRepository;
-import com.example.meettify.repository.question.QuestionRepository;
+import com.example.meettify.repository.jpa.answer.AnswerCommentRepository;
+import com.example.meettify.repository.jpa.member.MemberRepository;
+import com.example.meettify.repository.jpa.question.QuestionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

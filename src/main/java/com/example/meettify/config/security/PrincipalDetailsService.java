@@ -2,7 +2,7 @@ package com.example.meettify.config.security;
 
 import com.example.meettify.config.login.LoginAttemptConfig;
 import com.example.meettify.entity.member.MemberEntity;
-import com.example.meettify.repository.member.MemberRepository;
+import com.example.meettify.repository.jpa.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.LockedException;

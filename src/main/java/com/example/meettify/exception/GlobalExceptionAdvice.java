@@ -7,6 +7,7 @@ import com.example.meettify.exception.cart.CartException;
 import com.example.meettify.exception.chat.ChatException;
 import com.example.meettify.exception.chat.ChatRoomException;
 import com.example.meettify.exception.comment.CommentException;
+import com.example.meettify.exception.coupon.CouponException;
 import com.example.meettify.exception.externalService.ExternalServiceException;
 import com.example.meettify.exception.file.FileDownloadException;
 import com.example.meettify.exception.file.FileUploadException;
@@ -153,7 +154,22 @@ public class GlobalExceptionAdvice {
         slackUtil.sendAlert(e, new RequestInfo(request)); // Slack 알림 전송
         return new ResponseEntity<>("실제 결제금액과 서버에서 결제금액이 다릅니다.",HttpStatus.BAD_REQUEST);
     }
+    // 게시판 관련 예외 처리
+    @ExceptionHandler(CouponException.class)
+    public ResponseEntity<ErrorResponse> handleBoardException(CouponException e, HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setError("게시글 에러 발생");
+        errorResponse.setMessage(e.getMessage());
+        errorResponse.setTimestamp(now); // 오류 발생 시간
+        errorResponse.setPath(request.getRequestURI()); // 요청된 경로
+        errorResponse.setMethod(request.getMethod()); // 요청 메서드
 
+        slackUtil.sendAlert(e, new RequestInfo(request)); // Slack 알림 전송
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(errorResponse);
+    }
 
 
     // 게시판 관련 예외 처리

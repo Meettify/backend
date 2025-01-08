@@ -1,6 +1,5 @@
 package com.example.meettify.service.comment;
 
-import com.example.meettify.config.metric.TimeTrace;
 import com.example.meettify.dto.comment.CreateCommentDTO;
 import com.example.meettify.dto.comment.ResponseCommentDTO;
 import com.example.meettify.dto.comment.UpdateCommentDTO;
@@ -9,17 +8,15 @@ import com.example.meettify.entity.community.CommunityEntity;
 import com.example.meettify.entity.member.MemberEntity;
 import com.example.meettify.exception.board.BoardException;
 import com.example.meettify.exception.comment.CommentException;
-import com.example.meettify.repository.comment.CommentRepository;
-import com.example.meettify.repository.community.CommunityRepository;
-import com.example.meettify.repository.member.MemberRepository;
+import com.example.meettify.repository.jpa.comment.CommentRepository;
+import com.example.meettify.repository.jpa.community.CommunityRepository;
+import com.example.meettify.repository.jpa.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Transactional
 @RequiredArgsConstructor

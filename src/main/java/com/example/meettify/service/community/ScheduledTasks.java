@@ -1,6 +1,6 @@
 package com.example.meettify.service.community;
 
-import com.example.meettify.repository.community.CommunityRepository;
+import com.example.meettify.repository.jpa.community.CommunityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;

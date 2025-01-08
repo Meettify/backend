@@ -10,9 +10,9 @@
     import com.example.meettify.entity.member.MemberEntity;
     import com.example.meettify.exception.item.ItemException;
     import com.example.meettify.exception.member.MemberException;
-    import com.example.meettify.repository.cart.CartItemRepository;
-    import com.example.meettify.repository.item.ItemRepository;
-    import com.example.meettify.repository.member.MemberRepository;
+    import com.example.meettify.repository.jpa.cart.CartItemRepository;
+    import com.example.meettify.repository.jpa.item.ItemRepository;
+    import com.example.meettify.repository.jpa.member.MemberRepository;
     import com.example.meettify.service.search.RedisSearchLogService;
     import jakarta.persistence.EntityNotFoundException;
     import lombok.RequiredArgsConstructor;
