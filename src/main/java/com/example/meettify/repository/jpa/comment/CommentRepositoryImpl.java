@@ -26,8 +26,7 @@ public class CommentRepositoryImpl implements CustomCommentRepository{
         List<CommentEntity> comment = queryFactory
                 .selectFrom(commentEntity)
                 .leftJoin(commentEntity.parent).fetchJoin()
-                .leftJoin(commentEntity.community, communityEntity).fetchJoin()
-                .leftJoin(commentEntity.member, memberEntity).fetchJoin() // member fetch join
+                .join(commentEntity.community, communityEntity).fetchJoin()
                 .where(commentEntity.community.communityId.eq(communityId))
                 .orderBy(commentEntity.commentId.asc())
                 .offset(pageable.getOffset())
@@ -46,5 +45,4 @@ public class CommentRepositoryImpl implements CustomCommentRepository{
 
         return PageableExecutionUtils.getPage(comment, pageable, count::fetchOne);
     }
-
 }
