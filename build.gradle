@@ -116,6 +116,9 @@ dependencies {
     // test
     testImplementation 'org.mockito:mockito-core:4.11.0' // Mockito 코어
     testImplementation 'org.mockito:mockito-junit-jupiter:4.11.0' // JUnit 5와 통합
+    // elasticSearch
+    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+    implementation 'org.springframework.data:spring-data-elasticsearch'
 
 }
 

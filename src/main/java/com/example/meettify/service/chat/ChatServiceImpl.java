@@ -65,10 +65,11 @@ public class ChatServiceImpl implements ChatService {
 
             // 채팅방 엔티티 생성
             ChatRoomEntity chatRoomEntity = ChatRoomEntity.create(roomName, findMember.getNickName(), RoomStatus.OPEN, meetId);
+            // 모임장이 채팅방 유저에 등록
+            chatRoomEntity.getInviteMemberIds().add(findMember.getMemberId());
             // 채팅방 디비에 저장
             ChatRoomEntity saveChatRoom = chatRoomRepository.save(chatRoomEntity);
-            // 모임장이 채팅방 유저에 등록
-            saveChatRoom.getInviteMemberIds().add(findMember.getMemberId());
+
             return ChatRoomDTO.change(saveChatRoom);
         } catch (Exception e) {
             throw new ChatRoomException("채팅방을 생성하는데 실패했습니다.");
@@ -101,11 +102,16 @@ public class ChatServiceImpl implements ChatService {
                 .orElseThrow(() -> new ChatRoomException("채팅방이 존재하지 않습니다."));
 
         if (findChatRoom == null) {
-            log.info("초대받지 않은 유저입니다.");
+            log.info("채팅방이 존재하지 않습니다.");
             return false;
         }
+        if(findChatRoom.getInviteMemberIds().contains(findMember.getMemberId())) {
+            return true;
+        }
+
         // 회원을 채팅방에 초대
         findChatRoom.getInviteMemberIds().add(findMember.getMemberId());
+        chatRoomRepository.save(findChatRoom);
         return true;
     }
 
