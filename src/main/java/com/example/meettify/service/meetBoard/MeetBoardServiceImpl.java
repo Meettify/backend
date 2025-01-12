@@ -1,6 +1,5 @@
 package com.example.meettify.service.meetBoard;
 
-import com.example.meettify.config.metric.TimeTrace;
 import com.example.meettify.config.s3.S3ImageUploadService;
 import com.example.meettify.dto.meet.MeetRole;
 import com.example.meettify.dto.meetBoard.*;
@@ -10,11 +9,11 @@ import com.example.meettify.entity.meetBoard.MeetBoardEntity;
 import com.example.meettify.entity.meetBoard.MeetBoardImageEntity;
 import com.example.meettify.entity.member.MemberEntity;
 import com.example.meettify.exception.meetBoard.MeetBoardException;
-import com.example.meettify.repository.meet.MeetMemberRepository;
-import com.example.meettify.repository.meet.MeetRepository;
-import com.example.meettify.repository.meetBoard.MeetBoardImageRepository;
-import com.example.meettify.repository.meetBoard.MeetBoardRepository;
-import com.example.meettify.repository.member.MemberRepository;
+import com.example.meettify.repository.jpa.meet.MeetMemberRepository;
+import com.example.meettify.repository.jpa.meet.MeetRepository;
+import com.example.meettify.repository.jpa.meetBoard.MeetBoardImageRepository;
+import com.example.meettify.repository.jpa.meetBoard.MeetBoardRepository;
+import com.example.meettify.repository.jpa.member.MemberRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;

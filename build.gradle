@@ -113,6 +113,12 @@ dependencies {
     implementation group: 'com.squareup.retrofit2', name: 'converter-gson', version: '2.3.0'
     //  Spring Cloud OpenFeign 의존성이 추가
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    // test
+    testImplementation 'org.mockito:mockito-core:4.11.0' // Mockito 코어
+    testImplementation 'org.mockito:mockito-junit-jupiter:4.11.0' // JUnit 5와 통합
+    // elasticSearch
+    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+    implementation 'org.springframework.data:spring-data-elasticsearch'
 
 }
 

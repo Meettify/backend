@@ -30,11 +30,11 @@ public class EventEntity extends BaseEntity {
     }
 
     // 이벤트 생성
-    public static EventEntity create(RequestEventCouponDTO event){
+    public static EventEntity create(String title,
+                                     String content){
         return EventEntity.builder()
-                .title(event.getTitle())
-                .content(event.getContent())
-                .coupon(CouponEntity.create(event.getCoupon()))
+                .title(title)
+                .content(content)
                 .build();
     }
 
@@ -42,6 +42,5 @@ public class EventEntity extends BaseEntity {
     public void update(UpdateEventDTO event) {
         this.title = event.getTitle() == null ? this.title : event.getTitle();
         this.content = event.getContent() == null ? this.content : event.getContent();
-        this.coupon = CouponEntity.create(event.getCoupon()) == null ? this.coupon : CouponEntity.create(event.getCoupon());
     }
 }

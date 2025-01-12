@@ -19,6 +19,7 @@ public class ResponseCouponDTO {
     @Schema(description = "할인율 퍼센트 or 할인 금액")
     @NotNull(message = "상품 할인율")
     private Long discount;
+    private String couponKey;
 
     public static ResponseCouponDTO change(CouponEntity coupon) {
         return ResponseCouponDTO.builder()
@@ -26,6 +27,7 @@ public class ResponseCouponDTO {
                 .expirationDate(coupon.getExpirationDate())
                 .quantity(coupon.getQuantity())
                 .discount(coupon.getSalePrice())
+                .couponKey(coupon.getCouponKey())
                 .build();
     }
 }

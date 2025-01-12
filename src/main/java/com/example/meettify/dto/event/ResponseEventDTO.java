@@ -2,6 +2,7 @@ package com.example.meettify.dto.event;
 
 import com.example.meettify.dto.coupon.RequestCouponDTO;
 import com.example.meettify.dto.coupon.ResponseCouponDTO;
+import com.example.meettify.entity.coupon.CouponEntity;
 import com.example.meettify.entity.coupon.EventEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -26,7 +27,10 @@ public class ResponseEventDTO {
                 .eventId(event.getEventId())
                 .title(event.getTitle())
                 .content(event.getContent())
-                .coupon(ResponseCouponDTO.change(event.getCoupon()))
                 .build();
+    }
+
+    public void addCoupon(ResponseCouponDTO coupon) {
+        this.coupon = coupon;
     }
 }

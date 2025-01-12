@@ -34,6 +34,7 @@ public class ResponseOrderDTO {
     @Schema(description = "결제 상태")
     private PayStatus payStatus;
 
+    // 주문 정보를 생성할 때 DTO로 변환해줄 메서드
     public static ResponseOrderDTO changeDTO(OrderEntity order, AddressDTO address, String orderUid) {
         List<ResponseOrderItemDTO> orderItems = order.getOrderItems().stream()
                 .map(ResponseOrderItemDTO::changeDTO)
@@ -50,6 +51,7 @@ public class ResponseOrderDTO {
                 .build();
     }
 
+    // 조회한 것을 DTO로 변환해줄 메서드
     public static ResponseOrderDTO viewChangeDTO(OrderEntity order) {
         List<ResponseOrderItemDTO> orderItems = order.getOrderItems().stream()
                 .map(ResponseOrderItemDTO::changeDTO)
@@ -65,6 +67,7 @@ public class ResponseOrderDTO {
                 .build();
     }
 
+    // 주문 정보 생성
     public static ResponseOrderDTO createDTO(List<ResponseOrderItemDTO> orderItems,
                                              AddressDTO address,
                                              String orderUid,

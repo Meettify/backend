@@ -1,16 +1,18 @@
 package com.example.meettify.config.pay;
 
+import com.example.meettify.dto.order.ResponseOrderDTO;
 import com.example.meettify.dto.pay.*;
 import com.example.meettify.entity.member.MemberEntity;
+import com.example.meettify.entity.order.OrderEntity;
 import com.example.meettify.entity.pay.TossPaymentEntity;
-import com.example.meettify.exception.pay.PayException;
 import com.example.meettify.exception.pay.PaymentConfirmErrorCode;
 import com.example.meettify.exception.pay.PaymentConfirmException;
-import com.example.meettify.repository.member.MemberRepository;
-import com.example.meettify.repository.pay.TossPaymentRepository;
+import com.example.meettify.repository.jpa.member.MemberRepository;
+import com.example.meettify.repository.jpa.order.OrderRepository;
+import com.example.meettify.repository.jpa.pay.TossPaymentRepository;
+import com.example.meettify.service.order.OrderService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.ClientHttpRequestFactories;
@@ -39,11 +41,13 @@ public class PaymentClient {
     private final RestClient restClient;
     private final MemberRepository memberRepository;
     private final TossPaymentRepository tossPaymentRepository;
+    private final OrderService orderService;
+    private final OrderRepository orderRepository;
     @Value("${payment.secret_key}")
     private String secretKey;
 
     public PaymentClient(PaymentProperties paymentProperties,
-                         ObjectMapper objectMapper, MemberRepository memberRepository, TossPaymentRepository tossPaymentRepository) {
+                         ObjectMapper objectMapper, MemberRepository memberRepository, TossPaymentRepository tossPaymentRepository, OrderService orderService, OrderRepository orderRepository) {
         this.paymentProperties = paymentProperties;
         this.objectMapper = objectMapper;
         this.restClient = RestClient.builder()
@@ -54,6 +58,8 @@ public class PaymentClient {
                 .build();
         this.memberRepository = memberRepository;
         this.tossPaymentRepository = tossPaymentRepository;
+        this.orderService = orderService;
+        this.orderRepository = orderRepository;
     }
 
     private ClientHttpRequestFactory createPaymentRequestFactory() {
@@ -95,8 +101,15 @@ public class PaymentClient {
                 ResponseTossPaymentConfirmDTO tossPayDTO = parseResponse(responseEntity.getBody());
                 log.info("결제 확인 성공: {}", tossPayDTO);
 
+                // 주문 정보 저장
+                ResponseOrderDTO responseOrder = orderService.saveOrder(tossPay.getOrders(), findMember.getMemberEmail(), tossPay.getAddress(), tossPay.getOrderUid());
+                log.info("responseOrder {}", responseOrder);
+
+                // 주문 정보 조회
+                OrderEntity findOrder = orderRepository.findByOrderUUIDid(responseOrder.getOrderUid());
+
                 // 결제 데이터를 저장
-                TossPaymentEntity tossPaymentEntity = TossPaymentEntity.savePayment(tossPayDTO, findMember);
+                TossPaymentEntity tossPaymentEntity = TossPaymentEntity.savePayment(tossPayDTO, findMember, findOrder);
                 tossPaymentRepository.save(tossPaymentEntity);
 
                 return tossPayDTO;

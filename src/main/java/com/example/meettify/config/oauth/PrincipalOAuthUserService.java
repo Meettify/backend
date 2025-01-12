@@ -3,7 +3,7 @@ package com.example.meettify.config.oauth;
 import com.example.meettify.config.security.PrincipalDetails;
 import com.example.meettify.dto.member.role.UserRole;
 import com.example.meettify.entity.member.MemberEntity;
-import com.example.meettify.repository.member.MemberRepository;
+import com.example.meettify.repository.jpa.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;

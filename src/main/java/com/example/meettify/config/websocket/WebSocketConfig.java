@@ -49,6 +49,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
 
+        // url을 chat/room/3 -> chat.room.3으로 참조하기 위한 설정
         registry.setPathMatcher(new AntPathMatcher("."));
         registry.setUserDestinationPrefix("/sub");           // 클라이언트 구독 경로
 
