@@ -35,6 +35,8 @@ public class ResponseTossPaymentConfirmDTO {
     private ResponseOrderDTO order;         // 주문 ID
     @Schema(description = "주소")
     private AddressDTO address;
+    @Schema(description = "주문 ID")
+    private String orderUid;
 
     // 엔티티를 DTO로 변환
     public static ResponseTossPaymentConfirmDTO change(TossPaymentEntity toss) {
@@ -45,6 +47,7 @@ public class ResponseTossPaymentConfirmDTO {
                 .amount(toss.getAmount())
                 .requestedAt(toss.getRequestedAt())
                 .approvedAt(toss.getApprovedAt())
+                .orderUid(toss.getOrderUid())
                 .build();
     }
 }
