@@ -1,5 +1,6 @@
 package com.example.meettify.config.pay;
 
+import com.example.meettify.dto.member.AddressDTO;
 import com.example.meettify.dto.order.ResponseOrderDTO;
 import com.example.meettify.dto.pay.*;
 import com.example.meettify.entity.member.MemberEntity;
@@ -102,7 +103,11 @@ public class PaymentClient {
                 log.info("결제 확인 성공: {}", tossPayDTO);
 
                 // 주문 정보 저장
-                ResponseOrderDTO responseOrder = orderService.saveOrder(tossPay.getOrders(), findMember.getMemberEmail(), tossPay.getAddress(), tossPay.getOrderUid());
+                ResponseOrderDTO responseOrder = orderService.saveOrder(
+                        tossPay.getOrders(),
+                        findMember.getMemberEmail(),
+                        AddressDTO.changeDTO(findMember.getAddress()),
+                        tossPay.getOrderUid());
                 log.info("responseOrder {}", responseOrder);
 
                 // 주문 정보 조회

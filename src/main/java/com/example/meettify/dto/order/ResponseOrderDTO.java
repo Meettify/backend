@@ -1,6 +1,7 @@
 package com.example.meettify.dto.order;
 
 import com.example.meettify.dto.member.AddressDTO;
+import com.example.meettify.entity.member.AddressEntity;
 import com.example.meettify.entity.order.OrderEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -69,11 +70,11 @@ public class ResponseOrderDTO {
 
     // 주문 정보 생성
     public static ResponseOrderDTO createDTO(List<ResponseOrderItemDTO> orderItems,
-                                             AddressDTO address,
+                                             AddressEntity address,
                                              String orderUid,
                                              int orderTotalPrice) {
         return ResponseOrderDTO.builder()
-                .orderAddress(address)
+                .orderAddress(AddressDTO.changeDTO(address))
                 .orderTotalPrice(orderTotalPrice)
                 .orderItems(orderItems)
                 .orderUid(orderUid)
