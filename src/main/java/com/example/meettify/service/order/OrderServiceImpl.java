@@ -41,7 +41,7 @@ public class OrderServiceImpl implements OrderService {
     private final HttpSession session;
 
     // 주문 정보를 임시로 보여줄 메서드
-    public ResponseOrderDTO createTempOrder(List<RequestOrderServiceDTO> orders, String email, AddressDTO address) {
+    public ResponseOrderDTO createTempOrder(List<RequestOrderServiceDTO> orders, String email) {
         try {
             // 회원 조회
             MemberEntity findMember = memberRepository.findByMemberEmail(email);
@@ -107,7 +107,7 @@ public class OrderServiceImpl implements OrderService {
             }
             String merchantUid = generateMerchantUid(); //주문번호 생성
             // 주문 DTO 생성
-            ResponseOrderDTO response = ResponseOrderDTO.createDTO(orderItems, address, merchantUid, totalPrice);
+            ResponseOrderDTO response = ResponseOrderDTO.createDTO(orderItems, findMember.getAddress(), merchantUid, totalPrice);
 
             log.info("responseOrderDTO: {}", response);
             session.setAttribute("order_" + merchantUid, response); // 세션에 저장

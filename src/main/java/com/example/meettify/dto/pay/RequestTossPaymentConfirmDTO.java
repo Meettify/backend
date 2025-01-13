@@ -34,6 +34,4 @@ public class RequestTossPaymentConfirmDTO {
     private String orderUid;
     @Schema(description = "주문 정보")
     private List<RequestOrderDTO> orders;  // 주문 정보 (상세)
-    @Schema(description = "주소")
-    private AddressDTO address;
 }

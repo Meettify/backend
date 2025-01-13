@@ -13,8 +13,7 @@ import java.util.List;
 public interface OrderService {
     // 임시 주문정보
     ResponseOrderDTO createTempOrder(List<RequestOrderServiceDTO> orders,
-                                     String email,
-                                     AddressDTO address);
+                                     String email);
 
     // 주문하기
     ResponseOrderDTO saveOrder(List<RequestOrderDTO> orders,

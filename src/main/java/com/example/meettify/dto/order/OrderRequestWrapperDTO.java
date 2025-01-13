@@ -14,6 +14,4 @@ import java.util.List;
 public class OrderRequestWrapperDTO {
     @Schema(description = "주문 요청")
     private List<RequestOrderDTO> orders;
-    @Schema(description = "주문 주소")
-    private AddressDTO address;
 }

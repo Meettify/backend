@@ -41,7 +41,7 @@ public class OrderController implements OrderControllerDocs{
             List<RequestOrderServiceDTO> serviceDTOS = orderWrapper.getOrders().stream()
                     .map(order -> modelMapper.map(order, RequestOrderServiceDTO.class))
                     .collect(Collectors.toList());
-            ResponseOrderDTO response = orderService.createTempOrder(serviceDTOS, email, orderWrapper.getAddress());
+            ResponseOrderDTO response = orderService.createTempOrder(serviceDTOS, email);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             throw new OrderException(e.getMessage());
