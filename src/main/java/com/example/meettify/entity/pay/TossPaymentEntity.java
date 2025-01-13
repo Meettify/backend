@@ -36,6 +36,8 @@ public class TossPaymentEntity {
     @Column(nullable = false)
     private OffsetDateTime requestedAt;
     private OffsetDateTime approvedAt;
+    @Column(nullable = false, length = 100)
+    private String orderUid;
 
     public static TossPaymentEntity savePayment(ResponseTossPaymentConfirmDTO pay,
                                                 MemberEntity member,
@@ -45,6 +47,7 @@ public class TossPaymentEntity {
                 .amount(pay.getAmount())
                 .order(order)
                 .tossOrderId(pay.getTossOrderId())
+                .orderUid(pay.getOrderUid())
                 .paymentKey(pay.getPaymentKey())
                 .member(member)
                 .requestedAt(pay.getRequestedAt())

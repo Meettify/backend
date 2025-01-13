@@ -20,6 +20,11 @@ import java.util.List;
 
 import static com.slack.api.model.block.composition.BlockCompositions.plainText;
 
+/*
+ *   worker : 유요한
+ *   work   : 에러 내용을 슬랙에 메시지를 보내기 위한 클래스
+ *   date   : 2024/10/25
+ * */
 @Service
 @RequiredArgsConstructor
 @Log4j2
