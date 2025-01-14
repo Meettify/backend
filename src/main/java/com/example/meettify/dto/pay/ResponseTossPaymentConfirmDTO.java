@@ -8,6 +8,7 @@ import com.example.meettify.entity.pay.TossPaymentEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -27,10 +28,10 @@ public class ResponseTossPaymentConfirmDTO {
     private String paymentKey;      // 결제 고유 키
     @Schema(description = "승인 시간")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX")
-    private OffsetDateTime requestedAt;
+    private LocalDateTime requestedAt;
     @Schema(description = "결제 승인 시간")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX")
-    private OffsetDateTime approvedAt;
+    private LocalDateTime approvedAt;
     @Schema(description = "주문 정보")
     private ResponseOrderDTO order;         // 주문 ID
     @Schema(description = "주소")
