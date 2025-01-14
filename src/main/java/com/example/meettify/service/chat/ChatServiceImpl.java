@@ -1,5 +1,6 @@
 package com.example.meettify.service.chat;
 
+import com.example.meettify.config.metric.TimeTrace;
 import com.example.meettify.document.chat.ChatMessage;
 import com.example.meettify.dto.chat.*;
 import com.example.meettify.entity.chat_room.ChatRoomEntity;
@@ -42,6 +43,8 @@ public class ChatServiceImpl implements ChatService {
 
     // 채팅방의 채팅 내역 조회
     @Override
+    @Transactional(readOnly = true)
+    @TimeTrace
     public List<ChatMessageDTO> getMessagesByRoomId(Long roomId) {
         List<ChatMessage> findChatByRoomId = chatMessageRepository.findByRoomId(roomId);
         return findChatByRoomId
@@ -78,6 +81,8 @@ public class ChatServiceImpl implements ChatService {
 
     // 본인에게 해당된 채팅방 리스트 조회
     @Override
+    @Transactional(readOnly = true)
+    @TimeTrace
     public List<ChatRoomDTO> getRooms(String email) {
         try {
             // 회원 조회
@@ -167,6 +172,7 @@ public class ChatServiceImpl implements ChatService {
     // 모임글에 채팅방이 존재하는지 조회
     @Override
     @Transactional(readOnly = true)
+    @TimeTrace
     public boolean checkCreateChatRoom(Long meetId) {
         try {
             // 모임글로 채팅방 조회

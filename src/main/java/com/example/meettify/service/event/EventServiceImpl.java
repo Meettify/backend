@@ -1,5 +1,6 @@
 package com.example.meettify.service.event;
 
+import com.example.meettify.config.metric.TimeTrace;
 import com.example.meettify.dto.event.ResponseEventDTO;
 import com.example.meettify.dto.event.UpdateEventDTO;
 import com.example.meettify.entity.coupon.EventEntity;
@@ -26,7 +27,6 @@ public class EventServiceImpl implements EventService{
     public ResponseEventDTO createEvent(String title,
                                         String content) {
         try {
-
             // 이벤트 엔티티 생성
             EventEntity eventEntity = EventEntity.create(title, content);
             // 디비에 저장
@@ -41,6 +41,7 @@ public class EventServiceImpl implements EventService{
     // 이벤트 게시글 상세페이지
     @Override
     @Transactional(readOnly = true)
+    @TimeTrace
     public ResponseEventDTO getEvent(Long eventId) {
         try {
             EventEntity findEvent = eventRepository.findById(eventId)
@@ -85,6 +86,7 @@ public class EventServiceImpl implements EventService{
     // 이벤트들을 페이징 처리
     @Override
     @Transactional(readOnly = true)
+    @TimeTrace
     public Page<ResponseEventDTO> getEvents(Pageable page) {
         try {
             // 페이징 처리한 이벤트 게시글

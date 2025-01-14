@@ -1,5 +1,6 @@
 package com.example.meettify.service.question;
 
+import com.example.meettify.config.metric.TimeTrace;
 import com.example.meettify.dto.board.CreateBoardDTO;
 import com.example.meettify.dto.board.UpdateQuestionDTO;
 import com.example.meettify.dto.question.ReplyStatus;
@@ -86,6 +87,7 @@ public class QuestionServiceImpl implements QuestionService{
     // 문의 조회
     @Override
     @Transactional(readOnly = true)
+    @TimeTrace
     public ResponseQuestionDTO getQuestion(Long questionId, UserDetails userDetails) {
         try {
             // 문의글 조회
@@ -113,6 +115,7 @@ public class QuestionServiceImpl implements QuestionService{
     // 내 문의글 보기
     @Override
     @Transactional(readOnly = true)
+    @TimeTrace
     public Page<ResponseQuestionDTO> getMyAllQuestions(Pageable pageable,
                                                        String memberEmail,
                                                        ReplyStatus replyStatus) {
@@ -128,6 +131,7 @@ public class QuestionServiceImpl implements QuestionService{
     // 모든 문의글 보기 - 관리자
     @Override
     @Transactional(readOnly = true)
+    @TimeTrace
     public Page<ResponseQuestionDTO> getAllQuestions(Pageable pageable,
                                                      ReplyStatus replyStatus) {
         try {
@@ -141,6 +145,7 @@ public class QuestionServiceImpl implements QuestionService{
     // 내 문의글 수 보기
     @Override
     @Transactional(readOnly = true)
+    @TimeTrace
     public ResponseCountDTO countMyAllQuestions(String memberEmail) {
         try {
             log.info("----------------------------");
@@ -156,6 +161,7 @@ public class QuestionServiceImpl implements QuestionService{
     // 모든 문의글 수
     @Override
     @Transactional(readOnly = true)
+    @TimeTrace
     public ResponseCountDTO countAllQuestions() {
         try {
             ResponseCountDTO findCount = questionRepository.countAllQuestions();

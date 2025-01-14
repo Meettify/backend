@@ -34,8 +34,8 @@ public class TossPaymentEntity {
     @JoinColumn(name = "member_id")
     private MemberEntity member;
     @Column(nullable = false)
-    private OffsetDateTime requestedAt;
-    private OffsetDateTime approvedAt;
+    private LocalDateTime requestedAt;
+    private LocalDateTime approvedAt;
     @Column(nullable = false, length = 100)
     private String orderUid;
 

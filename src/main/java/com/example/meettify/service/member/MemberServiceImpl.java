@@ -2,6 +2,7 @@ package com.example.meettify.service.member;
 
 import com.example.meettify.config.jwt.JwtProvider;
 import com.example.meettify.config.login.LoginAttemptConfig;
+import com.example.meettify.config.metric.TimeTrace;
 import com.example.meettify.dto.jwt.TokenDTO;
 import com.example.meettify.dto.member.MemberServiceDTO;
 import com.example.meettify.dto.member.UpdateMemberServiceDTO;
@@ -237,6 +238,8 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    @TimeTrace
     public ResponseMemberDTO getMember(Long memberId) {
         try {
             MemberEntity findMember = memberRepository.findById(memberId)
@@ -250,6 +253,8 @@ public class MemberServiceImpl implements MemberService {
 
     // 관리자가 회원 정보를 가져오기
     @Override
+    @Transactional(readOnly = true)
+    @TimeTrace
     public Page<ResponseMemberDTO> getMembers(Pageable pageable) {
         try {
             Page<MemberEntity> findAllMembers = memberRepository.findAll(pageable, UserRole.USER);
@@ -262,6 +267,7 @@ public class MemberServiceImpl implements MemberService {
     // 전체 회원 수
     @Transactional(readOnly = true)
     @Override
+    @TimeTrace
     public Long countMembers() {
         try {
             Long countMembers = memberRepository.countByMembers();

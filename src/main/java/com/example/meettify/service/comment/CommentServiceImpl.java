@@ -1,5 +1,6 @@
 package com.example.meettify.service.comment;
 
+import com.example.meettify.config.metric.TimeTrace;
 import com.example.meettify.dto.comment.CreateCommentDTO;
 import com.example.meettify.dto.comment.ResponseCommentDTO;
 import com.example.meettify.dto.comment.UpdateCommentDTO;
@@ -106,6 +107,7 @@ public class CommentServiceImpl implements CommentService {
     // 댓글 상세페이지
     @Override
     @Transactional(readOnly = true)
+    @TimeTrace
     public ResponseCommentDTO getComment(Long commentId) {
         try {
             CommentEntity findComment = commentRepository.findById(commentId)
@@ -121,6 +123,7 @@ public class CommentServiceImpl implements CommentService {
     // 댓글 페이징 처리
     @Override
     @Transactional(readOnly = true)
+    @TimeTrace
     public Page<ResponseCommentDTO> getComments(Pageable page, Long communityId) {
         try {
             Page<CommentEntity> findAllComment = commentRepository.findCommentByCommunityId(communityId, page);
