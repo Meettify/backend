@@ -25,10 +25,8 @@ public class RequestTossPaymentConfirmDTO {
     @Schema(description = "토스 결제 키")
     private String paymentKey;    // 결제 키
     @Schema(description = "승인 시간")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX")
     private LocalDateTime requestedAt;
     @Schema(description = "결제 승인 시간")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX")
     private LocalDateTime approvedAt;
     @Schema(description = "주문 uid")
     private String orderUid;
