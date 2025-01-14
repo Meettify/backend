@@ -43,7 +43,6 @@ public class CommunityServiceImpl implements CommunityService {
 
     // 커뮤니티 생성
     @Override
-    @TimeTrace
     public ResponseCommunityDTO saveBoard(CreateServiceDTO board,
                                           List<MultipartFile> files,
                                           String memberEmail) {
@@ -83,7 +82,6 @@ public class CommunityServiceImpl implements CommunityService {
 
     // 커뮤니티 수정
     @Override
-    @TimeTrace
     public ResponseCommunityDTO updateBoard(Long communityId,
                                             UpdateServiceDTO community,
                                             List<MultipartFile> files) {
@@ -180,7 +178,6 @@ public class CommunityServiceImpl implements CommunityService {
 
     // 커뮤니티 삭제
     @Override
-    @TimeTrace
     public String deleteBoard(Long communityId) {
         try {
             CommunityEntity findCommunity = communityRepository.findById(communityId)
@@ -249,6 +246,7 @@ public class CommunityServiceImpl implements CommunityService {
     // 내 커뮤니티 보기
     @Override
     @Transactional(readOnly = true)
+    @TimeTrace
     public Page<ResponseCommunityDTO> getMyBoards(Pageable pageable, String memberEmail) {
         try {
             Page<CommunityEntity> findAllCommunity = communityRepository.findAllByMemberEmail(memberEmail, pageable);
@@ -263,6 +261,7 @@ public class CommunityServiceImpl implements CommunityService {
     // 내 커뮤니티 수
     @Override
     @Transactional(readOnly = true)
+    @TimeTrace
     public long countMyCommunity(String memberEmail) {
         try {
             long count = communityRepository.countByMemberMemberEmail(memberEmail);
@@ -276,6 +275,7 @@ public class CommunityServiceImpl implements CommunityService {
     // 모든 커뮤니티 수
     @Override
     @Transactional(readOnly = true)
+    @TimeTrace
     public long countAllCommunity() {
         try {
             long count = communityRepository.countAllItems();

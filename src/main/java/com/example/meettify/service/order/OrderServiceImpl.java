@@ -1,5 +1,6 @@
 package com.example.meettify.service.order;
 
+import com.example.meettify.config.metric.TimeTrace;
 import com.example.meettify.dto.member.AddressDTO;
 import com.example.meettify.dto.order.*;
 import com.example.meettify.entity.cart.CartItemEntity;
@@ -234,6 +235,7 @@ public class OrderServiceImpl implements OrderService {
     // 내 주문 정보 보기
     @Override
     @Transactional(readOnly = true)
+    @TimeTrace
     public Page<ResponseOrderDTO> getMyOrders(String email, Pageable pageable) {
         try {
             Page<OrderEntity> findAllOrders = orderRepository.findAllByMemberEmail(email, pageable);
@@ -265,6 +267,7 @@ public class OrderServiceImpl implements OrderService {
     // 내 주문 카운트
     @Override
     @Transactional(readOnly = true)
+    @TimeTrace
     public long countMyOrders(String email) {
         try {
             long count = orderRepository.countByMemberMemberEmail(email);
@@ -278,6 +281,7 @@ public class OrderServiceImpl implements OrderService {
     // 모든 주문 수 카운트
     @Override
     @Transactional(readOnly = true)
+    @TimeTrace
     public long countAll() {
         try {
             long count = orderRepository.countAllOrders();
@@ -291,6 +295,7 @@ public class OrderServiceImpl implements OrderService {
     // 모든 주문 내역 보기
     @Override
     @Transactional(readOnly = true)
+    @TimeTrace
     public Page<ResponseOrderDTO> getOrders(Pageable page, PayStatus payStatus) {
         try {
             Page<OrderEntity> findOrders = orderRepository.findAllOrders(page, payStatus);

@@ -31,6 +31,7 @@ public class TimeTraceAspect {
 
     @Around("timeTracePointcut()")
     public Object traceTime(ProceedingJoinPoint joinPoint) throws Throwable {
+        log.info("start {}", joinPoint.toString());
         Timer timer = Timer.builder("response_time_ms")
                 .register(meterRegistry);
 

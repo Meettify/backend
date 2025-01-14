@@ -1,5 +1,6 @@
 package com.example.meettify.service.coupon;
 
+import com.example.meettify.config.metric.TimeTrace;
 import com.example.meettify.dto.coupon.RequestCouponDTO;
 import com.example.meettify.dto.coupon.ResponseCouponDTO;
 import com.example.meettify.entity.coupon.CouponEntity;
@@ -50,6 +51,7 @@ public class CouponServiceImpl implements CouponService{
     // 쿠폰 조회
     @Override
     @Transactional(readOnly = true)
+    @TimeTrace
     public ResponseCouponDTO getCoupon(Long couponId) {
         try {
             CouponEntity findCoupon = couponRepository.findById(couponId)

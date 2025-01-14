@@ -179,6 +179,7 @@
         }
 
         @Transactional(readOnly = true)
+        @TimeTrace
         // 사용자 이메일을 통해 검색 기록을 조회하고, 그 기록에서 카테고리를 추출하여 추천 상품을 계산합니다.
         public List<ResponseItemDTO> recommendItemsBySearchHistory(String email) {
             // 사용자의 최근 검색 기록을 가져옵니다.
@@ -230,6 +231,7 @@
         // 대기중인 상품 리스트
         @Override
         @Transactional(readOnly = true)
+        @TimeTrace
         public Page<ResponseItemDTO> requestItemList(Pageable page) {
             try {
                 Page<ItemEntity> findAllByWait = itemRepository.findAllByWait(page);
@@ -256,6 +258,7 @@
 
         @Override
         @Transactional(readOnly = true)
+        @TimeTrace
         public long countItems() {
             try {
                 long countAll = itemRepository.countAll();

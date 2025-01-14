@@ -1,6 +1,7 @@
 package com.example.meettify.service.pay;
 
 import com.example.meettify.config.iamport.ImportConfig;
+import com.example.meettify.config.metric.TimeTrace;
 import com.example.meettify.dto.pay.*;
 import com.example.meettify.entity.member.MemberEntity;
 import com.example.meettify.entity.pay.PaymentEntity;
@@ -72,6 +73,8 @@ public class PaymentServiceImpl implements PaymentService {
 
     // 아임포트 결제 정보 조회
     @Override
+    @Transactional(readOnly = true)
+    @TimeTrace
     public ResponsePaymentDTO getPayment(String orderUid) {
         try {
             // 아임포트 결제 정보 조회
@@ -84,6 +87,8 @@ public class PaymentServiceImpl implements PaymentService {
 
     // 토스 결제 정보 조회
     @Override
+    @Transactional(readOnly = true)
+    @TimeTrace
     public ResponseTossPaymentConfirmDTO getTossPaymentConfirm(String orderUid) {
         try {
             TossPaymentEntity findTossPay = tossPaymentRepository.findByOrderUid(orderUid);

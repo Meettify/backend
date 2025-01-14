@@ -33,6 +33,7 @@ public class SearchServiceImpl implements SearchService {
     private final RedisSearchLogService redisSearchLogService;
 
 
+    @Transactional(readOnly = true)
     @TimeTrace
     public SearchResponseDTO searchResponseDTO(SearchCondition searchCondition, String email) {
         // 1. 검색 결과 조회
