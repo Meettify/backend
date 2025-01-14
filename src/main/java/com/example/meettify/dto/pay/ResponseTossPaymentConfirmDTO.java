@@ -27,9 +27,11 @@ public class ResponseTossPaymentConfirmDTO {
     @Schema(description = "결제 고유 키")
     private String paymentKey;      // 결제 고유 키
     @Schema(description = "승인 시간")
-    private LocalDateTime requestedAt;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")  // ISO 8601 형식
+    private OffsetDateTime requestedAt;
     @Schema(description = "결제 승인 시간")
-    private LocalDateTime approvedAt;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")  // ISO 8601 형식
+    private OffsetDateTime approvedAt;
     @Schema(description = "주문 정보")
     private ResponseOrderDTO order;         // 주문 ID
     @Schema(description = "주소")
