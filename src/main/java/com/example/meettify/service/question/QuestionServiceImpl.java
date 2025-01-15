@@ -63,8 +63,7 @@ public class QuestionServiceImpl implements QuestionService{
             }
             // 문의글 수정
             findQuestion.updateQuestion(question);
-            QuestionEntity updateQuestion = questionRepository.save(findQuestion);
-            return ResponseQuestionDTO.changeDTO(updateQuestion, findMember.getNickName());
+            return ResponseQuestionDTO.changeDTO(findQuestion, findMember.getNickName());
         } catch (Exception e) {
             throw new BoardException("문의글 수정 실패 : " + e.getMessage());
         }

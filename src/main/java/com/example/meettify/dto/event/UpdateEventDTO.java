@@ -12,6 +12,6 @@ public class UpdateEventDTO {
     private String title;
     @Schema(description = "이벤트 내용에 대해서 입력해주세요")
     private String content;
-    @Schema(description = "쿠폰에 대한 정보")
-    private RequestCouponDTO coupon;
+    @Schema(description = "쿠폰 개수")
+    private int couponCount;
 }

@@ -38,11 +38,13 @@ public class EventController implements EventControllerDocs{
             String title = event.getTitle();
             // 이벤트 내용
             String content = event.getContent();
-            // 쿠폰
+            // 개수
+            int count = event.getCouponCount();
+            // 쿠폰 정보
             RequestCouponDTO coupon = event.getCoupon();
 
             // 이벤트 생성
-            ResponseEventDTO responseEvent = eventService.createEvent(title, content);
+            ResponseEventDTO responseEvent = eventService.createEvent(title, content, count);
             // 쿠폰 생성
             ResponseCouponDTO responseCoupon = couponService.createCoupon(coupon, responseEvent.getEventId());
             // 이벤트에 쿠폰 추가

@@ -14,4 +14,6 @@ public class RequestEventCouponDTO {
     private String content;
     @Schema(description = "쿠폰에 대한 정보")
     private RequestCouponDTO coupon;
+    @Schema(description = "쿠폰 개수")
+    private int couponCount;
 }

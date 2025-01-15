@@ -116,8 +116,7 @@ public class CommunityServiceImpl implements CommunityService {
             List<CommunityImgEntity> images = CommunityImgEntity.createEntityList(responseImages, findCommunity);
             // 새로운 이미지들 추가
             findCommunity.updateCommunity(community, images);
-            CommunityEntity saveItem = communityRepository.save(findCommunity);
-            return ResponseCommunityDTO.changeCommunity(saveItem);
+            return ResponseCommunityDTO.changeCommunity(findCommunity);
         } catch (Exception e) {
             log.error("Error updating item: ", e);
             throw new ItemException("Failed to update the item.");

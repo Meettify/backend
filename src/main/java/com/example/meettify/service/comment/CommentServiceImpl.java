@@ -78,9 +78,8 @@ public class CommentServiceImpl implements CommentService {
 
             // 댓글 수정
             findComment.updateComment(comment);
-            CommentEntity updatedComment = commentRepository.save(findComment);
             Long parentCommentId = (findComment.getParent() != null) ? findComment.getParent().getCommentId() : 0L;
-            ResponseCommentDTO response = ResponseCommentDTO.changeDTO(updatedComment, findMember.getNickName(), parentCommentId);
+            ResponseCommentDTO response = ResponseCommentDTO.changeDTO(findComment, findMember.getNickName(), parentCommentId);
             log.info("수정된 댓글 {} ", response);
             return response;
         } catch (Exception e) {

@@ -7,7 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface EventService {
-    ResponseEventDTO createEvent(String title, String content);
+    ResponseEventDTO createEvent(String title, String content, int count);
     ResponseEventDTO getEvent(Long eventId);
     String deleteEvent(Long eventId);
     ResponseEventDTO updateEvent(Long eventId, UpdateEventDTO event);

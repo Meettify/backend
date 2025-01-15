@@ -23,7 +23,7 @@ import java.util.List;
 public interface MeetControllerDocs {
     @Operation(summary = "모임 리스트", description = "모임 데이터 List를 페이징 처리와 함께 제공해주는 기능")
     @GetMapping
-    public ResponseEntity<?> getList(Pageable pageable, MeetSearchCondition condition,
+    public ResponseEntity<?> getList(int page, int size, MeetSearchCondition condition,
                                      @AuthenticationPrincipal UserDetails userDetails);
 
     @Operation(summary = "모임 디테일 정보", description = "모임 디테일 정보와 현재 모임에서 권한 관련 정보를 전달해줘야 한다.")

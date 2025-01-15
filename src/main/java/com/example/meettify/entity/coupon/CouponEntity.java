@@ -19,8 +19,6 @@ public class CouponEntity {
     private Long couponId;
     // 쿠폰의 만료일자
     private LocalDateTime expirationDate;
-    // 쿠폰 개수
-    private int quantity;
     // 쿠폰 할인 금액
     private Long salePrice;
     // 쿠폰 키
@@ -33,16 +31,8 @@ public class CouponEntity {
     public static CouponEntity create(RequestCouponDTO coupon, String couponKey) {
         return CouponEntity.builder()
                 .expirationDate(coupon.getExpirationDate())
-                .quantity(coupon.getQuantity())
                 .salePrice(coupon.getDiscount())
                 .couponKey(couponKey)
                 .build();
     }
-
-    /*비즈니스 로직*/
-    // 쿠폰 감소
-    public void decrease() {
-        this.quantity -= 1;
-    }
-
 }
