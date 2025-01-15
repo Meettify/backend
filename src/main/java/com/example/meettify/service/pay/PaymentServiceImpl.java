@@ -85,6 +85,21 @@ public class PaymentServiceImpl implements PaymentService {
         }
     }
 
+    @Override
+    public ResponseTossPaymentConfirmDTO savePayment(RequestTossPaymentConfirmDTO toss,
+                                                     String email) {
+        try {
+            // 회원 조회
+            MemberEntity findMember = memberRepository.findByMemberEmail(email);
+            TossPaymentEntity tossPaymentEntity = TossPaymentEntity.savePayment(toss, findMember);
+            log.info("toss entity {}", tossPaymentEntity);
+            TossPaymentEntity saveToss = tossPaymentRepository.save(tossPaymentEntity);
+            return ResponseTossPaymentConfirmDTO.change(saveToss);
+        }catch (Exception e) {
+            throw new PayException("결제 정보를 저장하는데 실패했습니다.");
+        }
+    }
+
     // 토스 결제 정보 조회
     @Override
     @Transactional(readOnly = true)

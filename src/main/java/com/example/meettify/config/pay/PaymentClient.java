@@ -41,9 +41,6 @@ public class PaymentClient {
     private final PaymentProperties paymentProperties;
     private final RestClient restClient;
     private final MemberRepository memberRepository;
-    private final TossPaymentRepository tossPaymentRepository;
-    private final OrderService orderService;
-    private final OrderRepository orderRepository;
     @Value("${payment.secret_key}")
     private String secretKey;
 
@@ -58,9 +55,6 @@ public class PaymentClient {
                 .defaultHeader(HttpHeaders.AUTHORIZATION, createPaymentAuthHeader(paymentProperties))
                 .build();
         this.memberRepository = memberRepository;
-        this.tossPaymentRepository = tossPaymentRepository;
-        this.orderService = orderService;
-        this.orderRepository = orderRepository;
     }
 
     private ClientHttpRequestFactory createPaymentRequestFactory() {
@@ -101,21 +95,6 @@ public class PaymentClient {
                 // JSON 파싱 및 객체 매핑
                 ResponseTossPaymentConfirmDTO tossPayDTO = parseResponse(responseEntity.getBody());
                 log.info("결제 확인 성공: {}", tossPayDTO);
-
-                // 주문 정보 저장
-                ResponseOrderDTO responseOrder = orderService.saveOrder(
-                        tossPay.getOrders(),
-                        findMember.getMemberEmail(),
-                        AddressDTO.changeDTO(findMember.getAddress()),
-                        tossPay.getOrderUid());
-                log.info("responseOrder {}", responseOrder);
-
-                // 주문 정보 조회
-                OrderEntity findOrder = orderRepository.findByOrderUUIDid(responseOrder.getOrderUid());
-
-                // 결제 데이터를 저장
-                TossPaymentEntity tossPaymentEntity = TossPaymentEntity.savePayment(tossPayDTO, findMember, findOrder);
-                tossPaymentRepository.save(tossPaymentEntity);
 
                 return tossPayDTO;
             } else {

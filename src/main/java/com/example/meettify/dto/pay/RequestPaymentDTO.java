@@ -26,6 +26,4 @@ public class RequestPaymentDTO {
     private int payPrice;
     @Schema(description = "주문 정보")
     private List<RequestOrderDTO> orders;
-    @Schema(description = "주소")
-    private AddressDTO address;
 }

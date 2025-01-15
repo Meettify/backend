@@ -18,7 +18,6 @@ public interface OrderService {
     // 주문하기
     ResponseOrderDTO saveOrder(List<RequestOrderDTO> orders,
                                String email,
-                               AddressDTO address,
                                String orderUUid);
 
     // 내 주문 내역 보기

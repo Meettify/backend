@@ -46,7 +46,7 @@ public class PaymentController implements PaymentControllerDocs {
 
             if (paymentIamportResponse.getResponse().getStatus().equals("paid")) {
                 // 결제 성공 시 주문 정보 저장
-                ResponseOrderDTO response = orderService.saveOrder(pay.getOrders(), email, pay.getAddress(), pay.getOrderUid());
+                ResponseOrderDTO response = orderService.saveOrder(pay.getOrders(), email, pay.getOrderUid());
                 // 결제 정보를 저장
                 ResponsePaymentDTO responsePaymentDTO = paymentService.savePayment(pay, email, paymentIamportResponse);
                 log.info(response);
@@ -103,11 +103,14 @@ public class PaymentController implements PaymentControllerDocs {
             log.info("------------------");
             log.info("토스 결제 시도");
             String email = userDetails != null ? userDetails.getUsername() : null;
-            ResponseTossPaymentConfirmDTO response = paymentClient.confirmPayment(tossPay, email);
-            log.info(response);
+//            ResponseTossPaymentConfirmDTO response = paymentClient.confirmPayment(tossPay, email);
+            ResponseTossPaymentConfirmDTO responseToss = paymentService.savePayment(tossPay, email);
+            ResponseOrderDTO responseOrder = orderService.saveOrder(tossPay.getOrders(), email, tossPay.getOrderUid());
+            log.info("order {}", responseOrder);
+
             // 결제 알림
-            notificationService.notifyMessage(email, "토스로 결제 :" + response.getAmount() +"원이 결제되었습니다.");
-            return ResponseEntity.ok(response);
+            notificationService.notifyMessage(email, "토스로 결제 :" + responseToss.getAmount() +"원이 결제되었습니다.");
+            return ResponseEntity.ok(responseToss);
         } catch (PaymentConfirmException e) {
             throw new PaymentConfirmException(e.getMessage());
         }
