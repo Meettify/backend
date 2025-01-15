@@ -48,8 +48,7 @@ public class NoticeServiceImpl implements NoticeService{
                     .orElseThrow(() -> new BoardException("공지사항이 존재하지 않습니다."));
             // 공지 수정
             findNotice.updateNotice(notice);
-            NoticeEntity saveNotice = noticeRepository.save(findNotice);
-            return ResponseNoticeDTO.changeNotice(saveNotice);
+            return ResponseNoticeDTO.changeNotice(findNotice);
         } catch (Exception e) {
             log.error("공지사항 수정하는데 실패했습니다. {}", e.getMessage());
             throw new BoardException("공지사항 수정하는데 실패했습니다. : " + e.getMessage());

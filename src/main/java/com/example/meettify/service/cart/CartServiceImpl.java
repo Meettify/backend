@@ -172,11 +172,8 @@ public class CartServiceImpl implements CartService{
             // 장바구니에 장바구니 상품담기
             findCart.getCartItems().addAll(findAllCartItems);
 
-            // 변경된 장바구니 정보를 저장
-            CartEntity saveCart = cartRepository.save(findCart);
-
             // 수정된 장바구니 정보를 반환
-            return ResponseCartDTO.changeUpdateDTO(saveCart, email, findAllCartItems);
+            return ResponseCartDTO.changeUpdateDTO(findCart, email, findAllCartItems);
         } catch (Exception e) {
             throw new CartException("장바구니 상품을 수정하는데 실패했습니다. : " + e.getMessage());
         }

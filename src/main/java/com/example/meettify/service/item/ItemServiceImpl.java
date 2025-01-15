@@ -107,8 +107,7 @@
                 List<ItemImgEntity> imagesEntity = ItemImgEntity.createEntityList(responseImages, findItem);
                 // 새로운 이미지들 추가
                 findItem.updateItem(updateItemDTO, imagesEntity);
-                ItemEntity saveItem = itemRepository.save(findItem);
-                return ResponseItemDTO.changeDTO(saveItem);
+                return ResponseItemDTO.changeDTO(findItem);
             } catch (Exception e) {
                 log.error("Error updating item: ", e);
                 throw new ItemException("Failed to update the item.");

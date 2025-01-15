@@ -191,8 +191,7 @@ public class MemberServiceImpl implements MemberService {
                 }
 
                 findMember.updateMember(updateServiceDTO, encodePw);
-                MemberEntity update = memberRepository.save(findMember);
-                ResponseMemberDTO response = ResponseMemberDTO.changeDTO(update);
+                ResponseMemberDTO response = ResponseMemberDTO.changeDTO(findMember);
                 log.info("response : {}", response);
                 return response;
             }

@@ -58,8 +58,7 @@ public class AnswerCommentServiceImpl implements AnswerCommentService {
                     .orElseThrow(() -> new CommentException("답변이 존재하지 않습니다."));
             // 답변 수정
             findAnswer.updateComment(answer);
-            AnswerCommentEntity saveAnswer = answerCommentRepository.save(findAnswer);
-            return ResponseAnswerCommentDTO.updateResponse(saveAnswer, findAnswer.getMember().getNickName());
+            return ResponseAnswerCommentDTO.updateResponse(findAnswer, findAnswer.getMember().getNickName());
         } catch (Exception e) {
             throw new CommentException("답변을 수정하는데 실패했습니다.");
         }
