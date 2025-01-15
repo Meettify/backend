@@ -47,13 +47,12 @@ public class OrderEntity extends BaseEntity {
 
 
     public static OrderEntity saveOrder(MemberEntity member,
-                                        AddressDTO address,
+                                        AddressEntity address,
                                         int totalPrice,
                                         String orderUUIDid) {
-        AddressEntity addressEntity = AddressEntity.changeEntity(address);
         return OrderEntity.builder()
                 .member(member)
-                .address(addressEntity)
+                .address(address)
                 .totalPrice(totalPrice)
                 .orderUUIDid(orderUUIDid)
                 .payStatus(PayStatus.PAY_X)

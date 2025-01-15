@@ -136,7 +136,6 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public ResponseOrderDTO saveOrder(List<RequestOrderDTO> orders,
                                       String email,
-                                      AddressDTO address,
                                       String orderUUid) {
         try {
             // 회원 조회
@@ -216,7 +215,7 @@ public class OrderServiceImpl implements OrderService {
             }
 
             // 최종 주문 생성 및 총 금액 반영
-            OrderEntity orderEntity = OrderEntity.saveOrder(findMember, address, totalPrice, orderUUid);
+            OrderEntity orderEntity = OrderEntity.saveOrder(findMember, findMember.getAddress(), totalPrice, orderUUid);
             for (OrderItemEntity orderItemEntity : orderItemEntities) {
                 orderItemEntity.setOrder(orderEntity); // 주문과 연결
                 orderEntity.getOrderItems().add(orderItemEntity);
@@ -225,7 +224,7 @@ public class OrderServiceImpl implements OrderService {
             OrderEntity saveOrder = orderRepository.save(orderEntity); // 주문 저장
             // 주문 상태를 결제 상태로 변경
             saveOrder.changePayStatus(PayStatus.PAY_O);
-            return ResponseOrderDTO.changeDTO(saveOrder, address, orderUUid);
+            return ResponseOrderDTO.changeDTO(saveOrder, AddressDTO.changeDTO(findMember.getAddress()), orderUUid);
         } catch (Exception e) {
             log.error("주문 처리 중 에러 발생: " + e.getMessage(), e);
             throw new OrderException("주문하는데 실패 했습니다. : " + e.getMessage());

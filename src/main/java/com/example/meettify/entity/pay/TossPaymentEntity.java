@@ -24,8 +24,6 @@ public class TossPaymentEntity {
     private Long paymentId;
     @Column(nullable = false, name = "pay_amount")
     private Long amount;
-    @OneToOne(fetch = FetchType.LAZY)
-    private OrderEntity order;
     // 토스내부에서 관리하는 별도의 orderId가 존재함
     @Column(nullable = false, name = "order_id")
     private String tossOrderId;
@@ -39,13 +37,11 @@ public class TossPaymentEntity {
     @Column(nullable = false, length = 100)
     private String orderUid;
 
-    public static TossPaymentEntity savePayment(ResponseTossPaymentConfirmDTO pay,
-                                                MemberEntity member,
-                                                OrderEntity order) {
+    public static TossPaymentEntity savePayment(RequestTossPaymentConfirmDTO pay,
+                                                MemberEntity member) {
 
         return TossPaymentEntity.builder()
                 .amount(pay.getAmount())
-                .order(order)
                 .tossOrderId(pay.getTossOrderId())
                 .orderUid(pay.getOrderUid())
                 .paymentKey(pay.getPaymentKey())

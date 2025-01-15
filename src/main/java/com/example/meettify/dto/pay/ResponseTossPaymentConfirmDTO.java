@@ -32,8 +32,6 @@ public class ResponseTossPaymentConfirmDTO {
     @Schema(description = "결제 승인 시간")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")  // ISO 8601 형식
     private OffsetDateTime approvedAt;
-    @Schema(description = "주문 정보")
-    private ResponseOrderDTO order;         // 주문 ID
     @Schema(description = "주소")
     private AddressDTO address;
     @Schema(description = "주문 ID")
@@ -44,7 +42,6 @@ public class ResponseTossPaymentConfirmDTO {
         return ResponseTossPaymentConfirmDTO.builder()
                 .tossOrderId(toss.getTossOrderId())
                 .paymentKey(toss.getPaymentKey())
-                .order(ResponseOrderDTO.viewChangeDTO(toss.getOrder()))
                 .amount(toss.getAmount())
                 .requestedAt(toss.getRequestedAt())
                 .approvedAt(toss.getApprovedAt())

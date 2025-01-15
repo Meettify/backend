@@ -17,6 +17,10 @@ public interface PaymentService {
     // 아임포트 결제 조회
     ResponsePaymentDTO getPayment(String orderUid);
 
+    // 토스 결제하기
+    ResponseTossPaymentConfirmDTO savePayment(RequestTossPaymentConfirmDTO toss,
+                                              String email);
+
     // 토스 결제 조회
     ResponseTossPaymentConfirmDTO getTossPaymentConfirm(String orderUid);
 }
