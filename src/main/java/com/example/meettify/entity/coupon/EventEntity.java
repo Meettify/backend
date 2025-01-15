@@ -24,6 +24,8 @@ public class EventEntity extends BaseEntity {
     @JoinColumn(name = "coupon_id")
     private CouponEntity coupon;
 
+    private int couponCount;
+
     // 쿠폰 추가
     public void addCoupon(CouponEntity coupon) {
         this.coupon = coupon;
@@ -31,10 +33,12 @@ public class EventEntity extends BaseEntity {
 
     // 이벤트 생성
     public static EventEntity create(String title,
-                                     String content){
+                                     String content,
+                                     int count){
         return EventEntity.builder()
                 .title(title)
                 .content(content)
+                .couponCount(count)
                 .build();
     }
 
@@ -42,5 +46,6 @@ public class EventEntity extends BaseEntity {
     public void update(UpdateEventDTO event) {
         this.title = event.getTitle() == null ? this.title : event.getTitle();
         this.content = event.getContent() == null ? this.content : event.getContent();
+        this.couponCount = event.getCouponCount() == 0 ? this.couponCount : event.getCouponCount();
     }
 }

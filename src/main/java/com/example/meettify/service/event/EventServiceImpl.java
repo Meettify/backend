@@ -25,10 +25,11 @@ public class EventServiceImpl implements EventService{
     // 이벤트 글 생성
     @Override
     public ResponseEventDTO createEvent(String title,
-                                        String content) {
+                                        String content,
+                                        int count) {
         try {
             // 이벤트 엔티티 생성
-            EventEntity eventEntity = EventEntity.create(title, content);
+            EventEntity eventEntity = EventEntity.create(title, content, count);
             // 디비에 저장
             EventEntity saveEvent = eventRepository.save(eventEntity);
             log.info("saveEvent {}", saveEvent);

@@ -9,7 +9,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -26,24 +28,25 @@ import java.util.Map;
 import java.util.Objects;
 
 
-
-
 @RestController
 @Log4j2
 @RequestMapping("/api/v1/meets")
 @RequiredArgsConstructor
-public class MeetController implements  MeetControllerDocs{
+public class MeetController implements MeetControllerDocs {
     private final MeetService meetService;
 
     //모임 리스트 보기
     @Override
     @GetMapping
-    public ResponseEntity<?> getList(@PageableDefault(size = 12) Pageable pageable, MeetSearchCondition condition,
+    public ResponseEntity<?> getList(@RequestParam(defaultValue = "1") int page,
+                                     @RequestParam(defaultValue = "12") int size,
+                                     MeetSearchCondition condition,
                                      @AuthenticationPrincipal UserDetails userDetails) {
         try {
+            Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "meetId"));
             log.info("condition : " + condition);
-            Page<MeetSummaryDTO> meets = meetService.meetsSearch(condition, pageable,(userDetails != null ? userDetails.getUsername() : ""));
-                    log.info("상품 조회 {}", meets);
+            Page<MeetSummaryDTO> meets = meetService.meetsSearch(condition, pageable, (userDetails != null ? userDetails.getUsername() : ""));
+            log.info("상품 조회 {}", meets);
 
 
             String email = (userDetails != null) ? userDetails.getUsername() : null;
@@ -109,7 +112,7 @@ public class MeetController implements  MeetControllerDocs{
     @GetMapping("/{meetId}/role")
     public ResponseEntity<?> getMeetRole(@PathVariable Long meetId, @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            if (Objects.isNull(userDetails) ||"".equals(userDetails.getUsername())|| userDetails.getUsername() == null ) {
+            if (Objects.isNull(userDetails) || "".equals(userDetails.getUsername()) || userDetails.getUsername() == null) {
                 ResponseEntity.status(HttpStatus.OK).body(MeetRole.OUTSIDER);
             }
 
@@ -126,7 +129,7 @@ public class MeetController implements  MeetControllerDocs{
     public ResponseEntity<?> getMeetMemberList(@PathVariable Long meetId, @AuthenticationPrincipal UserDetails userDetails) {
         try {
             //해당 모임의 관리자가 아니라면 잘못된 요청임
-            if( !(meetService.getMeetRole(meetId,userDetails.getUsername()) == MeetRole.ADMIN)){
+            if (!(meetService.getMeetRole(meetId, userDetails.getUsername()) == MeetRole.ADMIN)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("잘못된 모임 리스트 조회입니다.");
             }
             List<ResponseMeetMemberDTO> meetMemberList = meetService.getMeetMemberList(meetId);
@@ -185,7 +188,7 @@ public class MeetController implements  MeetControllerDocs{
 
             String email = userDetails.getUsername();
             // 관리자면 탈퇴 못 하는 로직 추가
-            MeetRole role= meetService.getMeetRole(meetId, email);
+            MeetRole role = meetService.getMeetRole(meetId, email);
             if ((role == MeetRole.ADMIN)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("권리자는 모임 휴먼상태로 변경 불가능합니다.");
             }
@@ -212,7 +215,7 @@ public class MeetController implements  MeetControllerDocs{
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(bindingResult.getAllErrors());
             }
             String email = userDetails.getUsername();
-            MeetServiceDTO meetServiceDTO = MeetServiceDTO.makeServiceDTO(meet,images);
+            MeetServiceDTO meetServiceDTO = MeetServiceDTO.makeServiceDTO(meet, images);
             ResponseMeetDTO response = meetService.makeMeet(meetServiceDTO, email);
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
@@ -256,9 +259,9 @@ public class MeetController implements  MeetControllerDocs{
 
     //모임 변경하기
     @Override
-    @PutMapping(value ="/{meetId}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    @PutMapping(value = "/{meetId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> updateMeet(@PathVariable Long meetId,
-                                        @Valid @RequestPart("updateMeetDTO")UpdateMeetDTO updateMeetDTO,
+                                        @Valid @RequestPart("updateMeetDTO") UpdateMeetDTO updateMeetDTO,
                                         @RequestPart(value = "images", required = false) List<MultipartFile> newImages,
                                         @AuthenticationPrincipal UserDetails userDetails) {
 
@@ -268,7 +271,7 @@ public class MeetController implements  MeetControllerDocs{
             boolean hasPermission = meetService.checkEditPermission(meetId, email);
             if (hasPermission) {
                 // ServiceDTODTO 바꾸는 로직
-                UpdateMeetServiceDTO updateMeetServiceDTO = UpdateMeetServiceDTO.makeServiceDTO(meetId,updateMeetDTO);
+                UpdateMeetServiceDTO updateMeetServiceDTO = UpdateMeetServiceDTO.makeServiceDTO(meetId, updateMeetDTO);
                 // 응답ServiceDTO 받기
                 ResponseMeetDTO response = meetService.update(updateMeetServiceDTO, newImages);
                 //반환하기
