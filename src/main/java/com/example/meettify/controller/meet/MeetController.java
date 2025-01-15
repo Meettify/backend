@@ -43,7 +43,7 @@ public class MeetController implements MeetControllerDocs {
                                      MeetSearchCondition condition,
                                      @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "meetId"));
+            Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "meetId"));
             log.info("condition : " + condition);
             Page<MeetSummaryDTO> meets = meetService.meetsSearch(condition, pageable, (userDetails != null ? userDetails.getUsername() : ""));
             log.info("상품 조회 {}", meets);
