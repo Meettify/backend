@@ -19,7 +19,7 @@ import java.util.List;
 @ToString
 public class RequestTossPaymentConfirmDTO {
     @Schema(description = "주문 ID")
-    private String orderId;       // 주문 ID
+    private String tossOrderId;       // 주문 ID
     @Schema(description = "결제 금액")
     private Long amount;          // 결제 금액
     @Schema(description = "토스 결제 키")
