@@ -36,13 +36,15 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .setErrorHandler(stompExceptionHandler)
                 // 소켓 연결 URI다. 소켓을 연결할 때 다음과 같은 통신이 이루어짐
                 .addEndpoint("/api/ws/chat")
-                .setAllowedOrigins("http://localhost:5173")
+                .setAllowedOriginPatterns("*")
                 // SocketJS를 통해 연결 지원
                 .withSockJS();
     }
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
+        log.info("--------------");
+        log.info("동작함");
         registration.interceptors(stompHandler);
     }
 
