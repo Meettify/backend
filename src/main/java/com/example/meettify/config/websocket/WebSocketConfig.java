@@ -43,6 +43,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
+        log.info("--------------");
+        log.info("동작함");
         registration.interceptors(stompHandler);
     }
 

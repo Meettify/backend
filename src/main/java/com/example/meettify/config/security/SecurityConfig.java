@@ -188,6 +188,17 @@ public class SecurityConfig {
                         // SSE 연결을 위해
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
+                        // 채팅
+                        .requestMatchers("/api/ws/chat").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/chat/room").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/chat/rooms").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/chat/{roomId}/messages").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/chat/room/{roomId}").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/chat/{meetId}").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/chat/{roomId}/access").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/chat/{roomId}").hasAnyRole("USER", "ADMIN")
+
+
                         // Swagger 리소스에 대한 접근 허용
                         .requestMatchers("/swagger-resources/**").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
