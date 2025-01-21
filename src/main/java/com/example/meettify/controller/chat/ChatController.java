@@ -12,8 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
-
 
 
 @Controller
@@ -29,37 +29,46 @@ public class ChatController implements ChatControllerDocs {
     @Override
     // 클라이언트에서 서버로 보낸 메시지를 메시지를 라우팅
     // @MessageMapping("chat.message")로 설정하여 클라이언트로부터 /pub/chat.message 목적지로 전송된 STOMP 메시지를 처리한다.
-    @MessageMapping("chat.message.{roomId}")
+    /*RabbitMQ*/
+//    @MessageMapping("chat.message.{roomId}")
+    /*STOMP*/
+    @MessageMapping("/{roomId}")
     // 구독한 클라이언트에게 response를 제공할 url 정의
-//    @SendTo("/sub/{roomId}")
-    // @DestinationVariable: 구독 및 메시징의 동적 url 변수를 설정. RestAPI의 @PathValue와 같다.
-    // @Payload: 메시지의 body를 정의한 객체에 매핑합니다.
-    public ResponseEntity<?> sendMessage(@Payload ChatMessageDTO message,
-                                         @DestinationVariable String roomId) {
+    @SendTo("/topic/{roomId}")
+    public ResponseEntity<?> sendMessage(
+            // @Payload: 메시지의 body를 정의한 객체에 매핑합니다.
+            @Payload ChatMessageDTO message,
+            // @DestinationVariable: 구독 및 메시징의 동적 url 변수를 설정. RestAPI의 @PathValue와 같다.
+            @DestinationVariable int roomId) {
         try {
             ChatMessageDTO msg = chatService.sendMessage(message);
             log.info("Sent message: {}", msg);
 
-            if(msg != null) {
-                // RabbitMQ으로 메시지 전송
-                // template.convertAndSend() 메소드를 사용하여 메시지를 RabbitMQ로 전송한다.
-                // 메시지는 chat.exchange로 전송되며, 라우팅 키는 room. + 메시지의 방 ID로 구성된다.
-                rabbitTemplate.convertAndSend(CHAT_EXCHANGE_NAME, "room." + roomId, message);
-            } else {
-                log.error("Failed to create chat message. User might not be in the chat room. User: {}, Room: {}",
-                        message.getSender(), message.getRoomId());
+//            if (msg != null) {
+//                // RabbitMQ으로 메시지 전송
+//                // template.convertAndSend() 메소드를 사용하여 메시지를 RabbitMQ로 전송한다.
+//                // 메시지는 chat.exchange로 전송되며, 라우팅 키는 room. + 메시지의 방 ID로 구성된다.
+//                rabbitTemplate.convertAndSend(CHAT_EXCHANGE_NAME, "room." + roomId, message);
+//            } else {
+//                log.error("Failed to create chat message. User might not be in the chat room. User: {}, Room: {}",
+//                        message.getSender(), message.getRoomId());
+//            }
+            if (msg == null) {
+                throw new ChatException("메시지 내용이 없습니다.");
             }
-            return ResponseEntity.ok().body(message);
+
+            return ResponseEntity.ok().body(msg);
         } catch (Exception e) {
             log.error("Error processing message: ", e);
             throw new ChatException(e.getMessage());
         }
     }
 
+    /*RabbitMQ*/
     // 기본적으로 chat.queue가 exchange에 바인딩 되어있기 때문에 모든 메시지 처리
     // receiver()는 단순히 큐에 들어온 메세지를 소비만 한다. (현재는 디버그 용도)
-    @RabbitListener(queues = CHAT_QUEUE_NAME)
-    public void receive(ChatMessageDTO chatDTO) {
-        log.info("received {} " , chatDTO.getMessage());
-    }
+//    @RabbitListener(queues = CHAT_QUEUE_NAME)
+//    public void receive(ChatMessageDTO chatDTO) {
+//        log.info("received {} ", chatDTO.getMessage());
+//    }
 }

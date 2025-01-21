@@ -51,18 +51,23 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
 
-        // url을 chat/room/3 -> chat.room.3으로 참조하기 위한 설정
-        registry.setPathMatcher(new AntPathMatcher("."));
-        registry.setUserDestinationPrefix("/sub");           // 클라이언트 구독 경로
+        /*RabbitMQ*/
+//        // url을 chat/room/3 -> chat.room.3으로 참조하기 위한 설정
+//        registry.setPathMatcher(new AntPathMatcher("."));
+//        registry.setUserDestinationPrefix("/sub");           // 클라이언트 구독 경로
+//
+//        // RabbitMQ 브로커 리레이 설정
+//        registry.enableStompBrokerRelay("/exchange", "/queue")
+//                .setRelayHost(host)
+//                .setRelayPort(61613)
+//                .setClientLogin(userName)
+//                .setSystemPasscode(password)
+//                .setSystemLogin(userName)
+//                .setSystemPasscode(password);
 
-        // RabbitMQ 브로커 리레이 설정
-        registry.enableStompBrokerRelay("/exchange", "/queue")
-                .setRelayHost(host)
-                .setRelayPort(61613)
-                .setClientLogin(userName)
-                .setSystemPasscode(password)
-                .setSystemLogin(userName)
-                .setSystemPasscode(password);
+        /*STOMP*/
+        registry.enableSimpleBroker("/topic");
+        registry.setApplicationDestinationPrefixes("/send");
     }
 
     // 클라이언트가 WebSocket을 통해 서버와 연결했을 때 발생하는 이벤트를 처리

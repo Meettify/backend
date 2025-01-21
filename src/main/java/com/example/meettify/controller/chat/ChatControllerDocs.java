@@ -9,9 +9,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Tag(name = "채팅", description = "채팅 API")
 public interface ChatControllerDocs {
     @Operation(summary = "채팅", description = "채팅 생성하는 API")
-    ResponseEntity<?> sendMessage(ChatMessageDTO message, String roomId);
+    ResponseEntity<?> sendMessage(ChatMessageDTO message, int roomId);
 
-    @Operation(summary = "채팅", description = "채팅 생성하는 API")
-    void receive(ChatMessageDTO chatDTO);
+//    @Operation(summary = "채팅", description = "채팅 생성하는 API")
+//    void receive(ChatMessageDTO chatDTO);
 
 }

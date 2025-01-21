@@ -9,6 +9,8 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 @Log4j2
@@ -43,6 +45,9 @@ public class StompHandler implements ChannelInterceptor {
                     if(!jwtProvider.validateToken(token)) {
                         throw new AccessDeniedException("Access denied");
                     }
+                    Authentication authentication = jwtProvider.getAuthentication(token);
+                    log.info("인증에 성공했습니다. ");
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             }
             throw new AccessDeniedException("Authorization not found");
