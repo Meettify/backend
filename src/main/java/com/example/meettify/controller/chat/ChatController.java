@@ -64,7 +64,6 @@ public class ChatController implements ChatControllerDocs {
         }
     }
 
-    /*RabbitMQ*/
     // 기본적으로 chat.queue가 exchange에 바인딩 되어있기 때문에 모든 메시지 처리
     // receiver()는 단순히 큐에 들어온 메세지를 소비만 한다. (현재는 디버그 용도)
 //    @RabbitListener(queues = CHAT_QUEUE_NAME)
