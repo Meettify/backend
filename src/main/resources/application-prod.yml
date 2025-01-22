@@ -126,6 +126,10 @@ logging:
       example:
         meettify: DEBUG
     org:
+      springframework:
+        messaging: DEBUG
+        web:
+          socket: DEBUG
       # Hibernate 라이브러리에 속한 org.hibernate.SQL 패키지의 클래스들에 대한 로그 레벨을 설정합니다.
       # 특정 라이브러리나 패키지에 대한 로그 레벨을 따로 조정하고자 할 때 사용됩니다.
       # Hibernate의 SQL 쿼리를 자세히 보고 싶을 때 유용합니다.
