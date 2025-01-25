@@ -92,6 +92,4 @@ public class PrincipalOAuthUserService implements OAuth2UserService<OAuth2UserRe
         log.info("principalDetails : " + principalDetails);
         return principalDetails;
     }
-
-
 }

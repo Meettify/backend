@@ -36,7 +36,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .setErrorHandler(stompExceptionHandler)
                 // 소켓 연결 URI다. 소켓을 연결할 때 다음과 같은 통신이 이루어짐
                 .addEndpoint("/api/ws/chat")
-                .setAllowedOrigins("http://localhost:5173")
+                .setAllowedOriginPatterns("http://localhost:5173")
                 // SocketJS를 통해 연결 지원
                 .withSockJS();
     }
@@ -51,23 +51,18 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
 
-        /*RabbitMQ*/
-//        // url을 chat/room/3 -> chat.room.3으로 참조하기 위한 설정
-//        registry.setPathMatcher(new AntPathMatcher("."));
-//        registry.setUserDestinationPrefix("/sub");           // 클라이언트 구독 경로
-//
-//        // RabbitMQ 브로커 리레이 설정
-//        registry.enableStompBrokerRelay("/exchange", "/queue")
-//                .setRelayHost(host)
-//                .setRelayPort(61613)
-//                .setClientLogin(userName)
-//                .setSystemPasscode(password)
-//                .setSystemLogin(userName)
-//                .setSystemPasscode(password);
+        // url을 chat/room/3 -> chat.room.3으로 참조하기 위한 설정
+        registry.setPathMatcher(new AntPathMatcher("."));
+        registry.setUserDestinationPrefix("/sub");           // 클라이언트 구독 경로
 
-        /*STOMP*/
-        registry.enableSimpleBroker("/topic");
-        registry.setApplicationDestinationPrefixes("/send");
+        // RabbitMQ 브로커 리레이 설정
+        registry.enableStompBrokerRelay("/exchange", "/queue")
+                .setRelayHost(host)
+                .setRelayPort(61613)
+                .setClientLogin(userName)
+                .setSystemPasscode(password)
+                .setSystemLogin(userName)
+                .setSystemPasscode(password);
     }
 
     // 클라이언트가 WebSocket을 통해 서버와 연결했을 때 발생하는 이벤트를 처리
