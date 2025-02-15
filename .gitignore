@@ -59,4 +59,4 @@ nginx/nginx.conf
 docker-compose-local.yml
 
 ### grafana ###
-grafana/grafana.db
+grafana/grafana.db.DS_Store

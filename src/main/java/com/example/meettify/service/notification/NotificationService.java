@@ -105,14 +105,14 @@ public class NotificationService {
             // 성공적으로 전송되었다면 데이터 캐시 삭제, emitter는 계속 유지
             customNotificationRepository.deleteEventCache(eventId);
         } catch (Exception e) {
-            // Broken pipe 에러면 exception 발생 x
-            if(e.getMessage().contains("Broken pipe")) {
-                log.error("[SSE ERROR] 클라이언트 연결해제 :", e);
+            // Broken pipe 예외 발생 시 로그만 남기고 삭제는 하지 않음
+            if (e.getMessage().contains("Broken pipe")) {
+                log.warn("[SSE ERROR] 클라이언트 연결 해제 (Broken pipe): {}", eventId);
+            } else {
+                log.error("Failed to send SSE event: {}", e.getMessage());
             }
-            log.error("Failed to send SSE event: {}", e.getMessage());
+            sseEmitter.complete();  // SSE 연결 종료
             customNotificationRepository.deleteById(eventId);
-
-            throw new RuntimeException("알림 서버 연결 오류");
         }
     }
 

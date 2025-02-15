@@ -92,11 +92,11 @@ spring:
         path: /ws
         host: localhost
         port: 61613
-  rabbitmq:
-    host: rabbitmq
-    username: guest
-    password: guest
-    port: 5672
+#  rabbitmq:
+#    host: rabbitmq
+#    username: guest
+#    password: guest
+#    port: 5672
 
 jwt:
   secret_key: ${JWT_SECRET}
@@ -115,7 +115,6 @@ cloud:
     region:
       # 버킷 생성시 선택한 AWS 리전
       static: ap-northeast-2
-      auto: false
     stack:
       # 설정한 CloudFormation 이 없으면 프로젝트 시작이 안되니, 해당 내용을 사용하지 않도록 false 를 등록
       auto: false
@@ -175,6 +174,7 @@ server:
   tomcat:
     mbeanregistry:
       enabled: true
+    connection-timeout: 60s
 info:
   app:
     name: meettify
