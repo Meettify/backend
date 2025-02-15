@@ -251,7 +251,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         // Spring Boot 2.4+부터는 setAllowedOrigins 대신 setAllowedOriginPatterns를 사용하는 것이 권장
-        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:5173", "https://do2867lf6anbu.cloudfront.net")); // 허용할 Origin
+        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:*", "https://do2867lf6anbu.cloudfront.net")); // 허용할 Origin
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 허용할 메서드
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type")); // 허용할 헤더
         configuration.setAllowCredentials(true); // 인증 정보 허용

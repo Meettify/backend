@@ -55,6 +55,7 @@ public class MeetServiceImpl implements MeetService {
     public ResponseMeetDTO makeMeet(MeetServiceDTO meet, String email) throws IOException, java.io.IOException {
         // 1. MeetServiceDTO에서 MeetEntity로 변환
         MeetEntity meetEntity = modelMapper.map(meet, MeetEntity.class);
+        log.info("이미지 확인 {}", meet.getImagesFile());
 
         // 2. MeetEntity를 저장소에 저장
         MeetEntity savedMeet = meetRepository.save(meetEntity);
@@ -62,7 +63,7 @@ public class MeetServiceImpl implements MeetService {
 
         // 3. 이미지가 있는 경우, S3에 업로드하고 해당 URL을 MeetImageEntity로 저장
         if (meet.getImagesFile() != null && !meet.getImagesFile().isEmpty()) {
-            System.out.println("이미지 저장로직이 실행됩니다.");
+            log.info("이미지 저장로직이 실행됩니다.");
             meet.getImagesFile().stream().forEach(e-> System.out.println(e.getName()));
             meet.getImagesFile().stream().forEach(e-> System.out.println(e.getOriginalFilename()));
             // S3에 이미지 업로드 및 DTO 생성 (FileDTOFactory 활용)
