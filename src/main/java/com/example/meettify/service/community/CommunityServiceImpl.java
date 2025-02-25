@@ -134,7 +134,7 @@ public class CommunityServiceImpl implements CommunityService {
             String viewCountCookieValue = CookieUtils.getViewCountCookieValue(request, response);
 
             if(!redisCommunityService.isExistInSet(viewCountCookieValue, communityId)) {
-                increaseViewCountAsync("viewCount_community" + communityId);
+                increaseViewCountAsync("community:view:" + communityId);
                 redisCommunityService.addToSet(viewCountCookieValue, communityId);
             }
 
@@ -147,7 +147,7 @@ public class CommunityServiceImpl implements CommunityService {
             // Redis에서 조회수 가져오기
             Integer redisViewCount = null;
             try {
-                redisViewCount = redisCommunityService.getViewCount("viewCount_community" + communityId);
+                redisViewCount = redisCommunityService.getViewCount("community:view:"  + communityId);
             } catch (Exception e) {
                 log.error("Error retrieving view count from Redis for communityId {}: {}", communityId, e.getMessage());
                 // Redis 오류 발생 시 기본 조회수를 사용
