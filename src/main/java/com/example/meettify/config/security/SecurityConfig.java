@@ -2,15 +2,19 @@ package com.example.meettify.config.security;
 
 import com.example.meettify.config.jwt.JwtAuthenticationFilter;
 import com.example.meettify.config.jwt.JwtProvider;
+import com.example.meettify.config.logout.CustomLogoutHandler;
 import com.example.meettify.config.oauth.OAuth2FailHandler;
 import com.example.meettify.config.oauth.OAuth2SuccessHandler;
 import com.example.meettify.config.oauth.PrincipalOAuthUserService;
 import com.example.meettify.config.slack.SlackUtil;
 import com.example.meettify.exception.jwt.JwtAccessDeniedHandler;
 import com.example.meettify.exception.jwt.JwtAuthenticationEntryPoint;
+import com.example.meettify.service.jwt.TokenBlackListService;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.web.config.PageableHandlerMethodArgumentResolverCustomizer;
@@ -18,12 +22,15 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -43,6 +50,7 @@ public class SecurityConfig {
     private final OAuth2FailHandler oAuth2FailHandler;
     private final PrincipalOAuthUserService principalOAuthUserService;
     private final SlackUtil slackUtil;
+    private final TokenBlackListService tokenBlackListService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -60,7 +68,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .formLogin(form -> form.disable())
-                .logout(logout -> logout.disable());
+                .logout(this::configureLogout);
 
         http
                 .exceptionHandling(exceptions -> exceptions
@@ -212,20 +220,45 @@ public class SecurityConfig {
                         .requestMatchers("/grafana").permitAll());
 
         http
-                .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(
+                        new JwtAuthenticationFilter(jwtProvider, tokenBlackListService),
+                        UsernamePasswordAuthenticationFilter.class);
 
 
         // OAuth2 Login configuration
         http.oauth2Login(oauth2 -> oauth2
                 .userInfoEndpoint(userInfo -> userInfo.userService(principalOAuthUserService))
                 .successHandler(oAuth2SuccessHandler)
-                .failureHandler(oAuth2FailHandler)
-        );
+                .failureHandler(oAuth2FailHandler));
 
         // Enable actuator access without authentication
         http.authorizeHttpRequests(auth -> auth.requestMatchers("/actuator/**").permitAll());
 
         return http.build();
+    }
+
+    // 로그아웃에 대한 설정 관리
+    private void configureLogout(LogoutConfigurer<HttpSecurity> logout) {
+        logout
+                // 1. 로그아웃 앤드포인트를 지정합니다.
+                .logoutUrl("/api/v1/members/logout")
+                // 2. 앤드포인트 호출에 대한 처리 Handler를 구성
+                .addLogoutHandler(customLogoutHandler())
+                // 3. 로그아웃 처리가 완료되었을 떄 처리를 수행
+                .logoutSuccessHandler(((request, response, authentication) -> response.setStatus(HttpServletResponse.SC_OK)));
+    }
+
+    // 로그아웃 처리를 위한 Handler를 커스텀으로 구성
+    @Bean
+    public LogoutHandler customLogoutHandler() {
+        return new CustomLogoutHandler(tokenBlackListService);
+    }
+
+    // 정적 자원(Resource)에 대해서 인증된 사용자가 정적 자원의 접근에 대해 ‘인가’에 대한 설정을 담당하는 메서드입니다.
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        // 정적 자원에 대해서 Security를 적용하지 않음으로 설정
+        return web -> web.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations());
     }
 
 
@@ -234,6 +267,7 @@ public class SecurityConfig {
         return new ForwardedHeaderFilter();
     }
 
+    // 페이지에 대한 설정
     @Bean
     public PageableHandlerMethodArgumentResolverCustomizer customize() {
         return p -> {
@@ -242,11 +276,13 @@ public class SecurityConfig {
         };
     }
 
+    // QueryDsl을 편하기 쓰기 위해서 JPAQueryFactory를 빈으로 등록
     @Bean
     public JPAQueryFactory jpaQueryFactory(EntityManager entityManager) {
         return new JPAQueryFactory(entityManager);
     }
 
+    // CORS에 대한 설정
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
