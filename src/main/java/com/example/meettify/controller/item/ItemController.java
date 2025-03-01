@@ -154,6 +154,7 @@ public class ItemController implements ItemControllerDocs{
         return response;
     }
 
+    // 상품 추천
     @Override
     @GetMapping("/recommend-items")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")

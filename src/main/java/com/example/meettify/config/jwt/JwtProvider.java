@@ -68,7 +68,6 @@ public class JwtProvider {
         // 10일 = 864000초 * 1000밀리초
         Date refreshTokenExpire = new Date(now.getTime() + refreshTokenTime * 1000);
         String refreshToken = Jwts.builder()
-                .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(refreshTokenExpire)
                 .signWith(key, SignatureAlgorithm.HS256)

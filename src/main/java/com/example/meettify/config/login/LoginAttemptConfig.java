@@ -44,7 +44,7 @@ public class LoginAttemptConfig {
     // 로그인 실패하면 캐시 해당 사용자의 로그인 실패 횟수를 증가시키고 다시 캐시에 저장
     public void loginFailed(String email) {
         log.info("로그인에 실패했습니다.");
-        int failedAttemptsCount = 0;
+        int failedAttemptsCount;
 
         try {
             failedAttemptsCount = attemptsCache.get(email);

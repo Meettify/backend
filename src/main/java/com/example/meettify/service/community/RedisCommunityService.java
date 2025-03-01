@@ -3,6 +3,7 @@ package com.example.meettify.service.community;
 import com.example.meettify.config.cookie.TimeUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,7 @@ import java.util.concurrent.TimeUnit;
  * */
 @RequiredArgsConstructor
 @Service
-@Log4j2
+@Slf4j
 public class RedisCommunityService {
     private final RedisTemplate<String, Object> redisTemplate;
 
@@ -30,7 +31,7 @@ public class RedisCommunityService {
 
     public void addToSet(String key, Long communityId) {
         // 키가 없다면 (set이 없다면)
-        if(!redisTemplate.hasKey(key)) {
+        if (!Boolean.TRUE.equals(redisTemplate.hasKey(key))) {
             // Redis의 Set 자료구조를 이용해 주어진 communityId를 Set에 추가합니다.
             // redisTemplate.opsForValue().increment(key)를 사용하여 지정된 키의 값을 증분시킵니다.
             // 값이 없을 경우 Redis는 0부터 시작해 1을 더합니다.

@@ -1,5 +1,6 @@
 package com.example.meettify.config.jwt;
 
+import com.example.meettify.service.jwt.TokenBlackListService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -8,24 +9,19 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Log4j2
 @RequiredArgsConstructor
 // OncePerRequestFilter을 하는 이유는 한번만 작동하도록 하기 위해서 입니다.
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    public static final String HEADER_AUTHORIZATION = "Authorization";
+    private static final String ACCESS_TOKEN_HEADER_KEY = "Authorization";
+    private static final String REFRESH_TOKEN_HEADER_KEY = "x-refresh-token";
     private final JwtProvider jwtProvider;
-    private final AntPathMatcher pathMatcher = new AntPathMatcher();  // AntPathMatcher 사용
-
+    private final TokenBlackListService tokenBlackListService;
 
 
     @Override
@@ -34,63 +30,40 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        HttpServletRequest httpServletRequest = request;
         String method = request.getMethod();
         String requestURI = request.getRequestURI();
 
         // 허용된 경로와 메서드 조합을 정의
         // 해당 경로는 토큰검사를 하지 않음
-        Map<String, List<String>> publicPaths = new HashMap<>();
-        // 회원
-        publicPaths.put("/api/v1/members", Arrays.asList("GET", "POST"));
-        publicPaths.put("/api/v1/members/email/{memberEmail}", List.of("GET"));
-        publicPaths.put("/api/v1/members/nickName/{nickName}", List.of("GET"));
-        publicPaths.put("/api/v1/members/login", List.of("POST"));
-        // 상품
-        publicPaths.put("/api/v1/items/search", List.of("GET"));
-        // 커뮤니티
-        publicPaths.put("/api/v1/community/search", List.of("GET"));
-        publicPaths.put("/api/v1/community/communityList", List.of("GET"));
-        // 댓글
-        publicPaths.put("/api/v1/{communityId}/comment/commentList", List.of("GET"));
-        // 공지
-        publicPaths.put("/api/v1/notice/noticeList", List.of("GET"));
-        // 디폴트
-        publicPaths.put("/", List.of("GET"));
-        // 스웨거
-        publicPaths.put("/swagger-resources/**", List.of("GET"));
-        publicPaths.put("/swagger-ui/**", List.of("GET"));
-        publicPaths.put("/v3/api-docs/**", List.of("GET"));
-        publicPaths.put("/api/swagger-config", List.of("GET"));
-        publicPaths.put("/api/logistics", List.of("GET"));
-        // 액츄에이터
-        publicPaths.put("/monitor/**", List.of("GET"));
-        // 프로메테우스
-        publicPaths.put("/prometheus", List.of("GET"));
-        // 그라파나
-        publicPaths.put("/grafana", List.of("GET"));
-
-        // 허용된 경로와 메서드 조합을 통해 검증
-        for (Map.Entry<String, List<String>> entry : publicPaths.entrySet()) {
-            String pathPattern = entry.getKey();
-            List<String> allowedMethods = entry.getValue();
-
-            // AntPathMatcher를 사용한 경로 매칭 및 메서드 검증
-            if (pathMatcher.match(pathPattern, requestURI) && allowedMethods.contains(method)) {
-                // 허용된 경로 및 메서드에 해당하면 필터 제외
-                filterChain.doFilter(request, response);
-                return;
-            }
+        if (PublicPathRegistry.isPublicPath(requestURI, method)) {
+            filterChain.doFilter(request, response);
+            return;
         }
 
         // request에서 JWT를 추출
         // 요청 헤더에서 토큰을 추출하는 역할
-        String token = resolveToken(httpServletRequest);
-        log.info("token : " + token);
+        // accessToken은 Authorization를 확인하여 접근
+        // refreshToken은 x-refresh-token를 확인하여 접근
+        String accessToken = resolveAccessToken(request);
+        String refreshToken = resolveRefreshToken(request);
+        String token = null;
+
+        if (accessToken != null) {
+            token = accessToken;
+        }
+
+        if (refreshToken != null) {
+            token = refreshToken;
+        }
 
         try {
-            if(!StringUtils.hasText(token) && jwtProvider.validateToken(token)) {
+            if (!StringUtils.hasText(token) && jwtProvider.validateToken(token)) {
                 throw new Exception("토큰 검증에 실패했습니다.");
+            }
+
+            // 블랙리스트에 포함된 토큰으로 접근하는 경우, 이를 막아줍니다.
+            if (tokenBlackListService.containToken(token)) {
+                throw new Exception("<< 경고 >>만료된 토큰으로 접근하려합니다!!!");
             }
 
             // 토큰이 유효할 경우 토큰에서 Authentication 객체를 가지고 와서 SecurityContext에 저장
@@ -110,16 +83,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     // 토큰을 가져오기 위한 메소드
     // Authorization로 정의된 헤더 이름을 사용하여 토큰을 찾고
     // 토큰이 "Bearer "로 시작하거나 "Bearer "로 안온 것도 토큰 반환
-    private String resolveToken(HttpServletRequest httpServletRequest) {
-        String token = httpServletRequest.getHeader(HEADER_AUTHORIZATION);
+    private String resolveAccessToken(HttpServletRequest request) {
+        String token = request.getHeader(ACCESS_TOKEN_HEADER_KEY);
 
-        // 토큰이 포함하거나 Bearer 로 시작하면 true
-        if(StringUtils.hasText(token) && token.startsWith("Bearer ")) {
+        if (StringUtils.hasText(token) && token.startsWith("Bearer ")) {
             return token.substring(7);
-        } else if(StringUtils.hasText(token)) {
-            return token;
-        } else {
-            return null;
         }
+        return null;
+    }
+
+    private String resolveRefreshToken(HttpServletRequest request) {
+        String token = request.getHeader(REFRESH_TOKEN_HEADER_KEY);
+
+        return StringUtils.hasText(token) ? token : null;
     }
 }
