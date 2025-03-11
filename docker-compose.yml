@@ -76,22 +76,48 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin # grafana 사용자 비밀번호
       - GF_USERS_ALLOW_SIGN_UP=false
 
-  loki:
-    image: grafana/loki:2.9.2
-    container_name: loki
-    ports:
-      - "3100:3100"
-
-  promtail:
-    image: grafana/promtail:2.9.2
+  k6:
+    image: grafana/k6:latest
+    platform: linux/amd64
     volumes:
-      - ./promtail-config.yml:/etc/promtail/config.yml
-      - ./logs/:/app/logs
-      - ./loki-config.yml:/etc/loki/config.yml
-      - /var/lib/docker/containers:/var/lib/docker/containers  # 도커 로그 파일 경로 마운트
-    command:
-      - -config.file=/etc/promtail/config.yml
-      - -config.expand-env=true
+      - ./scripts/load-test.js:/script/load-test.js
+    command: ["run", "/script/load-test.js"]  # 테스트 스크립트 경로
+    restart: always
+    container_name: k6  # 컨테이너 이름 고정
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.9.2
+    container_name: elasticsearch
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+    ports:
+      - "9200:9200"
+    restart: always
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.9.2
+    container_name: logstash
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    environment:
+      - LS_JAVA_OPTS=-Xmx256m -Xms256m
+    ports:
+      - "5044:5044"
+      - "9600:9600"
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.9.2
+    container_name: kibana
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    restart: always
 
   nginx:
     image: nginx:latest
