@@ -12,8 +12,6 @@ spring:
     url: ${RDS_MYSQL_URL}
     username: ${RDS_MYSQL_NAME}
     password: ${RDS_MYSQL_SECRET}
-  session:
-    store-type: redis
 
   jpa:
     # 데이터베이스 플랫폼을 지정
@@ -50,9 +48,6 @@ spring:
     mongodb:
       uri: ${MONGODB_URI}
       database: chat
-      socketTimeout: 60000
-      connectTimeout: 60000
-      maxWaitTime: 60000
 
   security:
     oauth2:
@@ -85,13 +80,6 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
-  websocket:
-    stomp:
-      broker-relay:
-        enabled: true
-        path: /ws
-        host: localhost
-        port: 61613
 #  rabbitmq:
 #    host: rabbitmq
 #    username: guest
