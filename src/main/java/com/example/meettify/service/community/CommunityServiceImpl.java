@@ -17,7 +17,7 @@ import com.example.meettify.repository.jpa.member.MemberRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
@@ -34,7 +34,7 @@ import static java.util.Objects.requireNonNull;
 @Service
 @Transactional
 @RequiredArgsConstructor
-@Log4j2
+@Slf4j
 public class CommunityServiceImpl implements CommunityService {
     private final CommunityRepository communityRepository;
     private final MemberRepository memberRepository;
@@ -140,7 +140,7 @@ public class CommunityServiceImpl implements CommunityService {
 
             // 조회수 증가 후 다시 엔티티 조회
             CommunityEntity findCommunity = communityRepository.findByCommunityId(communityId);
-            log.info("findCommunity: {}", findCommunity);
+            log.debug("findCommunity: {}", findCommunity);
 
             // 데이터베이스에서 조회한 조회수
             int dbViewCount = findCommunity.getViewCount();
@@ -159,7 +159,7 @@ public class CommunityServiceImpl implements CommunityService {
             // 조회수는 이미 증가했으므로 엔티티에서 바로 조회 가능
             return ResponseCommunityDTO.communityDetail(findCommunity, totalViewCount);
         } catch (Exception e) {
-            log.error("Error retrieving community {} ", e.getMessage());
+            log.warn("Error retrieving community {} ", e.getMessage());
             throw new BoardException("상세 페이지를 조회하는데 실패했습니다.");
         }
     }
@@ -171,7 +171,7 @@ public class CommunityServiceImpl implements CommunityService {
         try {
             redisCommunityService.increaseData(viewCountKey);
         } catch (Exception e) {
-            log.error("Error increasing view count in Redis for key {}: {}", viewCountKey, e.getMessage());
+            log.warn("Error increasing view count in Redis for key {}: {}", viewCountKey, e.getMessage());
         }
     }
 
@@ -181,7 +181,7 @@ public class CommunityServiceImpl implements CommunityService {
         try {
             CommunityEntity findCommunity = communityRepository.findById(communityId)
                     .orElseThrow(() -> new BoardException("게시글을 찾을 수 없습니다. : " + communityId));
-            log.info("findCommunity {}", findCommunity);
+            log.debug("findCommunity {}", findCommunity);
             if(findCommunity != null) {
                 findCommunity.getImages().forEach(
                         img -> s3ImageUploadService.deleteFile(img.getUploadImgPath(), img.getUploadImgName())
@@ -192,7 +192,7 @@ public class CommunityServiceImpl implements CommunityService {
             }
             throw new BoardException("커뮤니티 글이 존재하지 않습니다. 잘못된 id를 보냈습니다.");
         } catch (Exception e) {
-            log.error("Error deleting community {} ", e.getMessage());
+            log.warn("Error deleting community {} ", e.getMessage());
             throw new BoardException("커뮤니티 글을 삭제하는데 실패했습니다. :" + e.getMessage());
         }
     }
@@ -204,14 +204,14 @@ public class CommunityServiceImpl implements CommunityService {
     public Page<ResponseCommunityDTO> getBoards(Pageable pageable) {
         try {
             Page<CommunityEntity> findAllCommunity = communityRepository.findAll(pageable);
-            log.info("조회된 커뮤니티 수 : {}", findAllCommunity.getTotalElements());
-            log.info("조회된 커뮤니티 : {}", findAllCommunity);
+            log.debug("조회된 커뮤니티 수 : {}", findAllCommunity.getTotalElements());
+            log.debug("조회된 커뮤니티 : {}", findAllCommunity);
 
             countRedisView(findAllCommunity);
 
             return findAllCommunity.map(ResponseCommunityDTO::changeCommunity);
         } catch (Exception e) {
-            log.error("Error retrieving community {} ", e.getMessage());
+            log.warn("Error retrieving community {} ", e.getMessage());
             throw new BoardException("커뮤니티 글을 가져오는데 실패했습니다. : " + e.getMessage());
         }
     }
@@ -232,8 +232,8 @@ public class CommunityServiceImpl implements CommunityService {
     public Page<ResponseCommunityDTO> searchTitle(Pageable pageable, String searchTitle) {
         try {
             Page<CommunityEntity> findAllByTitle = communityRepository.findBySearchTitle(pageable, searchTitle);
-            log.info("조회된 커뮤니티 수  {}", findAllByTitle.getTotalElements());
-            log.info("조회된 커뮤니티  {}", findAllByTitle);
+            log.debug("조회된 커뮤니티 수  {}", findAllByTitle.getTotalElements());
+            log.debug("조회된 커뮤니티  {}", findAllByTitle);
             countRedisView(findAllByTitle);
             return findAllByTitle.map(ResponseCommunityDTO::changeCommunity);
         } catch (Exception e) {
@@ -252,7 +252,7 @@ public class CommunityServiceImpl implements CommunityService {
             countRedisView(findAllCommunity);
             return findAllCommunity.map(ResponseCommunityDTO::changeCommunity);
         } catch (Exception e) {
-            log.error("Error retrieving community {}", e.getMessage());
+            log.warn("Error retrieving community {}", e.getMessage());
             throw new BoardException("커뮤니티 글을 가져오는데 실패했습니다. : " + e.getMessage());
         }
     }
@@ -264,7 +264,7 @@ public class CommunityServiceImpl implements CommunityService {
     public long countMyCommunity(String memberEmail) {
         try {
             long count = communityRepository.countByMemberMemberEmail(memberEmail);
-            log.info("countMyCommunity {}", count);
+            log.debug("countMyCommunity {}", count);
             return count;
         } catch (Exception e) {
             throw new BoardException("커뮤니티 수량을 가져오는데 실패");
@@ -278,7 +278,7 @@ public class CommunityServiceImpl implements CommunityService {
     public long countAllCommunity() {
         try {
             long count = communityRepository.countAllItems();
-            log.info("countAllCommunity {}", count);
+            log.debug("countAllCommunity {}", count);
             return count;
         } catch (Exception e) {
             throw new BoardException("커뮤니티 수량을 가져오는데 실패");

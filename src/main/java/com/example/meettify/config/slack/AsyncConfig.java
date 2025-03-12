@@ -1,7 +1,7 @@
 package com.example.meettify.config.slack;
 
 import jakarta.annotation.PreDestroy;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -20,7 +20,7 @@ import java.util.concurrent.Executor;
 @EnableAsync
 // 스케줄링된 작업(예: @Scheduled)을 활성화합니다. 이를 통해 특정 간격으로 작업을 실행하거나 예약 작업을 실행
 @EnableScheduling
-@Log4j2
+@Slf4j
 public class AsyncConfig implements AsyncConfigurer {
     // Spring의 기본 비동기 스레드풀 대신 사용자 정의 스레드풀을 제공
     private final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
@@ -42,6 +42,6 @@ public class AsyncConfig implements AsyncConfigurer {
     @PreDestroy
     public void shutdownExecutor() {
         executor.shutdown(); // 스레드 풀 종료
-        log.info("Async executor successfully shut down.");
+        log.debug("Async executor successfully shut down.");
     }
 }

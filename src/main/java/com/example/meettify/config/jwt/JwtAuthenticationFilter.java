@@ -6,7 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
@@ -14,7 +14,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-@Log4j2
+@Slf4j
 @RequiredArgsConstructor
 // OncePerRequestFilter을 하는 이유는 한번만 작동하도록 하기 위해서 입니다.
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -72,10 +72,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // Spring Security의 SecurityContextHolder를 사용하여 현재 인증 정보를 설정합니다.
             // 이를 통해 현재 사용자가 인증된 상태로 처리됩니다.
             // 이렇게 저장하면 컨트롤러에서 토큰에서 정보를 가져와서 사용할 수 있습니다.
-            log.info("인증에 성공했습니다. ");
+            log.debug("인증에 성공했습니다. ");
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (Exception e) {
-            log.error("유효한 토큰이 없습니다.");
+            log.warn("유효한 토큰이 없습니다.");
         }
         filterChain.doFilter(request, response);
     }

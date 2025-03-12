@@ -4,7 +4,7 @@ import com.example.meettify.dto.cart.*;
 import com.example.meettify.exception.cart.CartException;
 import com.example.meettify.service.cart.CartService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
-@Log4j2
+@Slf4j
 @RequestMapping("/api/v1/carts")
 public class CartController implements CartControllerDocs{
     private final CartService cartService;

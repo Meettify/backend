@@ -14,6 +14,7 @@ import com.example.meettify.repository.jpa.community.CommunityRepository;
 import com.example.meettify.repository.jpa.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @RequiredArgsConstructor
 @Service
-@Log4j2
+@Slf4j
 public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final CommunityRepository communityRepository;
@@ -58,10 +59,10 @@ public class CommentServiceImpl implements CommentService {
             Long parentCommentId = (savedComment.getParent() != null) ? savedComment.getParent().getCommentId() : 0L;
 
             ResponseCommentDTO response = ResponseCommentDTO.changeDTO(savedComment, findMember.getNickName(), parentCommentId);
-            log.info("반환 댓글 : " + response);
+            log.debug("반환 댓글 {} ", response);
             return response;
         } catch (Exception e) {
-            log.error("댓글 생성하는데 실패했습니다. {}", e.getMessage());
+            log.warn("댓글 생성하는데 실패했습니다. {}", e.getMessage());
             throw new CommentException("댓글 생성하는데 실패했습니다. : " + e.getMessage());
         }
     }
@@ -80,10 +81,10 @@ public class CommentServiceImpl implements CommentService {
             findComment.updateComment(comment);
             Long parentCommentId = (findComment.getParent() != null) ? findComment.getParent().getCommentId() : 0L;
             ResponseCommentDTO response = ResponseCommentDTO.changeDTO(findComment, findMember.getNickName(), parentCommentId);
-            log.info("수정된 댓글 {} ", response);
+            log.debug("수정된 댓글 {} ", response);
             return response;
         } catch (Exception e) {
-            log.error("댓글 수정 실패: {}", e.getMessage());
+            log.warn("댓글 수정 실패: {}", e.getMessage());
             throw new CommentException("댓글 수정하는데 실패했습니다. : " + e.getMessage());
         }
     }
@@ -98,7 +99,7 @@ public class CommentServiceImpl implements CommentService {
             commentRepository.deleteById(commentId);
             return "댓글 삭제 성공";
         } catch (Exception e) {
-            log.error("댓글 삭제 실패: {}", e.getMessage());
+            log.warn("댓글 삭제 실패: {}", e.getMessage());
             throw new CommentException("댓글 삭제하는데 실패했습니다.");
         }
     }
@@ -114,7 +115,7 @@ public class CommentServiceImpl implements CommentService {
             Long parentCommentId = (findComment.getParent() != null) ? findComment.getParent().getCommentId() : 0L;
             return ResponseCommentDTO.changeDTO(findComment, findComment.getMember().getNickName(), parentCommentId);
         } catch (Exception e) {
-            log.error("댓글 조회 실패: {}", e.getMessage());
+            log.warn("댓글 조회 실패: {}", e.getMessage());
             throw new CommentException("댓글 조회하는데 실패했습니다.");
         }
     }
@@ -131,7 +132,7 @@ public class CommentServiceImpl implements CommentService {
                 return ResponseCommentDTO.changeDTO(commentEntity, commentEntity.getMember().getNickName(), parentCommentId);
             });
         } catch (Exception e) {
-            log.error("댓글 페이징 조회 실패: {}", e.getMessage());
+            log.warn("댓글 페이징 조회 실패: {}", e.getMessage());
             throw new CommentException("댓글을 페이징 처리해서 가져오는데 실패했습니다.");
         }
     }

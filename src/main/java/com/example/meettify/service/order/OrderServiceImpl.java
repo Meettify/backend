@@ -19,6 +19,7 @@ import com.example.meettify.repository.jpa.order.OrderRepository;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -31,8 +32,8 @@ import java.util.List;
 import java.util.UUID;
 
 @Transactional
-@Log4j2
 @RequiredArgsConstructor
+@Slf4j
 @Service
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
@@ -63,7 +64,7 @@ public class OrderServiceImpl implements OrderService {
                 // 1. 장바구니에서 조회 (장바구니에 있는 경우)
                 // 주문할 상품으로 장바구니 상품을 조회해봄
                 CartItemEntity findCartItem = cartItemRepository.findByItem_ItemId(order.getItemId());
-                log.info("상품으로 조회한 장바구니 상품 조회 {} ", findCartItem);
+                log.debug("상품으로 조회한 장바구니 상품 조회 {} ", findCartItem);
 
 
                 // 장바구니에 없는 경우
@@ -115,7 +116,7 @@ public class OrderServiceImpl implements OrderService {
 
             return response;
         } catch (Exception e) {
-            log.error("주문 처리 중 에러 발생: " + e.getMessage(), e);
+            log.warn("주문 처리 중 에러 발생: " + e.getMessage(), e);
             throw new OrderException("주문하는데 실패 했습니다. : " + e.getMessage());
         }
     }
@@ -157,7 +158,7 @@ public class OrderServiceImpl implements OrderService {
                 // 1. 장바구니에서 조회 (장바구니에 있는 경우)
                 // 주문할 상품으로 장바구니 상품을 조회해봄
                 CartItemEntity findCartItem = cartItemRepository.findByItem_ItemId(order.getItemId());
-                log.info("상품으로 조회한 장바구니 상품 조회 : " + findCartItem);
+                log.debug("상품으로 조회한 장바구니 상품 조회 : " + findCartItem);
 
                 // 장바구니에 없는 경우
                 // 상품을 바로 구매하려는 경우라서 바로 구매
@@ -226,7 +227,7 @@ public class OrderServiceImpl implements OrderService {
             saveOrder.changePayStatus(PayStatus.PAY_O);
             return ResponseOrderDTO.changeDTO(saveOrder, AddressDTO.changeDTO(findMember.getAddress()), orderUUid);
         } catch (Exception e) {
-            log.error("주문 처리 중 에러 발생: " + e.getMessage(), e);
+            log.warn("주문 처리 중 에러 발생: " + e.getMessage(), e);
             throw new OrderException("주문하는데 실패 했습니다. : " + e.getMessage());
         }
     }
@@ -238,7 +239,7 @@ public class OrderServiceImpl implements OrderService {
     public Page<ResponseOrderDTO> getMyOrders(String email, Pageable pageable) {
         try {
             Page<OrderEntity> findAllOrders = orderRepository.findAllByMemberEmail(email, pageable);
-            log.info("findAllOrders{} ", findAllOrders);
+            log.debug("findAllOrders{} ", findAllOrders);
             return findAllOrders
                     .map(ResponseOrderDTO::viewChangeDTO);
         } catch (Exception e) {
@@ -252,7 +253,7 @@ public class OrderServiceImpl implements OrderService {
         try {
             // 주문번호로 주문 정보 가져오기
             OrderEntity findOrder = orderRepository.findByOrderUUIDid(orderUUID);
-            log.info("findOrder: {}", findOrder);
+            log.debug("findOrder: {}", findOrder);
             findOrder.getOrderItems()
                     .forEach(count -> count.getItem().addItemStock(count.getOrderCount()));
             // 주문 정보에 결제 취소라고 표시
@@ -270,7 +271,7 @@ public class OrderServiceImpl implements OrderService {
     public long countMyOrders(String email) {
         try {
             long count = orderRepository.countByMemberMemberEmail(email);
-            log.info("countMyOrders: {}", count);
+            log.debug("countMyOrders: {}", count);
             return count;
         } catch (Exception e) {
             throw new OrderException("주문 수량을 가져오는데 실패했습니다.");
@@ -284,7 +285,7 @@ public class OrderServiceImpl implements OrderService {
     public long countAll() {
         try {
             long count = orderRepository.countAllOrders();
-            log.info("countAllOrders: {}", count);
+            log.debug("countAllOrders: {}", count);
             return count;
         } catch (Exception e) {
             throw new OrderException("주문 수량을 가져오는데 실패했습니다.");
@@ -298,11 +299,11 @@ public class OrderServiceImpl implements OrderService {
     public Page<ResponseOrderDTO> getOrders(Pageable page, PayStatus payStatus) {
         try {
             Page<OrderEntity> findOrders = orderRepository.findAllOrders(page, payStatus);
-            log.info("findOrders: {}", findOrders);
+            log.debug("findOrders: {}", findOrders);
             return findOrders
                     .map(ResponseOrderDTO::viewChangeDTO);
         } catch (Exception e) {
-            log.error("주문 조회 중 에러 발생: " + e.getMessage(), e);
+            log.warn("주문 조회 중 에러 발생: " + e.getMessage(), e);
             throw new OrderException("주문 조회 실패 했습니다. : " + e.getMessage());
         }
     }

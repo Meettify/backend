@@ -4,7 +4,7 @@ import com.example.meettify.dto.jwt.TokenDTO;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  * */
 
 @Component
-@Log4j2
+@Slf4j
 public class JwtProvider {
     private static final String AUTHORITIES_KEY = "auth";
     @Value("${jwt.access.expiration}")
@@ -80,7 +80,7 @@ public class JwtProvider {
                 .memberEmail(email)
                 .memberId(memberId)
                 .build();
-        log.info("responseToken: {}", responseToken);
+        log.debug("responseToken: {}", responseToken);
         return responseToken;
     }
 
@@ -130,11 +130,11 @@ public class JwtProvider {
                     .parseClaimsJws(token);
             return true;
         } catch (SecurityException | MalformedJwtException | IllegalArgumentException e) {
-            log.error("잘못된 JWT token ={}", e.getMessage());
+            log.warn("잘못된 JWT token ={}", e.getMessage());
         } catch (ExpiredJwtException e) {
-            log.error("Expired JWT token ={}", e.getMessage());
+            log.warn("Expired JWT token ={}", e.getMessage());
         } catch (UnsupportedJwtException e) {
-            log.error("Unsupported JWT token ={}", e.getMessage());
+            log.warn("Unsupported JWT token ={}", e.getMessage());
         }
         return false;
     }

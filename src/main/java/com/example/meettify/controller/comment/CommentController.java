@@ -8,6 +8,7 @@ import com.example.meettify.service.comment.CommentService;
 import com.example.meettify.service.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@Log4j2
 @RequiredArgsConstructor
+@Slf4j
 @RequestMapping("/api/v1/{communityId}/comment")
 public class CommentController implements CommentControllerDocs{
     private final CommentService commentService;

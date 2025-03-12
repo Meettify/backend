@@ -5,7 +5,7 @@ import com.example.meettify.dto.member.role.UserRole;
 import com.example.meettify.entity.member.MemberEntity;
 import com.example.meettify.repository.jpa.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
  *   date : 2024/09/22
  * */
 @Service
-@Log4j2
+@Slf4j
 @RequiredArgsConstructor
 public class PrincipalOAuthUserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
     private final MemberRepository memberRepository;
@@ -40,13 +40,13 @@ public class PrincipalOAuthUserService implements OAuth2UserService<OAuth2UserRe
         // 회원가입
         OAuthUserInfo oAuthUserInfo = null;
         String registrationId = clientRegistration.getRegistrationId();
-        log.info("registrationId: " + registrationId);
+        log.debug("registrationId: " + registrationId);
 
         if(registrationId.equals("google")) {
-            log.info("구글 로그인");
+            log.debug("구글 로그인");
             oAuthUserInfo = new GoogleUser(oAuth2User, clientRegistration);
         } else if (registrationId.equals("naver")) {
-            log.info("네이버 로그인");
+            log.debug("네이버 로그인");
             oAuthUserInfo = new NaverUser(oAuth2User, clientRegistration);
         } else {
             log.error("지원하지 않는 소셜 로그인입니다.");
@@ -67,7 +67,7 @@ public class PrincipalOAuthUserService implements OAuth2UserService<OAuth2UserRe
         boolean isMember = memberRepository.existsByMemberEmail(email);
 
         if(!isMember) {
-            log.info("소셜로그인 회원가입을 진행합니다.");
+            log.debug("소셜로그인 회원가입을 진행합니다.");
 
             findMember = MemberEntity.builder()
                     .memberEmail(email)
@@ -77,19 +77,19 @@ public class PrincipalOAuthUserService implements OAuth2UserService<OAuth2UserRe
                     .nickName(name)
                     .memberRole(role)
                     .build();
-            log.info("findMember ={}", findMember);
+            log.debug("findMember ={}", findMember);
             findMember = memberRepository.save(findMember);
         }
 
         if(isMember) {
-            log.info("로그인을 이미 한적이 있습니다.");
+            log.debug("로그인을 이미 한적이 있습니다.");
         }
 
 
         // attributes가 있는 생성자를 사용하여 PrincipalDetails 객체 생성
         // 소셜 로그인인 경우에는 attributes도 함께 가지고 있는 PrincipalDetails 객체를 생성하게 됩니다.
         PrincipalDetails principalDetails = new PrincipalDetails(findMember, oAuth2User.getAttributes());
-        log.info("principalDetails : " + principalDetails);
+        log.debug("principalDetails : " + principalDetails);
         return principalDetails;
     }
 }

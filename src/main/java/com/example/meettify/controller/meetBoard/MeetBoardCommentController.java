@@ -5,11 +5,10 @@ import com.example.meettify.dto.meetBoard.MeetBoardCommentServiceDTO;
 import com.example.meettify.dto.meetBoard.RequestMeetBoardCommentDTO;
 import com.example.meettify.dto.meetBoard.ResponseMeetBoardCommentDTO;
 import com.example.meettify.dto.meetBoard.UpdateMeetBoardCommentDTO;
-import com.example.meettify.exception.board.BoardException;
 import com.example.meettify.exception.comment.CommentException;
 import com.example.meettify.service.meetBoard.MeetBoardCommentService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,7 +18,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@Log4j2
+@Slf4j
 @RequestMapping("/api/v1/meetBoardComments")
 @RequiredArgsConstructor
 public class MeetBoardCommentController implements   MeetBoardCommentControllerDocs{

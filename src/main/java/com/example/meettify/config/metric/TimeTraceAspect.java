@@ -3,7 +3,7 @@ package com.example.meettify.config.metric;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  *   work   : 시간 메트릭을 모으는 클래스
  *   date   : 2024/10/24
  * */
-@Log4j2
+@Slf4j
 @Component
 @Aspect
 @RequiredArgsConstructor
@@ -31,7 +31,7 @@ public class TimeTraceAspect {
 
     @Around("timeTracePointcut()")
     public Object traceTime(ProceedingJoinPoint joinPoint) throws Throwable {
-        log.info("start {}", joinPoint.toString());
+        log.debug("start {}", joinPoint.toString());
         Timer timer = Timer.builder("response_time_ms")
                 .register(meterRegistry);
 

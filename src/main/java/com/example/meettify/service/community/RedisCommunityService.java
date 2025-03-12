@@ -26,7 +26,7 @@ public class RedisCommunityService {
         Long incrementedValue = redisTemplate
                 .opsForValue()
                 .increment(key);
-        log.info("Increased value for key {}: {}", key, incrementedValue);
+        log.debug("Increased value for key {}: {}", key, incrementedValue);
     }
 
     public void addToSet(String key, Long communityId) {
@@ -41,11 +41,11 @@ public class RedisCommunityService {
             // 만료 기간 설정
             // 만료 기간은 TimeUtils 클래스에서 제공하는 시간을 이용해 자정까지의 초 단위 시간을 구해 설정
             redisTemplate.expire(key, TimeUtils.getRemainingTimeUntilMidnight(), TimeUnit.SECONDS);
-            log.info("Created new set for key {} with communityId {}", key, communityId);
+            log.debug("Created new set for key {} with communityId {}", key, communityId);
         } else  {
             // 기존 키 값으로 된 set에 추가
             redisTemplate.opsForSet().add(key, String.valueOf(communityId));
-            log.info("Added communityId {} to existing set for key {}", communityId, key);
+            log.debug("Added communityId {} to existing set for key {}", communityId, key);
         }
     }
     // 주어진 communityId가 Redis에 저장된 Set 안에 있는지 확인하는 기능을 제공
@@ -57,7 +57,7 @@ public class RedisCommunityService {
     // Redis에서 특정 키의 조회 수를 가져옵니다
     public Integer getViewCount(String key) {
         Integer value = (Integer) redisTemplate.opsForValue().get(key);
-        log.info("Retrieved view count for key {}: {}", key, value);
+        log.debug("Retrieved view count for key {}: {}", key, value);
         return value;
     }
 
@@ -65,7 +65,7 @@ public class RedisCommunityService {
     public Integer getAndDeleteViewCount(String key) {
         // `opsForValue()`의 getAndDelete 메서드를 사용하여 조회수를 가져오면서 동시에 삭제
         Integer value = (Integer) redisTemplate.opsForValue().getAndDelete(key);
-        log.info("Retrieved and deleted view count for key {}: {}", key, value);
+        log.debug("Retrieved and deleted view count for key {}: {}", key, value);
         return value;
     }
 
@@ -74,7 +74,7 @@ public class RedisCommunityService {
     public void deleteData(String key) {
         Boolean result = redisTemplate.delete(key);
         if(Boolean.TRUE.equals(result)) {
-            log.info("Deleted data for key {}", key);
+            log.debug("Deleted data for key {}", key);
         }
         log.warn("Failed to delete data for key {} or key does not exist", key);
     }

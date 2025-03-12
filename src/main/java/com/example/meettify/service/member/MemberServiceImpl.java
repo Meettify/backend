@@ -26,6 +26,7 @@ import com.example.meettify.repository.jpa.notification.NotificationRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.LockedException;
@@ -45,7 +46,7 @@ import java.util.List;
  *   update  : 2024/12/16
  * */
 
-@Log4j2
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -107,17 +108,17 @@ public class MemberServiceImpl implements MemberService {
     public TokenDTO login(String email, String password) {
         try {
             boolean isMember = memberRepository.existsByMemberEmail(email);
-            log.info("isMember : {}", isMember);
+            log.debug("isMember : {}", isMember);
             TokenEntity tokenEntity;
             TokenDTO token;
 
             // 회원이 있으면 true
             if (isMember) {
                 MemberEntity findMember = findMemberEntity(email);
-                log.info("findMember : {}", findMember);
+                log.debug("findMember : {}", findMember);
 
                 if (loginAttemptConfig.isBlocked(email)) {
-                    log.error("Member is blocked for 1 day");
+                    log.warn("Member is blocked for 1 day");
                     throw new LockedException("Member is blocked for 1 day");
                 }
 
@@ -197,10 +198,10 @@ public class MemberServiceImpl implements MemberService {
             }
             throw new EntityNotFoundException("회원이 존재하지 않습니다.");
         } catch (EntityNotFoundException e) {
-            log.error("Entity not found: {}", e.getMessage());
+            log.warn("Entity not found: {}", e.getMessage());
             throw new MemberException("회원이 존재하지 않습니다.");
         } catch (Exception e) {
-            log.error("Error updating member: ", e);
+            log.warn("Error updating member: ", e);
             throw new MemberException("회원 수정 중 오류가 발생했습니다.");
         }
     }
@@ -243,7 +244,7 @@ public class MemberServiceImpl implements MemberService {
         try {
             MemberEntity findMember = memberRepository.findById(memberId)
                     .orElseThrow(() -> new MemberException("해당 유저가 없습니다."));
-            log.info("member : {}", findMember);
+            log.debug("member : {}", findMember);
             return ResponseMemberDTO.changeDTO(findMember);
         } catch (Exception e) {
             throw new MemberException(e.getMessage());
@@ -270,7 +271,7 @@ public class MemberServiceImpl implements MemberService {
     public Long countMembers() {
         try {
             Long countMembers = memberRepository.countByMembers();
-            log.info("count members : {}", countMembers);
+            log.debug("count members : {}", countMembers);
             return countMembers;
         } catch (Exception e) {
             throw new MemberException("회원 수 정보를 가져오는데 실패했습니다.");

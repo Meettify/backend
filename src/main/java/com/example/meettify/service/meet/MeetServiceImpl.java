@@ -20,6 +20,7 @@ import io.jsonwebtoken.io.IOException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
@@ -38,8 +39,8 @@ import java.util.stream.Collectors;
  *   work   : 서비스 로직 구현
  *   date   : 2024/09/24
  * */
-@Log4j2
 @Service
+@Slf4j
 @Transactional
 @RequiredArgsConstructor
 public class MeetServiceImpl implements MeetService {

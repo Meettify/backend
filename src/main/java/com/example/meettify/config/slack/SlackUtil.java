@@ -7,7 +7,7 @@ import com.slack.api.model.block.composition.BlockCompositions;
 import com.slack.api.webhook.WebhookPayloads;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -27,7 +27,7 @@ import static com.slack.api.model.block.composition.BlockCompositions.plainText;
  * */
 @Service
 @RequiredArgsConstructor
-@Log4j2
+@Slf4j
 public class SlackUtil {
     @Value("${slack.webhook}")
     private String webhookUrl;
@@ -52,7 +52,7 @@ public class SlackUtil {
                             .blocks(layoutBlocks)));
         } catch (IOException e) {
             // 실패시 로그 기록
-            log.error("Slack alert failed: {}", e.getMessage(), e);
+            log.warn("Slack alert failed: {}", e.getMessage(), e);
         }
     }
 

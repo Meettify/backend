@@ -8,7 +8,7 @@ import com.example.meettify.entity.member.MemberEntity;
 import com.example.meettify.repository.redis.jwt.TokenRepository;
 import com.example.meettify.repository.jpa.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.JwtException;
@@ -21,7 +21,7 @@ import java.util.List;
 @Service
 @Transactional
 @RequiredArgsConstructor
-@Log4j2
+@Slf4j
 public class TokenServiceImpl implements TokenService {
     private final TokenRepository tokenRepository;
     private final MemberRepository memberRepository;
@@ -34,11 +34,11 @@ public class TokenServiceImpl implements TokenService {
             // 레디스에서 토큰 조회
             TokenEntity findToken = tokenRepository.findByEmail(email);
             if (findToken == null) {
-                log.error("Token not found for email: {}", email);
+                log.warn("Token not found for email: {}", email);
                 throw new JwtException("No token found for email: " + email);
             }
-            log.info("토큰 소유주 체크 : {}", findToken.getEmail());
-            log.info("리프레쉬 토큰 {}", refreshToken);
+            log.debug("토큰 소유주 체크 : {}", findToken.getEmail());
+            log.debug("리프레쉬 토큰 {}", refreshToken);
 
             // 리프레시 토큰 검증
             if (!findToken.getRefreshToken().equals(refreshToken)) {
@@ -50,7 +50,7 @@ public class TokenServiceImpl implements TokenService {
             List<GrantedAuthority> authorities = getAuthorities(findMember);
             // 토큰 재발급
             TokenDTO token = jwtProvider.createToken(email, authorities, findMember.getMemberId());
-            log.info("token: {}", token);
+            log.debug("token: {}", token);
             // 레디스에 토큰 저장
             tokenRepository.save(TokenEntity.changeEntity(token));
             return token;

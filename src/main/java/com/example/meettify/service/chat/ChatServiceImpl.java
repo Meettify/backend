@@ -13,6 +13,7 @@ import com.example.meettify.repository.jpa.chat.ChatRoomRepository;
 import com.example.meettify.repository.jpa.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,8 +21,8 @@ import java.util.List;
 
 @Service
 @Transactional
-@Log4j2
 @RequiredArgsConstructor
+@Slf4j
 public class ChatServiceImpl implements ChatService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
@@ -36,7 +37,7 @@ public class ChatServiceImpl implements ChatService {
             chatMessageRepository.save(chatMessage);
             return ChatMessageDTO.change(chatMessage);
         } catch (Exception e) {
-            log.error(e);
+            log.warn(e.getMessage());
             throw new ChatException("메시지를 작성하는데 실패했습니다.");
         }
     }
@@ -107,7 +108,7 @@ public class ChatServiceImpl implements ChatService {
                 .orElseThrow(() -> new ChatRoomException("채팅방이 존재하지 않습니다."));
 
         if (findChatRoom == null) {
-            log.info("채팅방이 존재하지 않습니다.");
+            log.warn("채팅방이 존재하지 않습니다.");
             return false;
         }
         if(findChatRoom.getInviteMemberIds().contains(findMember.getMemberId())) {

@@ -41,11 +41,11 @@ public class RedisSearchLogService {
                 .createdAt(LocalDateTime.now().toString())
                 .build();
 
-        log.info("Search Log {}", value);
+        log.debug("Search Log {}", value);
 
         // 현재 검색어 목록의 크기 확인
         Long size = Objects.requireNonNullElse(redisTemplate.opsForList().size(key), 0L);
-        log.info("size: {}", size);
+        log.debug("size: {}", size);
 
         // 만약 redis의 현재 크기가 10인 경우 rightTop을 통해 가장 오래된 데이터를 삭제해준다.
         // 10 미만이라면 leftPush를 통해 새로운 검색어를 추가해준다.
@@ -56,10 +56,10 @@ public class RedisSearchLogService {
 
         // 동일한 검색어가 존재하면 저장하지 않음
         List<SearchLog> currentLogs = redisTemplate.opsForList().range(key, 0, size);
-        log.info("currentLogs: {}", currentLogs);
+        log.debug("currentLogs: {}", currentLogs);
         if(Objects.requireNonNull(currentLogs).stream().anyMatch(log ->
                 log.getName().equals(searchLog.getName()))) {
-            log.info("Duplicate search term detected, not saving: {}", searchLog.getName());
+            log.debug("Duplicate search term detected, not saving: {}", searchLog.getName());
             return;
         }
         // 새로운 검색어 추가
@@ -79,7 +79,7 @@ public class RedisSearchLogService {
         // Redis 리스트에서 key에 해당하는 값들 중 인덱스 0부터 10까지의 값을 가져온 후 반환해준다.
         List<SearchLog> logs = redisTemplate.opsForList()
                 .range(key, 0, 10);
-        log.info("logs: {}", logs);
+        log.debug("logs: {}", logs);
         return logs;
     }
 
