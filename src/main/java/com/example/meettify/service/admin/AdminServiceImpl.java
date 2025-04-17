@@ -11,13 +11,14 @@ import com.example.meettify.repository.jpa.notification.CustomNotificationReposi
 import com.example.meettify.repository.jpa.notification.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
-@Log4j2
+@Slf4j
 public class AdminServiceImpl implements AdminService {
     private final MemberRepository memberRepository;
     private final BannedMemberRepository bannedMemberRepository;
@@ -45,7 +46,7 @@ public class AdminServiceImpl implements AdminService {
             memberRepository.delete(findMember);
             return "회원을 추방했습니다. 추방된 회원 이메일 : " + findMember.getMemberEmail();
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.warn(e.getMessage());
             throw new MemberException("회원을 추방하는데 실패했습니다.");
         }
     }

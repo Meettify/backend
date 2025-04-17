@@ -12,6 +12,7 @@ import com.example.meettify.repository.jpa.notification.CustomNotificationReposi
 import com.example.meettify.repository.jpa.notification.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -28,8 +29,8 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
-@Log4j2
 @Transactional
+@Slf4j
 public class NotificationService {
     // SSE 이벤트 타임아웃 시간
     private static final Long DEFAULT_TIMEOUT = 24L * 60 * 60 * 1000;   // SSE 연결 타임아웃 (1일)
@@ -46,11 +47,11 @@ public class NotificationService {
 
         // 매 연결마다 고유 이벤트 ID 부여
         String eventId = makeTimeIncludeId(findMember);
-        log.info("eventId {} ", eventId);
+        log.debug("eventId {} ", eventId);
 
         // SseEmitter 생성후 Map에 저장
         SseEmitter sseEmitter = customNotificationRepository.save(eventId, new SseEmitter(DEFAULT_TIMEOUT));
-        log.info("sseEmitter {}", sseEmitter);
+        log.debug("sseEmitter {}", sseEmitter);
 
         // 클라이언트가 미수신한 Event 목록이 존재할 경우 전송하여 Event 유실을 예방
         if (hasLostData(lastEventId)) {
@@ -62,14 +63,14 @@ public class NotificationService {
 
         // 사용자에게 모든 데이터가 전송되었다면 emitter 삭제
         sseEmitter.onCompletion(() -> {
-            log.info("onCompletion callback");
+            log.debug("onCompletion callback");
             customNotificationRepository.deleteById(eventId);
         });
 
         // Emitter의 유효 시간이 만료되면 emitter 삭제
         // 유효 시간이 만료되었다는 것은 클라이언트와 서버가 연결된 시간동안 아무런 이벤트가 발생하지 않은 것을 의미한다.
         sseEmitter.onTimeout(() -> {
-            log.info("onTimeout callback");
+            log.debug("onTimeout callback");
             customNotificationRepository.deleteById(eventId);
         });
 
@@ -109,7 +110,7 @@ public class NotificationService {
             if (e.getMessage().contains("Broken pipe")) {
                 log.warn("[SSE ERROR] 클라이언트 연결 해제 (Broken pipe): {}", eventId);
             } else {
-                log.error("Failed to send SSE event: {}", e.getMessage());
+                log.warn("Failed to send SSE event: {}", e.getMessage());
             }
             sseEmitter.complete();  // SSE 연결 종료
             customNotificationRepository.deleteById(eventId);
@@ -144,8 +145,8 @@ public class NotificationService {
         //  Map에서 memberId로 사용자 검색
         String eventId = makeTimeIncludeId(findMember);
         Map<String, SseEmitter> sseEmitterMap = customNotificationRepository.findAllEmitterStartWithByMemberId(memberId);
-        log.info("sseEmitterMap {}", sseEmitterMap);
-        log.info("Found SSE Emitters for memberId {}: {}", memberId, sseEmitterMap);
+        log.debug("sseEmitterMap {}", sseEmitterMap);
+        log.debug("Found SSE Emitters for memberId {}: {}", memberId, sseEmitterMap);
 
         // 8. 알림 메시지 전송 및 해제
         sseEmitterMap.forEach((id, emitter) -> {
@@ -172,14 +173,14 @@ public class NotificationService {
                 .orElseThrow(() -> new BoardException("커뮤니티 글이 없습니다."));
 
         Long memberId = findCommunity.getMember().getMemberId();
-        log.info("커뮤니티 작성자 Id: " + memberId);
+        log.debug("커뮤니티 작성자 Id: " + memberId);
 
         if (!findCommunity.getMember().getMemberEmail().equals(email)) {
             NotificationEntity saveNotification = notificationRepository.save(NotificationEntity.save(findCommunity.getMember(), message));
 
             String eventId = makeTimeIncludeId(findCommunity.getMember());
             Map<String, SseEmitter> sseEmitterMap = customNotificationRepository.findAllEmitterStartWithByMemberId(memberId);
-            log.info("sseEmitterMap {}", sseEmitterMap);
+            log.debug("sseEmitterMap {}", sseEmitterMap);
             // 8. 알림 메시지 전송 및 해제
             sseEmitterMap.forEach((id, emitter) -> {
                 customNotificationRepository.saveEventCacheId(id, saveNotification);
@@ -193,7 +194,7 @@ public class NotificationService {
         NotificationEntity findNotification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new Exception("삭제된 알람입니다."));
         if (Boolean.TRUE.equals(findNotification.isRead())) {
-            log.info("읽은 알람입니다.");
+            log.debug("읽은 알람입니다.");
         }
 
         if (!findNotification.getMember().getMemberEmail().equals(email)) {

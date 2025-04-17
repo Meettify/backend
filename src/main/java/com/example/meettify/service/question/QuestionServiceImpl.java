@@ -14,6 +14,7 @@ import com.example.meettify.repository.jpa.member.MemberRepository;
 import com.example.meettify.repository.jpa.question.QuestionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-@Log4j2
+@Slf4j
 public class QuestionServiceImpl implements QuestionService{
     private final MemberRepository memberRepository;
     private final QuestionRepository questionRepository;
@@ -147,10 +148,8 @@ public class QuestionServiceImpl implements QuestionService{
     @TimeTrace
     public ResponseCountDTO countMyAllQuestions(String memberEmail) {
         try {
-            log.info("----------------------------");
-            log.info("동작 체크");
             ResponseCountDTO findCount = questionRepository.countMyQuestions(memberEmail);
-            log.info("count {}", findCount);
+            log.debug("count {}", findCount);
             return findCount;
         } catch (Exception e) {
             throw new BoardException("문의글를 카운트하는데 실패했습니다.");
@@ -164,7 +163,7 @@ public class QuestionServiceImpl implements QuestionService{
     public ResponseCountDTO countAllQuestions() {
         try {
             ResponseCountDTO findCount = questionRepository.countAllQuestions();
-            log.info("count {}", findCount);
+            log.debug("count {}", findCount);
             return findCount;
         } catch (Exception e) {
             throw new BoardException("문의글를 카운트하는데 실패했습니다.");

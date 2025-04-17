@@ -16,7 +16,7 @@
     import com.example.meettify.service.search.RedisSearchLogService;
     import jakarta.persistence.EntityNotFoundException;
     import lombok.RequiredArgsConstructor;
-    import lombok.extern.log4j.Log4j2;
+    import lombok.extern.slf4j.Slf4j;
     import org.springframework.data.domain.Page;
     import org.springframework.data.domain.PageImpl;
     import org.springframework.data.domain.Pageable;
@@ -32,8 +32,8 @@
 
     @Transactional
     @RequiredArgsConstructor
-    @Log4j2
     @Service
+    @Slf4j
     public class ItemServiceImpl implements ItemService {
         private final MemberRepository memberRepository;
         private final ItemRepository itemRepository;
@@ -109,7 +109,7 @@
                 findItem.updateItem(updateItemDTO, imagesEntity);
                 return ResponseItemDTO.changeDTO(findItem);
             } catch (Exception e) {
-                log.error("Error updating item: ", e);
+                log.warn("Error updating item: ", e);
                 throw new ItemException("Failed to update the item.");
             }
         }
@@ -124,10 +124,10 @@
                         .orElseThrow(() -> new ItemException("Item not found with id: " + itemId));
 
                 ResponseItemDTO response = ResponseItemDTO.changeDTO(findItem);
-                log.info("response: {}", response);
+                log.debug("response: {}", response);
                 return response;
             } catch (Exception e) {
-                log.error("Failed to fetch item with id {}: {}", itemId, e.getMessage());
+                log.warn("Failed to fetch item with id {}: {}", itemId, e.getMessage());
                 throw new ItemException("상품 조회 실패, 원인 :" + e.getMessage());
             }
         }
@@ -146,7 +146,7 @@
                 cartItemRepository.deleteByItem_ItemId(itemId);
                 // 상품 삭제
                 itemRepository.deleteById(itemId);
-                log.info("Successfully deleted item with id: {}", itemId);
+                log.debug("Successfully deleted item with id: {}", itemId);
                 return "상품을 삭제했습니다.";
             } catch (Exception e) {
                 throw new ItemException("상품 삭제하는데 실패했습니다. 원인 : " + e.getMessage());
@@ -161,9 +161,9 @@
             try {
 
                 Page<ItemEntity> itemsPage = itemRepository.itemsSearch(condition, page);
-                log.info("itemsPage: {}", itemsPage.getContent());
-                log.info("itemsPage.size: {}", itemsPage.getContent().size());
-                log.info("itemsPage.number: {}", itemsPage.getNumber());
+                log.debug("itemsPage: {}", itemsPage.getContent());
+                log.debug("itemsPage.size: {}", itemsPage.getContent().size());
+                log.debug("itemsPage.number: {}", itemsPage.getNumber());
 
                 if (itemsPage.isEmpty()) {
                     // 데이터가 없는 경우 빈 페이지를 반환
@@ -172,7 +172,7 @@
 
                 return itemsPage.map(ResponseItemDTO::changeDTO);
             } catch (Exception e) {
-                log.error("error : " + e.getMessage());
+                log.warn("exception : " + e.getMessage());
                 throw new EntityNotFoundException("상품 조회에 실패하였습니다.\n" + e.getMessage());
             }
         }
@@ -184,7 +184,7 @@
             // 사용자의 최근 검색 기록을 가져옵니다.
             // 검색 이름과 시간이 담긴 리스트
             List<SearchLog> userSearchLogs = redisSearchLogService.findRecentSearchLogs(email);
-            log.info("userSearchLogs: {}", userSearchLogs);
+            log.debug("userSearchLogs: {}", userSearchLogs);
 
             // 검색 기록에서 카테고리를 추출합니다. 이 카테고리는 사용자가 자주 검색한 항목과 관련된 상품을 찾는 데 사용됩니다.
             Set<Category> categories = extractCategoriesFromSearchLogs(userSearchLogs);
@@ -236,7 +236,7 @@
                 Page<ItemEntity> findAllByWait = itemRepository.findAllByWait(page);
                 return findAllByWait.map(ResponseItemDTO::changeDTO);
             } catch (Exception e) {
-                log.error("error : " + e.getMessage());
+                log.warn("exception : " + e.getMessage());
                 throw new EntityNotFoundException("상품 조회에 실패하였습니다.\n" + e.getMessage());
             }
         }
@@ -261,7 +261,7 @@
         public long countItems() {
             try {
                 long countAll = itemRepository.countAll();
-                log.info("countAll: {}", countAll);
+                log.debug("countAll: {}", countAll);
                 return countAll;
             } catch (Exception e) {
                 throw new ItemException("상품의 수량을 가져오는데 실패했습니다.");

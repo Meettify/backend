@@ -3,7 +3,7 @@ package com.example.meettify.controller.jwt;
 import com.example.meettify.dto.jwt.TokenDTO;
 import com.example.meettify.service.jwt.TokenService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/token")
 @RequiredArgsConstructor
-@Log4j2
+@Slf4j
 public class TokenController implements TokenControllerDocs{
     private final TokenService tokenService;
 

@@ -4,7 +4,7 @@ import com.example.meettify.dto.chat.ChatMessageDTO;
 import com.example.meettify.exception.chat.ChatException;
 import com.example.meettify.service.chat.ChatService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Controller;
 
 @Controller
 @RequiredArgsConstructor
-@Log4j2
+@Slf4j
 public class ChatController implements ChatControllerDocs {
     private final ChatService chatService;
 

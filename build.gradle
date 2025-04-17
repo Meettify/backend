@@ -119,6 +119,8 @@ dependencies {
 //    // elasticSearch
 //    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 //    implementation 'org.springframework.data:spring-data-elasticsearch'
+    // logstash
+    implementation("net.logstash.logback:logstash-logback-encoder:7.4")
 
 }
 

@@ -15,16 +15,17 @@ import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Payment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/payment")
 @RequiredArgsConstructor
-@Log4j2
 public class PaymentController implements PaymentControllerDocs {
     private final ImportConfig importConfig;
     private final OrderService orderService;
@@ -49,8 +50,6 @@ public class PaymentController implements PaymentControllerDocs {
                 ResponseOrderDTO response = orderService.saveOrder(pay.getOrders(), email, pay.getOrderUid());
                 // 결제 정보를 저장
                 ResponsePaymentDTO responsePaymentDTO = paymentService.savePayment(pay, email, paymentIamportResponse);
-                log.info(response);
-                log.info(responsePaymentDTO);
                 // 결제 알림
                 notificationService.notifyMessage(email, "결제하셨습니다.");
 
@@ -73,7 +72,6 @@ public class PaymentController implements PaymentControllerDocs {
             // 주문취소
             String result = orderService.cancelOrder(cancel.getOrderUid());
             log.info("result: {}", result);
-            log.info(response);
             return response;
         } catch (Exception e) {
             throw new PayException(e.getMessage());

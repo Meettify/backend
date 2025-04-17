@@ -4,7 +4,7 @@ import com.example.meettify.dto.board.*;
 import com.example.meettify.exception.board.BoardException;
 import com.example.meettify.service.notice.NoticeService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +21,7 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@Log4j2
+@Slf4j
 @RequestMapping("/api/v1/notice")
 public class NoticeController implements NoticeControllerDocs {
     private final NoticeService noticeService;

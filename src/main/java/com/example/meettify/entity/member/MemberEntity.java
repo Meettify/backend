@@ -4,7 +4,6 @@ import com.example.meettify.config.auditing.entity.BaseEntity;
 import com.example.meettify.dto.member.MemberServiceDTO;
 import com.example.meettify.dto.member.UpdateMemberServiceDTO;
 import com.example.meettify.dto.member.role.UserRole;
-import com.example.meettify.entity.coupon.CouponEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import net.minidev.json.annotate.JsonIgnore;

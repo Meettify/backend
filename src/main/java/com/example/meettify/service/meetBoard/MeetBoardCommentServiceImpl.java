@@ -17,6 +17,7 @@ import com.example.meettify.repository.jpa.member.MemberRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,8 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
  *   work   : 모임 게시판 댓글 서비스 기능 구현
  *   date   : 2024/10/04
  * */
-@Log4j2
 @Service
+@Slf4j
 @Transactional
 @RequiredArgsConstructor
 public class MeetBoardCommentServiceImpl implements MeetBoardCommentService {

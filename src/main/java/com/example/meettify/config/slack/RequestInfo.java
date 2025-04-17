@@ -16,18 +16,18 @@ import java.time.LocalDateTime;
 @Builder
 @Getter
 public class RequestInfo {
-    private String requestURL;
+    private String requestURI;
     private String method;
     private String remoteAddress;
 
     public RequestInfo(HttpServletRequest request) {
-        this.requestURL = request.getRequestURL().toString();
+        this.requestURI = request.getRequestURI();
         this.method = request.getMethod();
         this.remoteAddress = request.getRemoteAddr();
     }
 
     public String requestURL() {
-        return requestURL;
+        return requestURI;
     }
 
     public String method() {

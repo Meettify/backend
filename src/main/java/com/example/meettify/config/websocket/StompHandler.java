@@ -2,7 +2,7 @@ package com.example.meettify.config.websocket;
 
 import com.example.meettify.config.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -13,7 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-@Log4j2
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class StompHandler implements ChannelInterceptor {
@@ -33,12 +33,10 @@ public class StompHandler implements ChannelInterceptor {
 
             if(accessor.getCommand() == StompCommand.CONNECT) {
                 String authorization = accessor.getFirstNativeHeader("Authorization");
-                log.info(authorization);
+                log.debug(authorization);
 
-                log.info("======================================");
-                log.info("Received STOMP Message {}", message);
-                log.info("All Headers {}", accessor.toNativeHeaderMap());
-                log.info("======================================");
+                log.debug("Received STOMP Message {}", message);
+                log.debug("All Headers {}", accessor.toNativeHeaderMap());
 
                 if (authorization != null && authorization.startsWith("Bearer ")) {
                     String token = authorization.substring(7);
@@ -46,7 +44,7 @@ public class StompHandler implements ChannelInterceptor {
                         throw new AccessDeniedException("Access denied");
                     }
                     Authentication authentication = jwtProvider.getAuthentication(token);
-                    log.info("인증에 성공했습니다. ");
+                    log.debug("인증에 성공했습니다. ");
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             }

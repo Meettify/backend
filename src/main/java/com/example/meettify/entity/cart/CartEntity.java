@@ -26,7 +26,7 @@ public class CartEntity extends BaseEntity {
     @Column(name = "cart_id")
     private Long cartId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private MemberEntity member;
 

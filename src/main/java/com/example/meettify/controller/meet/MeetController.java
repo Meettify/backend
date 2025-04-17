@@ -7,12 +7,11 @@ import com.example.meettify.exception.meet.MeetException;
 import com.example.meettify.service.meet.MeetService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +28,7 @@ import java.util.Objects;
 
 
 @RestController
-@Log4j2
+@Slf4j
 @RequestMapping("/api/v1/meets")
 @RequiredArgsConstructor
 public class MeetController implements MeetControllerDocs {

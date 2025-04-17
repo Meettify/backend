@@ -1,11 +1,10 @@
 package com.example.meettify.controller.order;
 
-import com.example.meettify.dto.member.AddressDTO;
 import com.example.meettify.dto.order.*;
 import com.example.meettify.exception.order.OrderException;
 import com.example.meettify.service.order.OrderService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -21,8 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
-@Log4j2
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/orders")
 public class OrderController implements OrderControllerDocs{

@@ -1,11 +1,7 @@
 package com.example.meettify.config.pay;
 
-import com.example.meettify.dto.member.AddressDTO;
-import com.example.meettify.dto.order.ResponseOrderDTO;
 import com.example.meettify.dto.pay.*;
 import com.example.meettify.entity.member.MemberEntity;
-import com.example.meettify.entity.order.OrderEntity;
-import com.example.meettify.entity.pay.TossPaymentEntity;
 import com.example.meettify.exception.pay.PaymentConfirmErrorCode;
 import com.example.meettify.exception.pay.PaymentConfirmException;
 import com.example.meettify.repository.jpa.member.MemberRepository;
@@ -14,7 +10,7 @@ import com.example.meettify.repository.jpa.pay.TossPaymentRepository;
 import com.example.meettify.service.order.OrderService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.ClientHttpRequestFactories;
 import org.springframework.boot.web.client.ClientHttpRequestFactorySettings;
@@ -30,8 +26,8 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Base64;
 
+@Slf4j
 @Component
-@Log4j2
 public class PaymentClient {
     private static final String BASIC_DELIMITER = ":";
     private static final String AUTH_HEADER_PREFIX = "Basic ";
@@ -74,9 +70,7 @@ public class PaymentClient {
     public ResponseTossPaymentConfirmDTO confirmPayment(RequestTossPaymentConfirmDTO tossPay, String email) {
         try {
             MemberEntity findMember = memberRepository.findByMemberEmail(email);
-            log.info("--------------------------------------------");
-            log.info("토스 컨펌에 들어옴");
-            log.info("Payment Secret Key: " + secretKey);
+            log.debug("Payment Secret Key: " + secretKey);
 
             // HTTP 요청 후 응답을 ResponseEntity로 수동 처리
             ResponseEntity<String> responseEntity = restClient.method(HttpMethod.POST)
@@ -87,21 +81,20 @@ public class PaymentClient {
                     .retrieve()
                     .toEntity(String.class);
 
-            log.info("--------------------------------------------");
-            log.info("토스 컨펌 데이터 확인 : " + responseEntity);
+            log.debug("토스 컨펌 데이터 확인 : " + responseEntity);
 
             // 응답 상태 코드 및 본문 검증
             if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
                 // JSON 파싱 및 객체 매핑
                 ResponseTossPaymentConfirmDTO tossPayDTO = parseResponse(responseEntity.getBody());
-                log.info("결제 확인 성공: {}", tossPayDTO);
+                log.debug("결제 확인 성공: {}", tossPayDTO);
 
                 return tossPayDTO;
             } else {
                 throw new PaymentConfirmException("결제 확인 API 호출 실패: 상태코드 - " + responseEntity.getStatusCode());
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.warn(e.getMessage());
             throw new PaymentConfirmException(e.getMessage());
         }
     }
@@ -116,7 +109,7 @@ public class PaymentClient {
         try {
             return objectMapper.readValue(responseBody, ResponseTossPaymentConfirmDTO.class);
         } catch (JsonProcessingException e) {
-            log.error("결제 응답 매핑 실패: {}", responseBody, e);
+            log.warn("결제 응답 매핑 실패: {}", responseBody, e);
             throw new PaymentConfirmException("결제 응답 매핑 실패"+ e);
         }
     }

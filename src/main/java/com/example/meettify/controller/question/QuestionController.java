@@ -9,6 +9,7 @@ import com.example.meettify.exception.board.BoardException;
 import com.example.meettify.service.question.QuestionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@Log4j2
+@Slf4j
 @RequestMapping("/api/v1/questions")
 public class QuestionController implements QuestionControllerDocs{
     private final QuestionService questionService;
@@ -36,7 +37,6 @@ public class QuestionController implements QuestionControllerDocs{
         try {
             String email = userDetails.getUsername();
             ResponseQuestionDTO response = questionService.saveQuestion(question, email);
-            log.info(response);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             throw new BoardException(e.getMessage());
@@ -53,7 +53,6 @@ public class QuestionController implements QuestionControllerDocs{
         try {
             String email = userDetails.getUsername();
             ResponseQuestionDTO response = questionService.updateQuestion(questionId, question, email);
-            log.info(response);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             throw new BoardException(e.getMessage());
@@ -84,7 +83,6 @@ public class QuestionController implements QuestionControllerDocs{
                                           @AuthenticationPrincipal UserDetails userDetails) {
         try {
             ResponseQuestionDTO response = questionService.getQuestion(questionId, userDetails);
-            log.info(response);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             throw new BoardException(e.getMessage());

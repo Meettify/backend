@@ -8,7 +8,7 @@ import com.example.meettify.exception.chat.ChatRoomException;
 import com.example.meettify.exception.member.MemberException;
 import com.example.meettify.service.chat.ChatService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,7 +19,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@Log4j2
+@Slf4j
 @RequestMapping("/api/v1/chat")
 public class ChatRoomController implements ChatRoomControllerDocs {
     private final ChatService chatService;

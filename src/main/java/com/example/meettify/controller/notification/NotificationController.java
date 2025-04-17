@@ -5,7 +5,7 @@ import com.example.meettify.exception.sse.SseException;
 import com.example.meettify.service.notification.NotificationService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,15 +14,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.awt.event.TextEvent;
 import java.util.List;
 
-import static org.springframework.http.MediaType.TEXT_EVENT_STREAM_VALUE;
 
 @RestController
 @RequestMapping("/api/v1/notify")
 @RequiredArgsConstructor
-@Log4j2
+@Slf4j
 public class NotificationController implements NotificationControllerDocs {
     private final NotificationService notificationService;
 

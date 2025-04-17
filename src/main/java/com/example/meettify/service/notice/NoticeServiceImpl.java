@@ -12,12 +12,13 @@ import com.example.meettify.repository.jpa.notice.NoticeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Log4j2
+@Slf4j
 @Transactional
 @ToString
 @RequiredArgsConstructor
@@ -35,7 +36,7 @@ public class NoticeServiceImpl implements NoticeService{
             NoticeEntity saveNotice = noticeRepository.save(noticeEntity);
             return ResponseNoticeDTO.changeNotice(saveNotice);
         } catch (Exception e) {
-            log.error("공지사항 등록하는데 실패했습니다. {}", e.getMessage());
+            log.warn("공지사항 등록하는데 실패했습니다. {}", e.getMessage());
             throw new BoardException("공지사항 등록하는데 실패했습니다. : " + e.getMessage());
         }
     }
@@ -50,7 +51,7 @@ public class NoticeServiceImpl implements NoticeService{
             findNotice.updateNotice(notice);
             return ResponseNoticeDTO.changeNotice(findNotice);
         } catch (Exception e) {
-            log.error("공지사항 수정하는데 실패했습니다. {}", e.getMessage());
+            log.warn("공지사항 수정하는데 실패했습니다. {}", e.getMessage());
             throw new BoardException("공지사항 수정하는데 실패했습니다. : " + e.getMessage());
         }
     }
@@ -64,7 +65,7 @@ public class NoticeServiceImpl implements NoticeService{
             NoticeEntity findNotice = noticeRepository.findById(noticeId)
                     .orElseThrow(() -> new BoardException("공지사항이 존재 하지 않습니다."));
             ResponseNoticeDTO responseCommentDTO = ResponseNoticeDTO.changeNotice(findNotice);
-            log.info("responseBoardDTO: {}", responseCommentDTO);
+            log.debug("responseBoardDTO: {}", responseCommentDTO);
             return responseCommentDTO;
         } catch (Exception e) {
             throw new BoardException("공지사항 조회하는데 실패했습니다. " + e.getMessage());
@@ -94,8 +95,8 @@ public class NoticeServiceImpl implements NoticeService{
     public Page<ResponseNoticeDTO> getAllNotice(Pageable pageable) {
         try {
             Page<NoticeEntity> findAllNotice = noticeRepository.findAll(pageable);
-            log.info("조회된 공지사항 수 : {}", findAllNotice.getTotalElements());
-            log.info("조회된 공지사항 : {}", findAllNotice);
+            log.debug("조회된 공지사항 수 : {}", findAllNotice.getTotalElements());
+            log.debug("조회된 공지사항 : {}", findAllNotice);
             return findAllNotice.map(ResponseNoticeDTO::changeNotice);
         } catch (Exception e) {
             throw new BoardException("공지사항을 조회하는데 실패했습니다. : " + e.getMessage());

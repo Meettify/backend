@@ -6,7 +6,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.example.meettify.exception.file.FileUploadException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,7 +16,7 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-@Log4j2
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class S3ImageUploadService {
@@ -34,7 +34,7 @@ public class S3ImageUploadService {
         // ex) postImages/2024/09/25
         // S3에 파일을 업로드할 때, 파일이 업로드될 디렉터리를 지정할 수 있다.
         String uploadPath = fileType + "/" + getFolderName();
-        log.info("Uploading " + multipartFiles.size() + " files to " + uploadPath);
+        log.debug("Uploading " + multipartFiles.size() + " files to " + uploadPath);
 
         for (MultipartFile multipartFile : multipartFiles) {
             // 파일의 원본 이름(파일명)을 가져오는 코드

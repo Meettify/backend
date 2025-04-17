@@ -13,13 +13,14 @@ import com.example.meettify.repository.jpa.member.MemberRepository;
 import com.example.meettify.repository.jpa.question.QuestionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
-@Log4j2
+@Slf4j
 public class AnswerCommentServiceImpl implements AnswerCommentService {
     private final AnswerCommentRepository answerCommentRepository;
     private final MemberRepository memberRepository;
@@ -75,7 +76,7 @@ public class AnswerCommentServiceImpl implements AnswerCommentService {
             answerCommentRepository.delete(findAnswer);
             QuestionEntity findQuestion = questionRepository.findById(findAnswer.getQuestion().getQuestionId())
                     .orElseThrow(() -> new BoardException("문의글이 존재하지 않습니다."));
-            log.info("findQuestion: {}", findQuestion);
+            log.debug("findQuestion: {}", findQuestion);
             // 문의글 상태 변경
             findQuestion.changeReplyX();
 

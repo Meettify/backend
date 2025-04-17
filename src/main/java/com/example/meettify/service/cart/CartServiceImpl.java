@@ -19,6 +19,7 @@ import com.example.meettify.repository.jpa.item.ItemRepository;
 import com.example.meettify.repository.jpa.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,8 +32,8 @@ import java.util.List;
  * */
 @Transactional
 @RequiredArgsConstructor
-@Log4j2
 @Service
+@Slf4j
 public class CartServiceImpl implements CartService{
     private final CartRepository cartRepository;
     private final ItemRepository itemRepository;
@@ -47,11 +48,11 @@ public class CartServiceImpl implements CartService{
             log.info(email);
             // 회원 조회
             MemberEntity findMember = memberRepository.findByMemberEmail(email);
-            log.info(findMember);
+            log.debug("회원 {}", findMember);
             // 상품 조회
             ItemEntity findItem = itemRepository.findById(cart.getItemId())
                     .orElseThrow(() -> new ItemException("해당 상품이 존재하지 않습니다."));
-            log.info(findItem);
+            log.debug("상품 조회 {}", findItem);
 
             // 재고 수량 확인
             findItem.checkItemStock(cart.getItemCount());
@@ -64,20 +65,17 @@ public class CartServiceImpl implements CartService{
 
             // 장바구니 상품 확인
             CartEntity findCart = cartRepository.findByMemberMemberId(findMember.getMemberId());
-            log.info("장바구니 확인 {}" , findCart);
+            log.debug("장바구니 확인 {}" , findCart);
 
             if(findCart == null) {
-                log.info("장바구니가 존재하지 않아서 생성합니다.");
+                log.debug("장바구니가 존재하지 않아서 생성합니다.");
                 findCart = CartEntity.saveCart(findMember);
                 findCart = cartRepository.save(findCart);
-                log.info("----------------");
-                log.info(findCart);
             }
 
             // 장바구니 상품 조회
             CartItemEntity findCartItem = cartItemRepository.findByItem_ItemId(cart.getItemId());
-            log.info("----------------");
-            log.info(findCartItem);
+            log.debug("장바구니 조회 {}", findCartItem);
 
             if(cart.getItemCount() > findItem.getItemCount()) {
                 throw new CartException("장바구니 개수가 " + cart.getItemCount() + "개, 상품 개수 : " + findItem.getItemCount() +"개입니다.");
@@ -189,7 +187,7 @@ public class CartServiceImpl implements CartService{
             MemberEntity findMember = memberRepository.findByMemberEmail(email);
             // 장바구니 조회
             CartEntity findCart = cartRepository.findByCartId(cartId);
-            log.info("findCart = {}", findCart);
+            log.debug("findCart = {}", findCart);
 
             if (findCart.getMember().getMemberId().equals(findMember.getMemberId())) {
                 return ResponseCartDTO.changeDetailDTO(findCart);

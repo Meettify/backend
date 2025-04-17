@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,8 +27,8 @@ import java.util.Map;
 @Setter
 @Getter
 @ToString
-@Log4j2
 @Component
+@Slf4j
 @NoArgsConstructor
 public class PrincipalDetails implements UserDetails, OAuth2User {
 
@@ -104,7 +104,7 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
 
     @Override
     public Map<String, Object> getAttributes() {
-        log.info("attributes : " + attributes);
+        log.debug("attributes : " + attributes);
         return attributes;
     }
 

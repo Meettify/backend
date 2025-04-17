@@ -3,7 +3,7 @@ package com.example.meettify.controller.naver_search;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +27,7 @@ import java.util.Map;
  * */
 @RestController
 @RequiredArgsConstructor
-@Log4j2
+@Slf4j
 @RequestMapping("/api/v1/naver")
 public class SearchServeController implements SearchServeControllerDocs{
     @Value("${naver.client-id}")
