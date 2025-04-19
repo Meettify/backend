@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
-@Document(collation = "chat_message")
+@Document(collection = "chat_message")
 public class ChatMessage {
 
     @Id

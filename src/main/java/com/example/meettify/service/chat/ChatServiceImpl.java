@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -45,9 +46,15 @@ public class ChatServiceImpl implements ChatService {
     // 채팅방의 채팅 내역 조회
     @Override
     @Transactional(readOnly = true)
-    @TimeTrace
     public List<ChatMessageDTO> getMessagesByRoomId(Long roomId) {
         List<ChatMessage> findChatByRoomId = chatMessageRepository.findByRoomId(roomId);
+        log.debug("message 체크 {}", findChatByRoomId);
+
+        if (findChatByRoomId == null || findChatByRoomId.isEmpty()) {
+            // 빈 배열 반환 (에러 아님)
+            return new ArrayList<>();
+        }
+
         return findChatByRoomId
                 .stream().map(ChatMessageDTO::change)
                 .toList();

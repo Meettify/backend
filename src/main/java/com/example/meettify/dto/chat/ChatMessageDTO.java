@@ -26,12 +26,14 @@ public class ChatMessageDTO {
     private LocalDateTime writeTime;    // 채팅 시간
 
     public static ChatMessageDTO change(ChatMessage chatMessage) {
+        if (chatMessage == null) return null;
+
         return ChatMessageDTO.builder()
                 .type(chatMessage.getType())
                 .roomId(chatMessage.getRoomId())
-                .message(chatMessage.getMessage())
-                .sender(chatMessage.getSender())
-                .writeTime(chatMessage.getWriteTime())
+                .message(chatMessage.getMessage() != null ? chatMessage.getMessage() : "")
+                .sender(chatMessage.getSender() != null ? chatMessage.getSender() : "익명")
+                .writeTime(chatMessage.getWriteTime() != null ? chatMessage.getWriteTime() : LocalDateTime.now())
                 .build();
     }
 }
