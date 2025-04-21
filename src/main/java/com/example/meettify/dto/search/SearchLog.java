@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -13,5 +15,17 @@ import lombok.NoArgsConstructor;
 public class SearchLog {
     private String name;
     private String createdAt;
-    private Category category;
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(this == obj) return true;
+        if(!(obj instanceof SearchLog)) return false;
+        SearchLog that = (SearchLog) obj;
+        return Objects.equals(name, that.name);
+    }
 }
