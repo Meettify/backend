@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.Objects;
 
 @AllArgsConstructor
@@ -15,6 +16,7 @@ import java.util.Objects;
 public class SearchLog {
     private String name;
     private String createdAt;
+    private List<Category> category;
 
     @Override
     public int hashCode() {

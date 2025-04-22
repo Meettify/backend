@@ -1,5 +1,6 @@
 package com.example.meettify.service.search;
 
+import com.example.meettify.dto.meet.category.Category;
 import com.example.meettify.dto.search.DeleteSearchLog;
 import com.example.meettify.dto.search.RequestSearchLog;
 import com.example.meettify.dto.search.SearchLog;
@@ -25,7 +26,9 @@ public class RedisSearchLogService {
     private final MemberRepository memberRepository;
     private final RedisTemplate<String, SearchLog> redisTemplate;
 
-    public void saveRecentSearchLog(String email, RequestSearchLog searchLog) {
+    public void saveRecentSearchLog(String email,
+                                    RequestSearchLog searchLog,
+                                    List<Category> category) {
         // 1. 회원 조회
         MemberEntity findMember = memberRepository.findByMemberEmail(email);
         if (findMember == null) {
@@ -39,6 +42,7 @@ public class RedisSearchLogService {
                 .name(searchLog.getName())
                 // 검색을 레디스에 저장할 때 상품을 조회하고 그 카테고리를 레디스에 저장
                 .createdAt(LocalDateTime.now().toString())
+                .category(category)
                 .build();
 
         log.debug("Search Log {}", value);
