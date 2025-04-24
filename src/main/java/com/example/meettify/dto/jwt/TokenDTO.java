@@ -27,9 +27,14 @@ public class TokenDTO {
     private Long memberId;
     @Schema(description = "유저 권한")
     private UserRole memberRole;
+    @Schema(description = "유저 닉네임")
+    private String nickName;
 
 
-    public static TokenDTO changeDTO(TokenEntity token, String accessToken, UserRole memberRole) {
+    public static TokenDTO changeDTO(TokenEntity token,
+                                     String accessToken,
+                                     UserRole memberRole,
+                                     String nickName) {
         return TokenDTO.builder()
                 .grantType(token.getGrantType())
                 .accessToken(accessToken)
@@ -37,6 +42,7 @@ public class TokenDTO {
                 .memberEmail(token.getEmail())
                 .memberId(token.getMemberId())
                 .memberRole(memberRole)
+                .nickName(nickName)
                 .build();
     }
 }

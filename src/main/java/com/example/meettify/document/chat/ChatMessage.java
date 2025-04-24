@@ -31,7 +31,7 @@ public class ChatMessage {
                 .type(MessageType.TALK)
                 .roomId(chat.getRoomId())
                 .message(chat.getMessage())
-                .writeTime(chat.getWriteTime())
+                .writeTime(chat.getWriteTime() != null ? chat.getWriteTime() : LocalDateTime.now()) // ✅ 보완
                 .sender(chat.getSender())
                 .build();
     }

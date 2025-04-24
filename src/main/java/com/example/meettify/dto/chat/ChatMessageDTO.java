@@ -21,7 +21,7 @@ public class ChatMessageDTO {
     private String message;
     @Schema(description = "채팅치는 사람")
     private String sender;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd-HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @Schema(description = "채팅 시간")
     private LocalDateTime writeTime;    // 채팅 시간
 

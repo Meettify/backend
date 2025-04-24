@@ -34,6 +34,7 @@ public class ChatServiceImpl implements ChatService {
     public ChatMessageDTO sendMessage(ChatMessageDTO message) {
         try {
             ChatMessage chatMessage = ChatMessage.create(message);
+            log.debug("채팅 내용 확인 {}", chatMessage);
             // 몽고 디비에 저장
             chatMessageRepository.save(chatMessage);
             return ChatMessageDTO.change(chatMessage);

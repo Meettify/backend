@@ -4,6 +4,7 @@ import com.example.meettify.config.s3.S3ImageUploadService;
 import com.example.meettify.dto.meet.*;
 import com.example.meettify.dto.meetBoard.MeetBoardSummaryDTO;
 import com.example.meettify.dto.member.role.UserRole;
+import com.example.meettify.entity.chat_room.ChatRoomEntity;
 import com.example.meettify.entity.meet.MeetEntity;
 import com.example.meettify.entity.meet.MeetImageEntity;
 import com.example.meettify.entity.meet.MeetMemberEntity;
@@ -11,6 +12,7 @@ import com.example.meettify.entity.meetBoard.MeetBoardEntity;
 import com.example.meettify.entity.member.MemberEntity;
 import com.example.meettify.exception.meet.MeetException;
 import com.example.meettify.exception.meetBoard.MeetBoardException;
+import com.example.meettify.repository.jpa.chat.ChatRoomRepository;
 import com.example.meettify.repository.jpa.meet.MeetImageRepository;
 import com.example.meettify.repository.jpa.meet.MeetMemberRepository;
 import com.example.meettify.repository.jpa.meet.MeetRepository;
@@ -51,6 +53,7 @@ public class MeetServiceImpl implements MeetService {
     private final MemberRepository memberRepository;
     private final MeetBoardRepository meetBoardRepository;
     private final S3ImageUploadService s3ImageUploadService;  // S3 서비스 추가
+    private final ChatRoomRepository chatRoomRepository;
 
     @Override
     public ResponseMeetDTO makeMeet(MeetServiceDTO meet, String email) throws IOException, java.io.IOException {
@@ -297,13 +300,19 @@ public class MeetServiceImpl implements MeetService {
         return meetMemberList.stream().map(ResponseMeetMemberDTO::changeDTO).collect(Collectors.toList());
     }
 
+    // 권한 수정
     @Override
     public MeetRole updateRole(Long meetMemberId, MeetRole meetRole) {
 
         try {
-            MeetMemberEntity findMeetMember = meetMemberRepository.findById(meetMemberId).orElseThrow(EntityNotFoundException::new);
+            MeetMemberEntity findMeetMember = meetMemberRepository.findByMeetMemberId(meetMemberId);
             findMeetMember.updateRole(meetRole);
             MeetRole updatedMeetRole = findMeetMember.getMeetRole();
+            ChatRoomEntity findChatRoom = chatRoomRepository.findByMeetId(findMeetMember.getMeetEntity().getMeetId());
+            log.debug("채팅방 확인 {}", findChatRoom);
+            if (!findChatRoom.getInviteMemberIds().contains(findMeetMember.getMemberEntity().getMemberId())) {
+                findChatRoom.getInviteMemberIds().add(findMeetMember.getMemberEntity().getMemberId());
+            }
             return updatedMeetRole;
         } catch (EntityNotFoundException e) {
             throw new MeetException("해당 회원이 존재하지 않습니다.");

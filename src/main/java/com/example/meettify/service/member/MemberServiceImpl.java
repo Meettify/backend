@@ -142,7 +142,11 @@ public class MemberServiceImpl implements MemberService {
                     TokenEntity saveToken = tokenRepository.save(tokenEntity);
                     // 로그인 성공 시 캐시 초기화
                     loginAttemptConfig.loginSuccess(email);
-                    TokenDTO response = TokenDTO.changeDTO(saveToken, token.getAccessToken(), findMember.getMemberRole());
+                    TokenDTO response = TokenDTO.changeDTO(
+                            saveToken,
+                            token.getAccessToken(),
+                            findMember.getMemberRole(),
+                            findMember.getNickName());
                     log.info("response : {}", response);
                     return response;
                 }

@@ -40,4 +40,11 @@ public interface MeetMemberRepository extends JpaRepository<MeetMemberEntity, Lo
             "JOIN FETCH me.meetImages mI " +
             "WHERE mm.memberEntity.memberEmail = :memberEmail")
     List<MeetMemberEntity> findMeetsByMemberName(@Param("memberEmail") String memberEmail);
+
+    @Query("select mm from meetMembers mm " +
+            "join fetch mm.meetEntity me " +
+            "JOIN FETCH mm.memberEntity mu " +
+            "where mm.meetMemberId = :meetMemberId ")
+    MeetMemberEntity findByMeetMemberId(@Param("meetMemberId") Long meetMemberId);
+
 }

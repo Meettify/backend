@@ -127,10 +127,11 @@ public class MeetController implements MeetControllerDocs {
     @GetMapping("/{meetId}/members")
     public ResponseEntity<?> getMeetMemberList(@PathVariable Long meetId, @AuthenticationPrincipal UserDetails userDetails) {
         try {
+            log.debug("등급 확인 {}", meetService.getMeetRole(meetId, userDetails.getUsername()));
             //해당 모임의 관리자가 아니라면 잘못된 요청임
-            if (!(meetService.getMeetRole(meetId, userDetails.getUsername()) == MeetRole.ADMIN)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("잘못된 모임 리스트 조회입니다.");
-            }
+//            if (!(meetService.getMeetRole(meetId, userDetails.getUsername()) == MeetRole.ADMIN)) {
+//                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("잘못된 모임 리스트 조회입니다.");
+//            }
             List<ResponseMeetMemberDTO> meetMemberList = meetService.getMeetMemberList(meetId);
             return ResponseEntity.status(HttpStatus.OK).body(meetMemberList);
         } catch (Exception e) {
