@@ -2,6 +2,7 @@ package com.example.meettify.document.chat;
 
 import com.example.meettify.dto.chat.ChatMessageDTO;
 import com.example.meettify.dto.chat.MessageType;
+import com.example.meettify.dto.chat.SharePlaceDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.springframework.data.annotation.Id;
@@ -25,6 +26,7 @@ public class ChatMessage {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd-HH:mm")
     private LocalDateTime writeTime;    // 채팅 시간
     private String sender;
+    private SharePlace place;
 
     public static ChatMessage create(ChatMessageDTO chat) {
         return ChatMessage.builder()
@@ -33,6 +35,21 @@ public class ChatMessage {
                 .message(chat.getMessage())
                 .writeTime(chat.getWriteTime() != null ? chat.getWriteTime() : LocalDateTime.now()) // ✅ 보완
                 .sender(chat.getSender())
+                .place(changePlace(chat.getPlace()))
                 .build();
+    }
+
+    public static SharePlace changePlace(SharePlaceDTO place) {
+        return SharePlace.builder()
+                .title(place.getTitle())
+                .address(place.getAddress())
+                .lat(place.getLat())
+                .lng(place.getLng())
+                .mapUrl(place.getMapUrl())
+                .build();
+    }
+
+    public void setRoomId(Long roomId) {
+        this.roomId = roomId;
     }
 }

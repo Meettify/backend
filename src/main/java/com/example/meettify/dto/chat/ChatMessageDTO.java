@@ -1,6 +1,7 @@
 package com.example.meettify.dto.chat;
 
 import com.example.meettify.document.chat.ChatMessage;
+import com.example.meettify.document.chat.SharePlace;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -25,6 +26,9 @@ public class ChatMessageDTO {
     @Schema(description = "채팅 시간")
     private LocalDateTime writeTime;    // 채팅 시간
 
+    @Schema(description = "공유한 장소 정보") // ✅ 새로 추가!
+    private SharePlaceDTO place;
+
     public static ChatMessageDTO change(ChatMessage chatMessage) {
         if (chatMessage == null) return null;
 
@@ -34,6 +38,17 @@ public class ChatMessageDTO {
                 .message(chatMessage.getMessage() != null ? chatMessage.getMessage() : "")
                 .sender(chatMessage.getSender() != null ? chatMessage.getSender() : "익명")
                 .writeTime(chatMessage.getWriteTime() != null ? chatMessage.getWriteTime() : LocalDateTime.now())
+                .place(changePlace(chatMessage.getPlace())) // MongoDB에 저장된 place 정보도 같이 매핑
+                .build();
+    }
+
+    public static SharePlaceDTO changePlace(SharePlace place) {
+        return SharePlaceDTO.builder()
+                .title(place.getTitle())
+                .address(place.getAddress())
+                .lat(place.getLat())
+                .lng(place.getLng())
+                .mapUrl(place.getMapUrl())
                 .build();
     }
 }

@@ -31,9 +31,20 @@ public class ChatServiceImpl implements ChatService {
 
     // 메시지 보낼 때 몽고디비에 저장
     @Override
-    public ChatMessageDTO sendMessage(ChatMessageDTO message) {
+    public ChatMessageDTO sendMessage(ChatMessageDTO message, Long roomId) {
         try {
+            if(message.getType() == MessageType.PLACE) {
+                log.debug("주소 공유 메시지입니다.");
+            } else if (message.getType() == MessageType.TALK) {
+                log.debug("일반 메시지입니다.");
+            }
+
             ChatMessage chatMessage = ChatMessage.create(message);
+
+            if(chatMessage.getRoomId() == null) {
+                chatMessage.setRoomId(roomId);
+            }
+
             log.debug("채팅 내용 확인 {}", chatMessage);
             // 몽고 디비에 저장
             chatMessageRepository.save(chatMessage);

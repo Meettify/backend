@@ -1,6 +1,7 @@
 package com.example.meettify.controller.chat;
 
 import com.example.meettify.dto.chat.ChatMessageDTO;
+import com.example.meettify.dto.chat.MessageType;
 import com.example.meettify.exception.chat.ChatException;
 import com.example.meettify.service.chat.ChatService;
 import lombok.RequiredArgsConstructor;
@@ -29,9 +30,9 @@ public class ChatController implements ChatControllerDocs {
             // @Payload: 메시지의 body를 정의한 객체에 매핑합니다.
             @Payload ChatMessageDTO message,
             // @DestinationVariable: 구독 및 메시징의 동적 url 변수를 설정. RestAPI의 @PathValue와 같다.
-            @DestinationVariable int roomId) {
+            @DestinationVariable Long roomId) {
         try {
-            ChatMessageDTO msg = chatService.sendMessage(message);
+            ChatMessageDTO msg = chatService.sendMessage(message, roomId);
             log.info("Sent message: {}", msg);
 
             // 구독자에게 직접 전송
