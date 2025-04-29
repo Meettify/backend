@@ -51,7 +51,7 @@ public class SearchServiceImpl implements SearchService {
 
         // 모임 정보 DTO 리스트로 변환
         Set<Long> memberMeetIds = (member != null) ?
-                meetMemberRepository.findIdByEmail(email) : Collections.emptySet();
+                meetMemberRepository.findMeetMemberIdByEmail(email) : Collections.emptySet();
         List<MeetSummaryDTO> responseMeetSummaryDTOList =
                 meetEntityList.stream()
                         .map(meet -> MeetSummaryDTO.changeDTO(meet, memberMeetIds))

@@ -255,8 +255,8 @@ public class MeetServiceImpl implements MeetService {
 
             // 사용자 정보를 통해 모임 멤버 ID 목록 조회
             MemberEntity member = memberRepository.findByMemberEmail(email);
-            Set<Long> memberMeetIds = (member != null) ? meetMemberRepository.findIdByEmail(email) : Collections.emptySet();
-
+            Set<Long> memberMeetIds = (member != null) ? meetMemberRepository.findMeetMemberIdByEmail(email) : Collections.emptySet();
+            log.debug("반환값 확인 {}", meetPage.map(meet -> MeetSummaryDTO.changeDTO(meet, memberMeetIds)).getContent());
             return meetPage.map(meet -> MeetSummaryDTO.changeDTO(meet, memberMeetIds));
         } catch (Exception e) {
             log.error("error : " + e.getMessage());

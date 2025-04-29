@@ -22,7 +22,7 @@ public interface MeetMemberRepository extends JpaRepository<MeetMemberEntity, Lo
 
     @Query("SELECT mm.meetMemberId FROM meetMembers mm " +
             "WHERE mm.memberEntity.memberEmail = :email")
-    Set<Long> findIdByEmail(@Param("email") String email);
+    Set<Long> findMeetMemberIdByEmail(@Param("email") String email);
 
 
     boolean existsByMeetEntityAndMemberEntity(MeetEntity meetEntity, MemberEntity memberEntity);

@@ -23,19 +23,19 @@ public class ChatMessage {
     private MessageType type;           // 체팅 타입
     private Long roomId;              // 채팅방 번호
     private String message;             // 체팅
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd-HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime writeTime;    // 채팅 시간
     private String sender;
     private SharePlace place;
 
     public static ChatMessage create(ChatMessageDTO chat) {
         return ChatMessage.builder()
-                .type(MessageType.TALK)
+                .type(chat.getType())
                 .roomId(chat.getRoomId())
                 .message(chat.getMessage())
                 .writeTime(chat.getWriteTime() != null ? chat.getWriteTime() : LocalDateTime.now()) // ✅ 보완
                 .sender(chat.getSender())
-                .place(changePlace(chat.getPlace()))
+                .place(chat.getPlace() != null ? changePlace(chat.getPlace()) : null) // ✅ null 체크
                 .build();
     }
 

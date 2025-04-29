@@ -38,7 +38,7 @@ public class ChatMessageDTO {
                 .message(chatMessage.getMessage() != null ? chatMessage.getMessage() : "")
                 .sender(chatMessage.getSender() != null ? chatMessage.getSender() : "익명")
                 .writeTime(chatMessage.getWriteTime() != null ? chatMessage.getWriteTime() : LocalDateTime.now())
-                .place(changePlace(chatMessage.getPlace())) // MongoDB에 저장된 place 정보도 같이 매핑
+                .place(chatMessage.getPlace() != null ? changePlace(chatMessage.getPlace()) : null) // ✅ null 체크
                 .build();
     }
 
