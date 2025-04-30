@@ -219,7 +219,7 @@ public class CommunityServiceImpl implements CommunityService {
     private void countRedisView(Page<CommunityEntity> findAllCommunity) {
         // 각 커뮤니티 게시글에 대해 Redis 조회수를 가져와서 합산
         findAllCommunity.forEach(community -> {
-            Integer redisViewCount = redisCommunityService.getViewCount("viewCount_community" + community.getCommunityId());
+            Integer redisViewCount = redisCommunityService.getViewCount("community:view:" + community.getCommunityId());
             int totalViewCount = community.getViewCount() + (redisViewCount != null ? redisViewCount : 0);
             community.setViewCount(totalViewCount);  // or update DTO to reflect this view count
         });
