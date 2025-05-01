@@ -28,6 +28,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,7 +38,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /*
- *   worker : 조영흔
+ *   worker : 조영흔, 유요한
  *   work   : 서비스 로직 구현
  *   date   : 2024/09/24
  * */
@@ -349,13 +350,11 @@ public class MeetServiceImpl implements MeetService {
 
     //내가 가입한 모임 리스트 구현
     @Override
-    public List<MyMeetResponseDTO> getMyMeet(String email) {
+    public Slice<MyMeetResponseDTO> getMyMeet(String email) {
         try {
-            List<MeetMemberEntity> findMeetList = meetMemberRepository.findMeetsByMemberName(email);
+            Slice<MeetMemberEntity> findMeetList = meetMemberRepository.findMeetsByMemberName(email);
 
-            return findMeetList.stream()
-                    .map(MyMeetResponseDTO::changeDTO)
-                    .collect(Collectors.toList());
+            return findMeetList.map(MyMeetResponseDTO::changeDTO);
 
         } catch (Exception e) {
             throw new MeetException("가입한 모임 리스트 조회 중 에러 발생: " + e.getMessage());

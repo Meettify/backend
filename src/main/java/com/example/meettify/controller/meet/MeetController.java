@@ -8,10 +8,7 @@ import com.example.meettify.service.meet.MeetService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -142,14 +139,23 @@ public class MeetController implements MeetControllerDocs {
     //가입한 모임 리스트 보기
     @Override
     @GetMapping("/my-meet")
-    public ResponseEntity<?> getMyMeet(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<?> getMyMeet(Pageable pageable, @AuthenticationPrincipal UserDetails userDetails) {
         try {
             String email = userDetails.getUsername();
             if (email == null || email.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 정보의 모임 가입 리스트 조회입니다.");
             }
-            List<MyMeetResponseDTO> meetResponseDTOS = meetService.getMyMeet(email);
-            return ResponseEntity.status(HttpStatus.OK).body(meetResponseDTOS);
+            Slice<MyMeetResponseDTO> meetResponseDTOS = meetService.getMyMeet(email);
+            Map<String, Object> response = new HashMap<>();
+            response.put("content", meetResponseDTOS.getContent());
+            response.put("hasNext", meetResponseDTOS.hasNext());
+            response.put("number", meetResponseDTOS.getNumber());
+            response.put("size", meetResponseDTOS.getSize());
+            response.put("isFirst", meetResponseDTOS.isFirst());
+            response.put("isLast", meetResponseDTOS.isLast());
+
+            log.debug("반환 값 확인 {}", response);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             throw new MeetException(e.getMessage());
         }

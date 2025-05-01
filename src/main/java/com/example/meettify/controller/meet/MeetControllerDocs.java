@@ -30,7 +30,7 @@ public interface MeetControllerDocs {
     public ResponseEntity<?> getDetail(@PathVariable Long meetId, @AuthenticationPrincipal UserDetails userDetails);
 
     @Operation(summary = "가입한 모임 리스트", description = "가입한 모임 리스트를 가져온다. ")
-    public ResponseEntity<?> getMyMeet(@AuthenticationPrincipal UserDetails userDetails);
+    public ResponseEntity<?> getMyMeet(Pageable pageable, @AuthenticationPrincipal UserDetails userDetails);
 
 
     @Operation(summary = "모임 만들기", description = "모임 만들어 주는 API, 신규 모임정보와 이미지, 회원 정보가 필요하다.")
