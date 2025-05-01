@@ -39,7 +39,9 @@ spring:
     web:
       pageable:
         default-page-size: 10
-        max-page-size: 2000
+        # 클라이언트가 size=9999처럼 지나치게 큰 수를 보낼 경우, 이를 제한하기 위한 최대값.
+        # 예: size=5000을 보내면 → 2000으로 자동 조정됨
+        max-page-size: 20
         one-indexed-parameters: true
     redis:
       host: redis
