@@ -89,7 +89,7 @@ public class MeetBoardController implements MeetBoardControllerDocs{
                                        @RequestPart(value = "images" , required = false) List<MultipartFile> images,
                                        BindingResult bindingResult,
                                        @AuthenticationPrincipal UserDetails userDetails) {
-        System.out.println("postBoard 컨트럴러 입장");
+        log.debug("postBoard 컨트럴러 입장");
         try {
             if (bindingResult.hasErrors()) {
                 log.error("binding error : {}", bindingResult.getAllErrors());
