@@ -1,6 +1,8 @@
 package com.example.meettify.service.meetBoard;
 
 import com.example.meettify.dto.meetBoard.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -12,7 +14,10 @@ import org.springframework.data.domain.Pageable;
 
 public interface MeetBoardService {
 
-    MeetBoardDetailsDTO getDetails(String email,Long meetBoardId);
+    MeetBoardDetailsDTO getDetails(String email,
+                                   Long meetBoardId,
+                                   HttpServletRequest request,
+                                   HttpServletResponse response);
 
     ResponseMeetBoardDTO postBoard(MeetBoardServiceDTO meetBoardServiceDTO, String email) throws Exception;
 

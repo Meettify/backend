@@ -1,7 +1,8 @@
 package com.example.meettify.service.community;
 
-import com.example.meettify.config.cookie.CookieUtils;
+import com.example.meettify.config.redis.cookie.CookieUtils;
 import com.example.meettify.config.metric.TimeTrace;
+import com.example.meettify.config.redis.RedisViewCountConfig;
 import com.example.meettify.config.s3.S3ImageUploadService;
 import com.example.meettify.dto.board.CreateServiceDTO;
 import com.example.meettify.dto.board.ResponseCommunityDTO;
@@ -39,7 +40,7 @@ public class CommunityServiceImpl implements CommunityService {
     private final CommunityRepository communityRepository;
     private final MemberRepository memberRepository;
     private final S3ImageUploadService s3ImageUploadService;
-    private final RedisCommunityService redisCommunityService;
+    private final RedisViewCountConfig redisViewCountConfig;
 
     // 커뮤니티 생성
     @Override
@@ -133,9 +134,9 @@ public class CommunityServiceImpl implements CommunityService {
         try {
             String viewCountCookieValue = CookieUtils.getViewCountCookieValue(request, response);
 
-            if(!redisCommunityService.isExistInSet(viewCountCookieValue, communityId)) {
-                increaseViewCountAsync("community:view:" + communityId);
-                redisCommunityService.addToSet(viewCountCookieValue, communityId);
+            if(!redisViewCountConfig.isExistInRedis(viewCountCookieValue, communityId)) {
+                increaseViewCountAsync("community:view:" + communityId, communityId);
+                redisViewCountConfig.addToSet(viewCountCookieValue, communityId);
             }
 
             // 조회수 증가 후 다시 엔티티 조회
@@ -147,7 +148,7 @@ public class CommunityServiceImpl implements CommunityService {
             // Redis에서 조회수 가져오기
             Integer redisViewCount = null;
             try {
-                redisViewCount = redisCommunityService.getViewCount("community:view:"  + communityId);
+                redisViewCount = redisViewCountConfig.getViewCount("community:view:"  + communityId);
             } catch (Exception e) {
                 log.error("Error retrieving view count from Redis for communityId {}: {}", communityId, e.getMessage());
                 // Redis 오류 발생 시 기본 조회수를 사용
@@ -167,9 +168,9 @@ public class CommunityServiceImpl implements CommunityService {
     // 이 메서드는 Redis에 비동기적으로 조회수를 증가시킵니다.
     // 이를 통해 사용자 요청 처리 시간에 영향을 주지 않고, 조회수를 빠르게 업데이트할 수 있습니다.
     @Async
-    public void increaseViewCountAsync(String viewCountKey) {
+    public void increaseViewCountAsync(String viewCountKey, Long communityId) {
         try {
-            redisCommunityService.increaseData(viewCountKey);
+            redisViewCountConfig.increaseViewCount(viewCountKey, communityId);
         } catch (Exception e) {
             log.warn("Error increasing view count in Redis for key {}: {}", viewCountKey, e.getMessage());
         }
@@ -187,7 +188,7 @@ public class CommunityServiceImpl implements CommunityService {
                         img -> s3ImageUploadService.deleteFile(img.getUploadImgPath(), img.getUploadImgName())
                 );
                 communityRepository.delete(findCommunity);
-                redisCommunityService.deleteData("viewCount_community" + findCommunity.getCommunityId());
+                redisViewCountConfig.deleteCount("community:view:" + findCommunity.getCommunityId());
                 return "삭제가 완료되었습니다.";
             }
             throw new BoardException("커뮤니티 글이 존재하지 않습니다. 잘못된 id를 보냈습니다.");
@@ -207,6 +208,7 @@ public class CommunityServiceImpl implements CommunityService {
             log.debug("조회된 커뮤니티 수 : {}", findAllCommunity.getTotalElements());
             log.debug("조회된 커뮤니티 : {}", findAllCommunity);
 
+            // 레디스에서 조회수 조회
             countRedisView(findAllCommunity);
 
             return findAllCommunity.map(ResponseCommunityDTO::changeCommunity);
@@ -219,7 +221,7 @@ public class CommunityServiceImpl implements CommunityService {
     private void countRedisView(Page<CommunityEntity> findAllCommunity) {
         // 각 커뮤니티 게시글에 대해 Redis 조회수를 가져와서 합산
         findAllCommunity.forEach(community -> {
-            Integer redisViewCount = redisCommunityService.getViewCount("community:view:" + community.getCommunityId());
+            Integer redisViewCount = redisViewCountConfig.getViewCount("community:view:" + community.getCommunityId());
             int totalViewCount = community.getViewCount() + (redisViewCount != null ? redisViewCount : 0);
             community.setViewCount(totalViewCount);  // or update DTO to reflect this view count
         });

@@ -3,6 +3,7 @@ package com.example.meettify.dto.meetBoard;
 
 import com.example.meettify.entity.meetBoard.MeetBoardEntity;
 import com.example.meettify.entity.meetBoard.MeetBoardImageEntity;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /*
- *   worker  : 조영흔
+ *   worker  : 조영흔, 유요한
  *   work    : 모임 게시판 상세 정보를 표현하기 위한 DTO
  *   date    : 2024/09/26
  * */
@@ -29,9 +30,13 @@ public class MeetBoardDetailsDTO {
     private List<String> images;
     @Setter
     private List<ResponseMeetBoardCommentDTO> comments;
+    @Schema(description = "조회수")
+    private int viewCount;
 
 
-    public static MeetBoardDetailsDTO changeDTO(MeetBoardEntity meetBoardEntity,List<ResponseMeetBoardCommentDTO> comments ) {
+    public static MeetBoardDetailsDTO changeDTO(MeetBoardEntity meetBoardEntity,
+                                                List<ResponseMeetBoardCommentDTO> comments,
+                                                int totalViewCount) {
         // 이미지 URL 리스트 변환
         List<String> imageUrls = meetBoardEntity.getMeetBoardImages() != null ?
                 meetBoardEntity.getMeetBoardImages().stream()
@@ -46,6 +51,7 @@ public class MeetBoardDetailsDTO {
                 .postDate(meetBoardEntity.getPostDate())
                 .images(imageUrls)
                 .comments(comments)
+                .viewCount(totalViewCount)
                 .build();
     }
 }

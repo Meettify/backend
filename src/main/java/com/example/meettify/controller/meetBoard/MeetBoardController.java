@@ -3,6 +3,8 @@ package com.example.meettify.controller.meetBoard;
 import com.example.meettify.dto.meetBoard.*;
 import com.example.meettify.exception.board.BoardException;
 import com.example.meettify.service.meetBoard.MeetBoardService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
@@ -65,17 +67,20 @@ public class MeetBoardController implements MeetBoardControllerDocs{
     //모임 게시판 상세 조회
     @Override
     @GetMapping("/{meetBoardId}")
-    public ResponseEntity<?> getDetail(@PathVariable Long meetBoardId, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<?> getDetail(@PathVariable Long meetBoardId,
+                                       @AuthenticationPrincipal UserDetails userDetails,
+                                       HttpServletRequest request,
+                                       HttpServletResponse response) {
         try {
             String email = userDetails.getUsername();
             log.info("email : " + email);
-            MeetBoardDetailsDTO meetBoardDetailsDTO = meetBoardService.getDetails(email,meetBoardId);
+            MeetBoardDetailsDTO meetBoardDetailsDTO = meetBoardService.getDetails(email,meetBoardId, request, response);
             MeetBoardPermissionDTO meetBoardPermission = meetBoardService.getPermission(email, meetBoardId);
-            ResponseMeetBoardDetailPermissionDTO response = ResponseMeetBoardDetailPermissionDTO.builder()
+            ResponseMeetBoardDetailPermissionDTO result = ResponseMeetBoardDetailPermissionDTO.builder()
                     .meetBoardDetailsDTO(meetBoardDetailsDTO)
                     .meetBoardPermissionDTO(meetBoardPermission)
                     .build();
-            return ResponseEntity.status(HttpStatus.OK).body(response);
+            return ResponseEntity.status(HttpStatus.OK).body(result);
         } catch (Exception e) {
             log.error("예외 : " + e.getMessage());
             throw new BoardException(e.getMessage());
@@ -86,8 +91,8 @@ public class MeetBoardController implements MeetBoardControllerDocs{
     @Override
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> makeBoard(@Validated @RequestPart("meetBoard") RequestMeetBoardDTO meetBoard,
-                                       @RequestPart(value = "images" , required = false) List<MultipartFile> images,
                                        BindingResult bindingResult,
+                                       @RequestPart(value = "images" , required = false) List<MultipartFile> images,
                                        @AuthenticationPrincipal UserDetails userDetails) {
         log.debug("postBoard 컨트럴러 입장");
         try {
@@ -121,8 +126,8 @@ public class MeetBoardController implements MeetBoardControllerDocs{
     public ResponseEntity<?> updateBoard(
             @PathVariable Long meetBoardId,
             @Valid  @RequestPart("updateBoard") UpdateRequestMeetBoardDTO requestMeetBoardDTO,
-            @RequestPart(value = "images", required = false) List<MultipartFile> images,
             BindingResult bindingResult,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
             // 입력값 검증 예외가 발생하면 예외 메세지를 출력

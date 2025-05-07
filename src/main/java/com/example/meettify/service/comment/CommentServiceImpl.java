@@ -20,6 +20,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 @Transactional
 @RequiredArgsConstructor
 @Service
@@ -40,25 +44,44 @@ public class CommentServiceImpl implements CommentService {
                     .orElseThrow(() -> new BoardException("커뮤니티가 존재하지 않습니다."));
 
             // 댓글 생성 로직
-            CommentEntity commentEntity;
+            CommentEntity parentComment;
+            CommentEntity childComment;
+            // 댓글 디비에 저장
+            CommentEntity savedComment;
             if (comment.getCommentParentId() != null) {
                 // 부모 댓글이 있는 경우 대댓글로 설정
-                CommentEntity parentComment = commentRepository.findById(comment.getCommentParentId())
+                parentComment = commentRepository.findById(comment.getCommentParentId())
                         .orElseThrow(() -> new CommentException("부모 댓글이 존재하지 않습니다."));
 
+                log.debug("부모 댓글 확인 {}", parentComment);
+
                 // 자식 댓글 설정
-                commentEntity = CommentEntity.saveComment(comment, findMember, findCommunity, parentComment);
-                parentComment.getChildren().add(commentEntity);
+                childComment = CommentEntity.saveComment(
+                        comment,
+                        findMember,
+                        findCommunity,
+                        parentComment);
+                parentComment.addChildren(childComment);
+                savedComment = commentRepository.save(childComment);
             } else {
+                log.debug("일반 댓글 작성 동작");
                 // 일반 댓글인 경우
-                commentEntity = CommentEntity.saveComment(comment, findMember, findCommunity, null);
+                parentComment = CommentEntity.saveComment(
+                        comment,
+                        findMember,
+                        findCommunity,
+                        null);
+                savedComment = commentRepository.save(parentComment);
             }
 
-            // 댓글 디비에 저장
-            CommentEntity savedComment = commentRepository.save(commentEntity);
-            Long parentCommentId = (savedComment.getParent() != null) ? savedComment.getParent().getCommentId() : 0L;
+            log.info("디비 저장 후 엔티티 체크 {}", savedComment);
+            Long parentCommentId = (Objects.requireNonNull(savedComment).getParent() != null) ?
+                    savedComment.getParent().getCommentId() : 0L;
 
-            ResponseCommentDTO response = ResponseCommentDTO.changeDTO(savedComment, findMember.getNickName(), parentCommentId);
+            ResponseCommentDTO response = ResponseCommentDTO.changeDTO(
+                    savedComment,
+                    findMember.getNickName(),
+                    parentCommentId);
             log.debug("반환 댓글 {} ", response);
             return response;
         } catch (Exception e) {
@@ -79,8 +102,10 @@ public class CommentServiceImpl implements CommentService {
 
             // 댓글 수정
             findComment.updateComment(comment);
-            Long parentCommentId = (findComment.getParent() != null) ? findComment.getParent().getCommentId() : 0L;
-            ResponseCommentDTO response = ResponseCommentDTO.changeDTO(findComment, findMember.getNickName(), parentCommentId);
+            Long parentCommentId = (findComment.getParent() != null)
+                    ? findComment.getParent().getCommentId() : 0L;
+            ResponseCommentDTO response = ResponseCommentDTO.changeDTO(
+                    findComment, findMember.getNickName(), parentCommentId);
             log.debug("수정된 댓글 {} ", response);
             return response;
         } catch (Exception e) {
@@ -126,10 +151,31 @@ public class CommentServiceImpl implements CommentService {
     @TimeTrace
     public Page<ResponseCommentDTO> getComments(Pageable page, Long communityId) {
         try {
-            Page<CommentEntity> findAllComment = commentRepository.findCommentByCommunityId(communityId, page);
-            return findAllComment.map(commentEntity -> {
-                Long parentCommentId = (commentEntity.getParent() != null) ? commentEntity.getParent().getCommentId() : 0L;
-                return ResponseCommentDTO.changeDTO(commentEntity, commentEntity.getMember().getNickName(), parentCommentId);
+            // 부모 댓글 조회 (커뮤니티 상세 페이지에 속한 댓글들)
+            // 부모 댓글과 바로 부모 댓글에 속한 자식 댓글만 가져옴
+            Page<CommentEntity> findParentComment = commentRepository.findParentCommentsByCommunityId(communityId, page);
+
+            // 자식 댓글에 대댓글이 달려있는 경우를 위해서 id를 추츨
+            List<Long> childrenId = findParentComment.getContent().stream()
+                    .flatMap(parent -> parent.getChildren().stream())
+                    .map(CommentEntity::getCommentId)
+                    .collect(Collectors.toList());
+            log.debug("자식 댓글 id {}", childrenId);
+
+            // 자식의 대댓글을 가져오기 위해서 조회
+            List<CommentEntity> findCommentOfChild = commentRepository.findChildOfChildren(childrenId);
+
+            return findParentComment.map(parent -> {
+                // 조회한 부모 id, 없으면 0L 설정
+                Long parentCommentId = (parent.getParent() != null) ? parent.getParent().getCommentId() : 0L;
+                // ResponseCommentDTO로 변환
+                ResponseCommentDTO commentDTO = ResponseCommentDTO.changeDTO(
+                        parent,
+                        parent.getMember().getNickName(),
+                        parentCommentId,
+                        findCommentOfChild);
+                log.debug("댓글 리스트 반환 값 확인 {}", commentDTO);
+                return commentDTO;
             });
         } catch (Exception e) {
             log.warn("댓글 페이징 조회 실패: {}", e.getMessage());

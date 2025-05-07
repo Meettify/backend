@@ -16,6 +16,7 @@ public class MeetBoardSummaryDTO {
     private String title;
     private String nickName;
     private LocalDateTime postDate;
+    private int viewCount;
 
 
     public static MeetBoardSummaryDTO changeDTO(MeetBoardEntity meetBoardEntity){
@@ -24,6 +25,7 @@ public class MeetBoardSummaryDTO {
                 .meetBoardId(meetBoardEntity.getMeetBoardId())
                 .title(meetBoardEntity.getMeetBoardTitle())
                 .postDate(meetBoardEntity.getPostDate())
+                .viewCount(meetBoardEntity.getViewCount())
                 .build();
     }
 }

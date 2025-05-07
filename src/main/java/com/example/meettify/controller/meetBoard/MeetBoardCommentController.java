@@ -52,7 +52,8 @@ public class MeetBoardCommentController implements   MeetBoardCommentControllerD
     //댓글 삭제하는 API
     @Override
     @DeleteMapping("/{meetBoardCommentId}")
-    public ResponseEntity<?> deleteMeetBoardComment(@PathVariable Long meetBoardCommentId, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<?> deleteMeetBoardComment(@PathVariable Long meetBoardCommentId,
+                                                    @AuthenticationPrincipal UserDetails userDetails) {
         try {
             boolean isAuthorized = meetBoardCommentService.getPermission(userDetails.getUsername(), meetBoardCommentId).isCanDelete();
 
@@ -72,7 +73,7 @@ public class MeetBoardCommentController implements   MeetBoardCommentControllerD
     // 모임 게시판 댓글 수정
     @PutMapping("/{meetBoardCommentId}")
     public ResponseEntity<?> updateMeetBoardComment(@PathVariable Long meetBoardCommentId,
-                                                    @RequestPart(value = "comment") UpdateMeetBoardCommentDTO updateMeetBoardCommentDTO,
+                                                    @RequestBody UpdateMeetBoardCommentDTO updateMeetBoardCommentDTO,
                                                     @AuthenticationPrincipal UserDetails userDetails) {
 
         try {

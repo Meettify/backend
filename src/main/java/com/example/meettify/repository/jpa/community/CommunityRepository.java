@@ -28,9 +28,9 @@ public interface CommunityRepository extends JpaRepository<CommunityEntity, Long
     Page<CommunityEntity> findBySearchTitle(Pageable pageable, @Param("searchTitle") String searchTitle);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("UPDATE communities c SET c.viewCount = c.viewCount + :increment WHERE c.communityId = :communityId")
+    @Query("UPDATE communities c SET c.viewCount = c.viewCount + :viewCount WHERE c.communityId = :communityId")
     @Transactional
-    void incrementViewCount(@Param("communityId") Long communityId, @Param("increment") int increment);
+    void incrementViewCount(@Param("communityId") Long communityId, @Param("viewCount") int viewCount);
 
     @Query("SELECT c.communityId FROM communities c")
     List<Long> findAllCommunityIds();

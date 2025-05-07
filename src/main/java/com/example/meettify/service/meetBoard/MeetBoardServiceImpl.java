@@ -1,9 +1,12 @@
 package com.example.meettify.service.meetBoard;
 
+import com.example.meettify.config.redis.RedisViewCountConfig;
+import com.example.meettify.config.redis.cookie.CookieUtils;
 import com.example.meettify.config.s3.S3ImageUploadService;
 import com.example.meettify.dto.meet.MeetRole;
 import com.example.meettify.dto.meetBoard.*;
 import com.example.meettify.dto.member.role.UserRole;
+import com.example.meettify.entity.community.CommunityEntity;
 import com.example.meettify.entity.meet.MeetMemberEntity;
 import com.example.meettify.entity.meetBoard.MeetBoardEntity;
 import com.example.meettify.entity.meetBoard.MeetBoardImageEntity;
@@ -15,12 +18,15 @@ import com.example.meettify.repository.jpa.meetBoard.MeetBoardImageRepository;
 import com.example.meettify.repository.jpa.meetBoard.MeetBoardRepository;
 import com.example.meettify.repository.jpa.member.MemberRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,20 +46,31 @@ import java.util.List;
 public class MeetBoardServiceImpl implements MeetBoardService {
     private final MeetBoardRepository meetBoardRepository;
     private final MeetBoardImageRepository meetBoardImageRepository;
-    private final MeetRepository meetRepository;
     private final MeetMemberRepository meetMemberRepository;
     private final MemberRepository memberRepository;
-    private final ModelMapper modelMapper;
     private final S3ImageUploadService s3ImageUploadService;  // S3 서비스 추가
     private final MeetBoardCommentService meetBoardCommentService;
+    private final RedisViewCountConfig redisViewCountConfig;
 
-
+    @Transactional(readOnly = true)
     public Page<MeetBoardSummaryDTO> getPagedList(Long meetId, Pageable pageable) {
         // meetId에 맞는 게시글 리스트를 페이징 처리하여 가져옴
         Page<MeetBoardEntity> meetBoardPage = meetBoardRepository.findByMeetIdWithMember(meetId, pageable);
 
+        // 레디스에서 조회수 조회
+        countRedisView(meetBoardPage);
+
         // 엔티티를 DTO로 변환하여 반환
         return meetBoardPage.map(MeetBoardSummaryDTO::changeDTO);
+    }
+
+    private void countRedisView(Page<MeetBoardEntity> meetBoardPage) {
+        // 각 커뮤니티 게시글에 대해 Redis 조회수를 가져와서 합산
+        meetBoardPage.forEach(meetBoard -> {
+            Integer redisViewCount = redisViewCountConfig.getViewCount("meetBoard:view:" + meetBoard.getMeetBoardId());
+            int totalViewCount = meetBoard.getViewCount() + (redisViewCount != null ? redisViewCount : 0);
+            meetBoard.setViewCount(totalViewCount);  // or update DTO to reflect this view count
+        });
     }
 
     @Override
@@ -87,11 +104,30 @@ public class MeetBoardServiceImpl implements MeetBoardService {
 
 
 @Override
-public MeetBoardDetailsDTO getDetails(String email,Long meetBoardId) {
+@Transactional(readOnly = true)
+public MeetBoardDetailsDTO getDetails(String email,
+                                      Long meetBoardId,
+                                      HttpServletRequest request,
+                                      HttpServletResponse response) {
     try {
+        String viewCountCookieValue = CookieUtils.getViewCountCookieValue(request, response);
+        log.debug("viewCountCookieValue {}", viewCountCookieValue);
+
+        if(!redisViewCountConfig.isExistInRedis(viewCountCookieValue, meetBoardId)) {
+            increaseViewCountAsync("meetBoard:view:"+meetBoardId, meetBoardId);
+            redisViewCountConfig.addToSet(viewCountCookieValue, meetBoardId);
+        }
+
         // 게시글과 이미지를 조인하여 가져옴
         MeetBoardEntity meetBoardEntity = meetBoardRepository.findById(meetBoardId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 게시글을 찾을 수 없습니다. 게시글 ID: " + meetBoardId));
+
+        // 레디스에서 조회수 가져옴
+        Integer viewCount = redisViewCountConfig.getViewCount("meetBoard:view:" + meetBoardId);
+        log.debug("레디스에 오른 조회수 확인 {}", viewCount);
+        // 조회수 합산
+        int totalViewCount = meetBoardEntity.getViewCount() + (viewCount != null ? viewCount : 0);
+        log.debug("조회수 합산 {}", totalViewCount);
 
         // 댓글 리스트 변환
         List<ResponseMeetBoardCommentDTO> commentDTOs = meetBoardEntity.getComments() != null ?
@@ -100,7 +136,7 @@ public MeetBoardDetailsDTO getDetails(String email,Long meetBoardId) {
                         .toList() : new ArrayList<>();
 
         // 빌더 패턴을 사용한 정적 메서드로 DTO 생성 후 반환
-        return MeetBoardDetailsDTO.changeDTO(meetBoardEntity,commentDTOs);
+        return MeetBoardDetailsDTO.changeDTO(meetBoardEntity,commentDTOs, totalViewCount);
     } catch (EntityNotFoundException e) {
         throw new MeetBoardException("게시글을 찾을 수 없습니다: " + meetBoardId);
     } catch (Exception e) {
@@ -114,7 +150,16 @@ public MeetBoardDetailsDTO getDetails(String email,Long meetBoardId) {
     }
 }
 
-
+    // 이 메서드는 Redis에 비동기적으로 조회수를 증가시킵니다.
+    // 이를 통해 사용자 요청 처리 시간에 영향을 주지 않고, 조회수를 빠르게 업데이트할 수 있습니다.
+    @Async
+    public void increaseViewCountAsync(String viewCountKey, Long meetBoardId) {
+        try {
+            redisViewCountConfig.increaseViewCount(viewCountKey, meetBoardId);
+        } catch (Exception e) {
+            log.warn("Error increasing view count in Redis for key {}: {}", viewCountKey, e.getMessage());
+        }
+    }
 
 
     @Override
@@ -140,7 +185,8 @@ public MeetBoardDetailsDTO getDetails(String email,Long meetBoardId) {
                 List<MeetBoardImageEntity> imageEntities = s3ImageUploadService.upload(
                         "meetImages",
                         meetBoardServiceDTO.getImagesFile(),
-                        (oriFileName, uploadFileName, uploadFilePath, uploadFileUrl) -> MeetBoardImageEntity.builder()
+                        (oriFileName, uploadFileName, uploadFilePath, uploadFileUrl) ->
+                                MeetBoardImageEntity.builder()
                                 .meetBoardEntity(savedMeetBoard)
                                 .oriFileName(oriFileName)
                                 .uploadFileName(uploadFileName)
@@ -169,10 +215,11 @@ public MeetBoardDetailsDTO getDetails(String email,Long meetBoardId) {
             if (getPermission(email,meetBoardId).isCanDelete() ) {
                 //S3에서 이미지 삭제하는 로직 만들기.
                 meetBoard.getMeetBoardImages().forEach(
-                        img ->s3ImageUploadService.deleteFile(img.getUploadFilePath(), img.getOriFileName())
+                        img ->s3ImageUploadService.deleteFile(img.getUploadFilePath(), img.getUploadFileName())
                 );
                 // 이미지 경로 가져와서 삭제 (이미지 삭제 로직은 그대로 유지)
                 meetBoardRepository.deleteById(meetBoardId);
+                redisViewCountConfig.deleteCount("meetBoard:view:" + meetBoard);
                 log.info("Successfully deleted meetBoard with id: {}", meetBoardId);
                 return "게시물을 삭제했습니다.";
             }
