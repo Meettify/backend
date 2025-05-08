@@ -66,5 +66,8 @@ public class CommentEntity extends BaseEntity {
         this.comment = comment.getComment();
     }
 
-
+    // 대댓글 처리
+    public void addChildren(CommentEntity comment) {
+        this.children.add(comment);
+    }
 }
