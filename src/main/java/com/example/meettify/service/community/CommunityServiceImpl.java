@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 import static java.util.Objects.requireNonNull;
@@ -87,6 +88,7 @@ public class CommunityServiceImpl implements CommunityService {
                                             UpdateServiceDTO community,
                                             List<MultipartFile> files) {
         try {
+
             // 커뮤니티 조회
             CommunityEntity findCommunity = communityRepository.findById(communityId)
                     .orElseThrow(() -> new ItemException("Community not found with id: " + communityId));
