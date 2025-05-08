@@ -29,6 +29,12 @@ public class S3ImageUploadService {
     public <T> List<T> upload(String fileType,
                               List<MultipartFile> multipartFiles,
                               FileDTOFactory<T> factory) throws IOException {
+        // 새로운 이미지를 받지 않음
+        if (multipartFiles == null || multipartFiles.isEmpty()) {
+            log.debug("업로드할 파일이 없습니다. S3 업로드 생략");
+            return Collections.emptyList();
+        }
+
         List<T> uploadFiles = new ArrayList<>();
         // 파일이 업로드될 경로를 생성하는 코드
         // ex) postImages/2024/09/25
