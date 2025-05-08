@@ -1,4 +1,4 @@
-package com.example.meettify.config.cookie;
+package com.example.meettify.config.redis.cookie;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
