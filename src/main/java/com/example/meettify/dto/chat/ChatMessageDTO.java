@@ -1,6 +1,7 @@
 package com.example.meettify.dto.chat;
 
 import com.example.meettify.document.chat.ChatMessage;
+import com.example.meettify.document.chat.SharePlace;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -21,17 +22,33 @@ public class ChatMessageDTO {
     private String message;
     @Schema(description = "채팅치는 사람")
     private String sender;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd-HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @Schema(description = "채팅 시간")
     private LocalDateTime writeTime;    // 채팅 시간
 
+    @Schema(description = "공유한 장소 정보") // ✅ 새로 추가!
+    private SharePlaceDTO place;
+
     public static ChatMessageDTO change(ChatMessage chatMessage) {
+        if (chatMessage == null) return null;
+
         return ChatMessageDTO.builder()
                 .type(chatMessage.getType())
                 .roomId(chatMessage.getRoomId())
-                .message(chatMessage.getMessage())
-                .sender(chatMessage.getSender())
-                .writeTime(chatMessage.getWriteTime())
+                .message(chatMessage.getMessage() != null ? chatMessage.getMessage() : "")
+                .sender(chatMessage.getSender() != null ? chatMessage.getSender() : "익명")
+                .writeTime(chatMessage.getWriteTime() != null ? chatMessage.getWriteTime() : LocalDateTime.now())
+                .place(chatMessage.getPlace() != null ? changePlace(chatMessage.getPlace()) : null) // ✅ null 체크
+                .build();
+    }
+
+    public static SharePlaceDTO changePlace(SharePlace place) {
+        return SharePlaceDTO.builder()
+                .title(place.getTitle())
+                .address(place.getAddress())
+                .lat(place.getLat())
+                .lng(place.getLng())
+                .mapUrl(place.getMapUrl())
                 .build();
     }
 }

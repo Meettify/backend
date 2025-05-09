@@ -197,7 +197,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         // 채팅
-                        .requestMatchers("/api/ws/chat").permitAll()
+                        .requestMatchers("/ws/chat").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/chat/room").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/chat/rooms").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/chat/{roomId}/messages").hasAnyRole("USER", "ADMIN")

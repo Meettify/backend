@@ -6,6 +6,7 @@ import com.example.meettify.dto.meet.category.Category;
 import com.example.meettify.dto.meetBoard.MeetBoardSummaryDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -28,7 +29,7 @@ public interface MeetService {
     boolean isAlreadyMember(Long meetId, String email);
     void applyToJoinMeet(Long meetId, String email);
 
-    public Page<MeetSummaryDTO> meetsSearch(MeetSearchCondition condition, Pageable pageable, String email);
+    Page<MeetSummaryDTO> meetsSearch(MeetSearchCondition condition, Pageable pageable, String email);
 
     MeetDetailDTO getMeetDetail(Long meetId);
 
@@ -42,5 +43,5 @@ public interface MeetService {
 
     MeetPermissionDTO getPermission(String email, Long meetId);
 
-    List<MyMeetResponseDTO> getMyMeet(String email);
+    Slice<MyMeetResponseDTO> getMyMeet(String email);
 }

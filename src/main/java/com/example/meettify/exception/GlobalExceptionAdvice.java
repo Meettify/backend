@@ -535,7 +535,34 @@ public class GlobalExceptionAdvice {
 
     // 일반 예외 처리
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(Exception e, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleException(Exception e,
+                                                         HttpServletRequest request,
+                                                         HttpServletResponse response) throws IOException {
+        // SSE 요청인지 확인 (Accept 헤더 또는 요청 URI 등으로 판별 가능)
+        String accept = request.getHeader("Accept");
+        if (accept != null && accept.contains("text/event-stream")) {
+            log.warn("SSE 요청 중 예외 발생: {}", e.getMessage());
+
+            if (response.isCommitted()) return null;
+
+            response.setStatus(HttpServletResponse.SC_OK); // SSE는 끊기지 않도록 200 유지
+            response.setContentType("text/event-stream");
+            response.setCharacterEncoding("UTF-8");
+
+            // 에러 메시지 포맷 (SSE 방식)
+            String errorEvent = "data: {\n" +
+                    "  \"error\": \"SSE 에러\",\n" +
+                    "  \"message\": \"" + e.getMessage() + "\",\n" +
+                    "  \"timestamp\": \"" + System.currentTimeMillis() + "\",\n" +
+                    "  \"path\": \"" + request.getRequestURI() + "\",\n" +
+                    "  \"method\": \"" + request.getMethod() + "\"\n" +
+                    "}\n\n";
+
+            response.getWriter().write(errorEvent);
+            response.getWriter().flush();
+            return null; // 이미 응답 직접 처리했기 때문에 null
+        }
+
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setError("에러 발생");
         errorResponse.setMessage(e.getMessage());

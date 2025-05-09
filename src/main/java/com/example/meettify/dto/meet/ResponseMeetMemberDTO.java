@@ -24,6 +24,7 @@ public class ResponseMeetMemberDTO {
     private MeetRole meetRole;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime joinDate;
+    private String email;
 
 
     public static ResponseMeetMemberDTO changeDTO(MeetMemberEntity meetMember) {
@@ -32,6 +33,7 @@ public class ResponseMeetMemberDTO {
                 .nickName(meetMember.getMemberEntity().getNickName())
                 .meetRole(meetMember.getMeetRole())
                 .joinDate(meetMember.getJoinDate())
+                .email(meetMember.getMemberEntity().getMemberEmail())
                 .build();
     }
 

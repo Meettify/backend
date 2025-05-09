@@ -1,5 +1,6 @@
 package com.example.meettify.service.search;
 
+import com.example.meettify.dto.meet.category.Category;
 import com.example.meettify.dto.search.DeleteSearchLog;
 import com.example.meettify.dto.search.RequestSearchLog;
 import com.example.meettify.dto.search.SearchLog;
@@ -25,46 +26,56 @@ public class RedisSearchLogService {
     private final MemberRepository memberRepository;
     private final RedisTemplate<String, SearchLog> redisTemplate;
 
-    public void saveRecentSearchLog(String email, RequestSearchLog searchLog) {
-        // 회원 조회
+    public void saveRecentSearchLog(String email,
+                                    RequestSearchLog searchLog,
+                                    List<Category> category) {
+        // 1. 회원 조회
         MemberEntity findMember = memberRepository.findByMemberEmail(email);
         if (findMember == null) {
             throw new MemberException("Member not found");
         }
 
 
-        // key로 현재 로그인한 SearchLog + [현재 로그인한 member의 id 값] 으로 두었고
+        // 2. 레디스 key 구성 : 현재 로그인한 SearchLog + [현재 로그인한 member의 id 값] 으로 두었고
         String key = "search:log:" + findMember.getMemberEmail();
         SearchLog value = SearchLog.builder()
                 .name(searchLog.getName())
                 // 검색을 레디스에 저장할 때 상품을 조회하고 그 카테고리를 레디스에 저장
                 .createdAt(LocalDateTime.now().toString())
+                .category(category)
                 .build();
 
         log.debug("Search Log {}", value);
 
-        // 현재 검색어 목록의 크기 확인
+        // 3. 현재 검색어 목록의 크기 확인
         Long size = Objects.requireNonNullElse(redisTemplate.opsForList().size(key), 0L);
         log.debug("size: {}", size);
+        // 4. 레디스에서 현재 검색어 리스트 조회
+        List<SearchLog> currentLogs = redisTemplate.opsForList().range(key, 0, size);
 
-        // 만약 redis의 현재 크기가 10인 경우 rightTop을 통해 가장 오래된 데이터를 삭제해준다.
+        // 5. 동일한 검색어가 존재하는지 확인
+        boolean exists = currentLogs != null &&
+                currentLogs.stream().anyMatch(log -> log.getName().equals(searchLog.getName()));
+
+        // 6. 중복 검색어가 있다면 기존 값 삭제
+        if(exists) {
+            currentLogs.stream()
+                    .filter(log -> log.getName().equals(searchLog.getName()))
+                    .findFirst()
+                    .ifPresent(existLog -> redisTemplate.opsForList().remove(key, 1, existLog));
+        }
+
+        // 7. 만약 redis의 현재 크기가 10인 경우 rightTop을 통해 가장 오래된 데이터를 삭제해준다.
         // 10 미만이라면 leftPush를 통해 새로운 검색어를 추가해준다.
         if (size >= 10) {
             // rightPop을 통해 가장 오래된 데이터 삭제
             redisTemplate.opsForList().rightPop(key);
         }
 
-        // 동일한 검색어가 존재하면 저장하지 않음
-        List<SearchLog> currentLogs = redisTemplate.opsForList().range(key, 0, size);
-        log.debug("currentLogs: {}", currentLogs);
-        if(Objects.requireNonNull(currentLogs).stream().anyMatch(log ->
-                log.getName().equals(searchLog.getName()))) {
-            log.debug("Duplicate search term detected, not saving: {}", searchLog.getName());
-            return;
-        }
-        // 새로운 검색어 추가
+        // 8. 가장 최근 검색어로 추가
         redisTemplate.opsForList().leftPush(key, value);
-        // Redis 키 만료 시간 설정 (예: 7일 후 자동 삭제)
+
+        // 9. 레디스 키 만료시간 설정 (7일 후 자동 삭제)
         redisTemplate.expire(key, Duration.ofDays(7));
     }
 
@@ -94,7 +105,6 @@ public class RedisSearchLogService {
         String key = "search:log:" + findMember.getMemberEmail();
         SearchLog value = SearchLog.builder()
                 .name(searchLog.getName())
-                .createdAt(searchLog.getCreatedAt())
                 .build();
 
         // 삭제

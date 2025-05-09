@@ -53,19 +53,6 @@ public class NotificationController implements NotificationControllerDocs {
         }
     }
 
-    // 알림 읽기
-    @GetMapping("/{notification-id}")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> readNotification(@PathVariable("notification-id") final Long notificationId,
-                                              @AuthenticationPrincipal UserDetails userDetails) {
-        try {
-            String email = userDetails.getUsername();
-            notificationService.readNotification(notificationId, email);
-            return ResponseEntity.ok().body("알림을 읽었습니다.");
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
-        }
-    }
 
     @GetMapping(path = "/send")
     public ResponseEntity<?> test() {

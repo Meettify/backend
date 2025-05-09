@@ -5,6 +5,7 @@ import com.example.meettify.config.metric.TimeTrace;
 import com.example.meettify.dto.board.ResponseCommunityDTO;
 import com.example.meettify.dto.item.ResponseItemDTO;
 import com.example.meettify.dto.meet.MeetSummaryDTO;
+import com.example.meettify.dto.meet.category.Category;
 import com.example.meettify.dto.search.RequestSearchLog;
 import com.example.meettify.dto.search.SearchCondition;
 import com.example.meettify.dto.search.SearchResponseDTO;
@@ -50,7 +51,7 @@ public class SearchServiceImpl implements SearchService {
 
         // 모임 정보 DTO 리스트로 변환
         Set<Long> memberMeetIds = (member != null) ?
-                meetMemberRepository.findIdByEmail(email) : Collections.emptySet();
+                meetMemberRepository.findMeetMemberIdByEmail(email) : Collections.emptySet();
         List<MeetSummaryDTO> responseMeetSummaryDTOList =
                 meetEntityList.stream()
                         .map(meet -> MeetSummaryDTO.changeDTO(meet, memberMeetIds))
@@ -68,13 +69,19 @@ public class SearchServiceImpl implements SearchService {
                         .map(ResponseCommunityDTO::changeCommunity)
                         .toList();
 
+        List<Category> category = new ArrayList<>();
+
+        for (ResponseItemDTO item : responseItemDTOList) {
+            category.add(item.getItemCategory());
+        }
+
         // 레디스에 최신 검색 10개 보여주기 위해 저장
         if (member != null) {
             // Log the search term
             RequestSearchLog requestSearchLog = RequestSearchLog.builder()
                     .name(searchCondition.getTotalKeyword())
                     .build();
-            redisSearchLogService.saveRecentSearchLog(email, requestSearchLog);
+            redisSearchLogService.saveRecentSearchLog(email, requestSearchLog, category);
         }
         return SearchResponseDTO.changeDTO(responseMeetSummaryDTOList, responseItemDTOList, responseBoardDTOS);
     }

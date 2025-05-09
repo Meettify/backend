@@ -9,6 +9,7 @@ import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
@@ -24,12 +25,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry
-                .setErrorHandler(stompExceptionHandler)
                 // 소켓 연결 URI다. 소켓을 연결할 때 다음과 같은 통신이 이루어짐
                 .addEndpoint("/ws/chat")
-                .setAllowedOriginPatterns("http://localhost:*")
+                .setAllowedOriginPatterns("http://localhost:5173");
                 // SocketJS를 통해 연결 지원
-                .withSockJS();
+//                .withSockJS();
     }
 
     @Override
@@ -57,4 +57,5 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         log.debug("session disconnected {}", event);
         log.debug("연결 끊어짐!!!!!!!!!!!!!!!!!");
     }
+
 }

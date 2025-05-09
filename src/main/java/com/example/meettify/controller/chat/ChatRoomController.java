@@ -59,13 +59,9 @@ public class ChatRoomController implements ChatRoomControllerDocs {
     @GetMapping("/{roomId}/messages")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     public ResponseEntity<?> getMessagesByRoomId(@PathVariable Long roomId) {
-        try {
-            List<ChatMessageDTO> response = chatService.getMessagesByRoomId(roomId);
-            return ResponseEntity.ok(response);
-        } catch (ChatRoomException e) {
-            log.error(e.getMessage());
-            throw new ChatRoomException(e.getMessage());
-        }
+        log.debug("roomId {}", roomId);
+        List<ChatMessageDTO> response = chatService.getMessagesByRoomId(roomId);
+        return ResponseEntity.ok(response);
     }
 
     // 채팅방에 들어갈 때 체크

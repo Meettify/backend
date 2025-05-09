@@ -1,6 +1,7 @@
 package com.example.meettify.controller.chat;
 
 import com.example.meettify.dto.chat.ChatMessageDTO;
+import com.example.meettify.dto.chat.MessageType;
 import com.example.meettify.exception.chat.ChatException;
 import com.example.meettify.service.chat.ChatService;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 
@@ -18,22 +20,23 @@ import org.springframework.stereotype.Controller;
 @Slf4j
 public class ChatController implements ChatControllerDocs {
     private final ChatService chatService;
+    private final SimpMessagingTemplate messagingTemplate;
+
 
     @Override
     /*STOMP*/
     @MessageMapping("/{roomId}")
-    // 구독한 클라이언트에게 response를 제공할 url 정의
-    @SendTo("/topic/{roomId}")
-    public ResponseEntity<?> sendMessage(
+    public void sendMessage(
             // @Payload: 메시지의 body를 정의한 객체에 매핑합니다.
             @Payload ChatMessageDTO message,
             // @DestinationVariable: 구독 및 메시징의 동적 url 변수를 설정. RestAPI의 @PathValue와 같다.
-            @DestinationVariable int roomId) {
+            @DestinationVariable Long roomId) {
         try {
-            ChatMessageDTO msg = chatService.sendMessage(message);
+            ChatMessageDTO msg = chatService.sendMessage(message, roomId);
             log.info("Sent message: {}", msg);
 
-            return ResponseEntity.ok().body(msg);
+            // 구독자에게 직접 전송
+            messagingTemplate.convertAndSend("/topic/" + roomId, msg);
         } catch (Exception e) {
             log.error("Error processing message: ", e);
             throw new ChatException(e.getMessage());

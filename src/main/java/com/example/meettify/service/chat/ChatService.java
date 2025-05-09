@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ChatService {
     // 채팅 메시지 저장 및 전송
-    ChatMessageDTO sendMessage(ChatMessageDTO message);
+    ChatMessageDTO sendMessage(ChatMessageDTO message, Long roomId);
     // 특정 채팅방의 모든 메시지 조회
     List<ChatMessageDTO> getMessagesByRoomId(Long roomId);
     // 채팅방 생성

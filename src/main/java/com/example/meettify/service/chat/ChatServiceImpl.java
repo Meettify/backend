@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -30,9 +31,21 @@ public class ChatServiceImpl implements ChatService {
 
     // 메시지 보낼 때 몽고디비에 저장
     @Override
-    public ChatMessageDTO sendMessage(ChatMessageDTO message) {
+    public ChatMessageDTO sendMessage(ChatMessageDTO message, Long roomId) {
         try {
+            if(message.getType() == MessageType.PLACE) {
+                log.debug("주소 공유 메시지입니다.");
+            } else if (message.getType() == MessageType.TALK) {
+                log.debug("일반 메시지입니다.");
+            }
+
             ChatMessage chatMessage = ChatMessage.create(message);
+
+            if(chatMessage.getRoomId() == null) {
+                chatMessage.setRoomId(roomId);
+            }
+
+            log.debug("채팅 내용 확인 {}", chatMessage);
             // 몽고 디비에 저장
             chatMessageRepository.save(chatMessage);
             return ChatMessageDTO.change(chatMessage);
@@ -45,9 +58,15 @@ public class ChatServiceImpl implements ChatService {
     // 채팅방의 채팅 내역 조회
     @Override
     @Transactional(readOnly = true)
-    @TimeTrace
     public List<ChatMessageDTO> getMessagesByRoomId(Long roomId) {
         List<ChatMessage> findChatByRoomId = chatMessageRepository.findByRoomId(roomId);
+        log.debug("message 체크 {}", findChatByRoomId);
+
+        if (findChatByRoomId == null || findChatByRoomId.isEmpty()) {
+            // 빈 배열 반환 (에러 아님)
+            return new ArrayList<>();
+        }
+
         return findChatByRoomId
                 .stream().map(ChatMessageDTO::change)
                 .toList();

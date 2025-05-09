@@ -186,6 +186,11 @@
             List<SearchLog> userSearchLogs = redisSearchLogService.findRecentSearchLogs(email);
             log.debug("userSearchLogs: {}", userSearchLogs);
 
+            // 검색 기록이 Redis에 존재하지 않거나 비정상적으로 삭제된 경우 대비
+            if (userSearchLogs == null || userSearchLogs.isEmpty()) {
+                return Collections.emptyList(); // 또는 기본 추천
+            }
+
             // 검색 기록에서 카테고리를 추출합니다. 이 카테고리는 사용자가 자주 검색한 항목과 관련된 상품을 찾는 데 사용됩니다.
             Set<Category> categories = extractCategoriesFromSearchLogs(userSearchLogs);
 
@@ -213,8 +218,8 @@
             Set<Category> categories = new HashSet<>();
             for (SearchLog log : searchLogs) {
                 // 검색 기록에서 카테고리 추출
-                if (log.getCategory() != null) {
-                    categories.add(log.getCategory()); // log에서 category를 가져와서 enum으로 변환
+                if (log.getCategory() != null && !log.getCategory().isEmpty()) {
+                    categories.addAll(log.getCategory()); // log에서 category를 가져와서 enum으로 변환
                 }
             }
             return categories;

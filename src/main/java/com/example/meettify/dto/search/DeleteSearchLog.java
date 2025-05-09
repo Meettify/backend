@@ -11,5 +11,4 @@ import lombok.NoArgsConstructor;
 @Builder
 public class DeleteSearchLog {
     private String name;
-    private String createdAt;
 }
