@@ -22,10 +22,6 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class UpdateRequestMeetBoardDTO {
 
-    @Schema(description = "어떤 게시글을 수정하는지 ", example = "3")
-    @NotNull(message = "어떤 소모임 게시글을 수정하는지는 필수입니다.")
-    private Long meetBoardId;
-
     @Schema(description = "게시판 제목 ", example = "운동 모임 후기 수장 제목")
     @Length(min = 1, max = 80)
     String meetBoardTitle;
@@ -37,6 +33,4 @@ public class UpdateRequestMeetBoardDTO {
     @Schema(description = "기존 이미지", example = "main.jpg")
     @Builder.Default
     private List<String> imagesUrl = new ArrayList<>();
-
-
 }
