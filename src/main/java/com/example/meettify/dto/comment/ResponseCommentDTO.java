@@ -9,6 +9,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /*
@@ -83,14 +84,19 @@ public class ResponseCommentDTO {
                         child,
                         child.getMember().getNickName(),
                         child.getParent() != null ? child.getParent().getCommentId() : 0L))
-                .collect(Collectors.toList());
+                .toList();
+
+        // parentCommentId를 key로 하는 Map 생성
+        // 예: {100L: [대댓글1, 대댓글2], 101L: [대댓글3]}
+        Map<Long, List<ResponseCommentDTO>> childMap = commentOfChild.stream()
+                .collect(Collectors.groupingBy(ResponseCommentDTO::getParentCommentId));
+
 
         // 자식 댓글들에 댓글이 있는지 보고 있으면 넣어줌
         for (ResponseCommentDTO child : childrenDTO) {
-            // 자식의 대댓글들의 parentCommentId와 자식 댁글의 commentId 비교 후 동일한 것만 리스트로 반환
-            List<ResponseCommentDTO> childrenComment = commentOfChild.stream()
-                    .filter(dto -> dto.parentCommentId.equals(child.getCommentId()))
-                    .collect(Collectors.toList());
+            // child.getCommentId()가 곧 Map의 Key
+            // 기존에 stream으로 filter을 거는 것을 이거로 접근 조건을 바꿔서 처리
+            List<ResponseCommentDTO> childrenComment = childMap.getOrDefault(child.getCommentId(), List.of());
             // 자식 댓글에 해당 자식 댓글들을 넣어줌
             child.children.addAll(childrenComment);
         }
