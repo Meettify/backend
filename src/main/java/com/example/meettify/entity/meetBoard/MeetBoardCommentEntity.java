@@ -1,6 +1,7 @@
 package com.example.meettify.entity.meetBoard;
 
 import com.example.meettify.config.auditing.entity.BaseEntity;
+import com.example.meettify.dto.meetBoard.MeetBoardCommentPermissionDTO;
 import com.example.meettify.dto.meetBoard.MeetBoardCommentServiceDTO;
 import com.example.meettify.entity.meet.MeetEntity;
 import com.example.meettify.entity.member.MemberEntity;
@@ -48,6 +49,9 @@ public class MeetBoardCommentEntity extends BaseEntity {
     @JsonIgnore
     private List<MeetBoardCommentEntity> replies = new ArrayList<>();  // 대댓글 리스트
 
+    @Embedded
+    private MeetBoardCommentPermissionEntity permission;
+
     @PrePersist
     public void prePersist() {
         this.postDate = (this.postDate == null) ? LocalDateTime.now() : this.postDate;
@@ -64,7 +68,10 @@ public class MeetBoardCommentEntity extends BaseEntity {
         this.content = newContent;
     }
 
-    public static MeetBoardCommentEntity postMeetBoardComment(MeetBoardCommentServiceDTO meetBoardCommentServiceDTO, MemberEntity member, MeetBoardEntity meetBoard,MeetBoardCommentEntity parentComment) {
+    public static MeetBoardCommentEntity postMeetBoardComment(MeetBoardCommentServiceDTO meetBoardCommentServiceDTO,
+                                                              MemberEntity member,
+                                                              MeetBoardEntity meetBoard,
+                                                              MeetBoardCommentEntity parentComment) {
         return MeetBoardCommentEntity.builder()
                 .parentComment(parentComment)
                 .content(meetBoardCommentServiceDTO.getContent())
@@ -72,5 +79,18 @@ public class MeetBoardCommentEntity extends BaseEntity {
                 .meetBoardEntity(meetBoard)
                 .memberEntity(member)
                 .build();
+    }
+
+    // 권한 설정 엔티티로 변환
+    public static MeetBoardCommentPermissionEntity changePermission(MeetBoardCommentPermissionDTO permissionDTO) {
+        return MeetBoardCommentPermissionEntity.builder()
+                .canEdit(permissionDTO.isCanEdit())
+                .canDelete(permissionDTO.isCanDelete())
+                .build();
+    }
+
+    // 권한 추가
+    public void addPermission(MeetBoardCommentPermissionEntity permission) {
+        this.permission = permission;
     }
 }
