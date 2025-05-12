@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,8 +26,7 @@ public interface MeetBoardControllerDocs {
     @Operation(summary = "모임 게시판 리스트", description = "모임 게시판 List를 페이징 처리와 함께 제공해주기 위한 API")
     public ResponseEntity<?> getList(
             @PathVariable Long meetId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size);
+            Pageable pageable);
 
 
     @Operation(summary = "모임 게시물 등록", description = "모임 게시글 등록하기")
@@ -43,7 +43,9 @@ public interface MeetBoardControllerDocs {
     public ResponseEntity<?> getDetail(@PathVariable Long meetBoardId,
                                        @AuthenticationPrincipal UserDetails userDetails,
                                        HttpServletRequest request,
-                                       HttpServletResponse response);
+                                       HttpServletResponse response,
+                                       @RequestParam int page,
+                                       @RequestParam int size);
 
     @Operation(summary = "모임 게시판 수정", description = "모임 게시글 수정하기 ")
     @PutMapping("{meetBoardId}")

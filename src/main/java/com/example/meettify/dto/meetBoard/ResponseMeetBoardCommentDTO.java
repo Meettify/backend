@@ -7,11 +7,13 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /*
- *   worker  : 조영흔
+ *   worker  : 조영흔, 유요한
  *   work    : 모임 게시판 댓글 상세 정보를 표현하기 위한 DTO
- *   date    : 2024/10/03
+ *   date    : 2025/05/09
  * */
 @ToString
 @Getter
@@ -26,8 +28,11 @@ public class ResponseMeetBoardCommentDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime postDate;
     private MeetBoardCommentPermissionDTO permissionDTO;
+    @Builder.Default
+    private List<ResponseMeetBoardCommentDTO> children = new ArrayList<>();
 
-    public static ResponseMeetBoardCommentDTO changeDTO(MeetBoardCommentEntity meetBoardCommentEntity,MeetBoardCommentPermissionDTO permissionDTO) {
+    public static ResponseMeetBoardCommentDTO changeDTO(MeetBoardCommentEntity meetBoardCommentEntity,
+                                                        MeetBoardCommentPermissionDTO permissionDTO) {
         return ResponseMeetBoardCommentDTO.builder()
                 .commentId(meetBoardCommentEntity.getCommentId())
                 .parentComment(meetBoardCommentEntity.getParentComment() != null ? meetBoardCommentEntity.getParentComment().getCommentId() : null)
@@ -37,8 +42,4 @@ public class ResponseMeetBoardCommentDTO {
                 .permissionDTO(permissionDTO)
                 .build();
     }
-
-
-
-
 }

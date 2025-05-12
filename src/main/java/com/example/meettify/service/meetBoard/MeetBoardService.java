@@ -4,10 +4,12 @@ import com.example.meettify.dto.meetBoard.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /*
- *   worker : 조영흔
+ *   worker : 조영흔, 유요한
  *   work   : 모임 게시판 서비스 인터페이스 구현
  *   date   : 2024/09/26
  * */
@@ -17,7 +19,8 @@ public interface MeetBoardService {
     MeetBoardDetailsDTO getDetails(String email,
                                    Long meetBoardId,
                                    HttpServletRequest request,
-                                   HttpServletResponse response);
+                                   HttpServletResponse response,
+                                   PageRequest pageRequest);
 
     ResponseMeetBoardDTO postBoard(MeetBoardServiceDTO meetBoardServiceDTO, String email) throws Exception;
 

@@ -8,12 +8,15 @@ import com.example.meettify.dto.meetBoard.*;
 import com.example.meettify.dto.member.role.UserRole;
 import com.example.meettify.entity.community.CommunityEntity;
 import com.example.meettify.entity.meet.MeetMemberEntity;
+import com.example.meettify.entity.meetBoard.MeetBoardCommentEntity;
 import com.example.meettify.entity.meetBoard.MeetBoardEntity;
 import com.example.meettify.entity.meetBoard.MeetBoardImageEntity;
 import com.example.meettify.entity.member.MemberEntity;
 import com.example.meettify.exception.meetBoard.MeetBoardException;
+import com.example.meettify.exception.member.MemberException;
 import com.example.meettify.repository.jpa.meet.MeetMemberRepository;
 import com.example.meettify.repository.jpa.meet.MeetRepository;
+import com.example.meettify.repository.jpa.meetBoard.MeetBoardCommentRepository;
 import com.example.meettify.repository.jpa.meetBoard.MeetBoardImageRepository;
 import com.example.meettify.repository.jpa.meetBoard.MeetBoardRepository;
 import com.example.meettify.repository.jpa.member.MemberRepository;
@@ -25,17 +28,23 @@ import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /*
- *   worker : 조영흔
+ *   worker : 조영흔, 유요한
  *   work   : 모임 게시판 서비스 기능 구현
  *   date   : 2024/09/26
  * */
@@ -44,12 +53,12 @@ import java.util.List;
 @Transactional
 @RequiredArgsConstructor
 public class MeetBoardServiceImpl implements MeetBoardService {
+    private final MeetBoardCommentRepository meetBoardCommentRepository;
     private final MeetBoardRepository meetBoardRepository;
     private final MeetBoardImageRepository meetBoardImageRepository;
     private final MeetMemberRepository meetMemberRepository;
     private final MemberRepository memberRepository;
     private final S3ImageUploadService s3ImageUploadService;  // S3 서비스 추가
-    private final MeetBoardCommentService meetBoardCommentService;
     private final RedisViewCountConfig redisViewCountConfig;
 
     @Transactional(readOnly = true)
@@ -108,35 +117,79 @@ public class MeetBoardServiceImpl implements MeetBoardService {
 public MeetBoardDetailsDTO getDetails(String email,
                                       Long meetBoardId,
                                       HttpServletRequest request,
-                                      HttpServletResponse response) {
+                                      HttpServletResponse response,
+                                      PageRequest pageRequest) {
     try {
+        // 조회수 중복 방지
         String viewCountCookieValue = CookieUtils.getViewCountCookieValue(request, response);
         log.debug("viewCountCookieValue {}", viewCountCookieValue);
 
+        // 레디스 체크하고 조회수 증가
         if(!redisViewCountConfig.isExistInRedis(viewCountCookieValue, meetBoardId)) {
             increaseViewCountAsync("meetBoard:view:"+meetBoardId, meetBoardId);
             redisViewCountConfig.addToSet(viewCountCookieValue, meetBoardId);
         }
 
         // 게시글과 이미지를 조인하여 가져옴
-        MeetBoardEntity meetBoardEntity = meetBoardRepository.findById(meetBoardId)
+        MeetBoardEntity meetBoardEntity = meetBoardRepository.findByMeetBoardId(meetBoardId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 게시글을 찾을 수 없습니다. 게시글 ID: " + meetBoardId));
 
         // 레디스에서 조회수 가져옴
         Integer viewCount = redisViewCountConfig.getViewCount("meetBoard:view:" + meetBoardId);
         log.debug("레디스에 오른 조회수 확인 {}", viewCount);
+
         // 조회수 합산
         int totalViewCount = meetBoardEntity.getViewCount() + (viewCount != null ? viewCount : 0);
         log.debug("조회수 합산 {}", totalViewCount);
 
-        // 댓글 리스트 변환
-        List<ResponseMeetBoardCommentDTO> commentDTOs = meetBoardEntity.getComments() != null ?
-                meetBoardEntity.getComments().stream()
-                        .map(e-> ResponseMeetBoardCommentDTO.changeDTO(e, meetBoardCommentService.getPermission(email,meetBoardId)))
-                        .toList() : new ArrayList<>();
+        // 게시글을 무한 스크롤하기 위해서 부모 댓글 조회
+        Slice<MeetBoardCommentEntity> findParentCommentWithChild =
+                meetBoardCommentRepository.findCommentByMeetBoardId(meetBoardEntity.getMeetBoardId(), pageRequest);
+
+        // 자식 댓글에 대댓글이 달려있는 경우를 위해서 id를 추츨
+        List<Long> childrenId = findParentCommentWithChild.stream()
+                .flatMap(parent -> parent.getReplies().stream())
+                .map(MeetBoardCommentEntity::getCommentId)
+                .collect(Collectors.toList());
+
+        // 자식 댓글의 대댓글을 가져옴
+        List<MeetBoardCommentEntity> childComment = meetBoardCommentRepository.findChildComment(childrenId);
+
+        // 유저 조회
+        MemberEntity member = memberRepository.findByMemberEmail(email);
+        // 모임 회원 정보 조회
+        MeetMemberEntity meetMember = meetMemberRepository.findByEmailAndMeetId(member.getMemberEmail(), meetBoardEntity.getMeetEntity().getMeetId())
+                .orElseThrow();
+
+
+        // 자식 댓글 ID - 그 자식들의 대댓글 리스트 매핑
+        Map<Long, List<ResponseMeetBoardCommentDTO>> childMap = childComment.stream()
+                .map(e -> ResponseMeetBoardCommentDTO.changeDTO(e, resolvePermission(member, meetMember, e)))
+                .collect(Collectors.groupingBy(ResponseMeetBoardCommentDTO::getParentComment));
+
+        // 부모 댓글을 DTO로 만들고, 그 replies도 DTO로 바꾼 뒤 재귀적으로 children에 붙이기
+        Slice<ResponseMeetBoardCommentDTO> parentCommentDTO = findParentCommentWithChild.map(parent -> {
+            ResponseMeetBoardCommentDTO parentDTO =
+                    ResponseMeetBoardCommentDTO.changeDTO(
+                            parent,
+                            resolvePermission(member, meetMember, parent));
+            List<ResponseMeetBoardCommentDTO> children = parent.getReplies().stream()
+                    .map(child -> {
+                        ResponseMeetBoardCommentDTO childDTO =
+                                ResponseMeetBoardCommentDTO.changeDTO(
+                                        child,
+                                        resolvePermission(member, meetMember, child));
+                        // 자식의 자식 댓글이 있다면 붙임
+                        List<ResponseMeetBoardCommentDTO> grandChildren = childMap.getOrDefault(child.getCommentId(), List.of());
+                        childDTO.getChildren().addAll(grandChildren);
+                        return childDTO;
+                    }).toList();
+            parentDTO.getChildren().addAll(children);
+            return parentDTO;
+        });
 
         // 빌더 패턴을 사용한 정적 메서드로 DTO 생성 후 반환
-        return MeetBoardDetailsDTO.changeDTO(meetBoardEntity,commentDTOs, totalViewCount);
+        return MeetBoardDetailsDTO.changeDTO(meetBoardEntity, parentCommentDTO, totalViewCount);
     } catch (EntityNotFoundException e) {
         throw new MeetBoardException("게시글을 찾을 수 없습니다: " + meetBoardId);
     } catch (Exception e) {
@@ -159,6 +212,21 @@ public MeetBoardDetailsDTO getDetails(String email,
         } catch (Exception e) {
             log.warn("Error increasing view count in Redis for key {}: {}", viewCountKey, e.getMessage());
         }
+    }
+
+    // 접속 유저의 댓글 권한 처리
+    private MeetBoardCommentPermissionDTO resolvePermission(MemberEntity member,
+                                                            MeetMemberEntity meetMember,
+                                                            MeetBoardCommentEntity comment) {
+        if(member.getMemberEmail().equals(comment.getMemberEntity().getMemberEmail())) {
+            return MeetBoardCommentPermissionDTO.of(true, true);    // 본인 → 수정/삭제 가능
+        }
+
+        if ((meetMember != null && meetMember.getMeetRole() == MeetRole.ADMIN )
+        || member.getMemberRole() == UserRole.ADMIN) {
+            return MeetBoardCommentPermissionDTO.of(false, true);   // 관리자 → 삭제만 가능
+        }
+        return MeetBoardCommentPermissionDTO.of(false, false);      // 일반 사용자
     }
 
 
