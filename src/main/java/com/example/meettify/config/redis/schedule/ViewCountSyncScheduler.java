@@ -27,7 +27,8 @@ public class ViewCountSyncScheduler {
 
 
     // 매일 자정에 커뮤니티 조회수 업데이트 실행
-    @Scheduled(cron = "0 0 0 * * *") // 자정
+    // 1시간마다 실행 (매 시 0분)
+    @Scheduled(cron = "0 0 * * * *")
     public void updateCommunityCount() {
         Set<Long> ids = redisViewCountConfig.getId("community:view:set");
 
@@ -45,7 +46,8 @@ public class ViewCountSyncScheduler {
     }
 
     // 매일 자정에 모임 게시글 조회수 업데이트 실행
-    @Scheduled(cron = "0 0 0 * * *") // 자정
+    // 1시간마다 실행 (매 시 0분)
+    @Scheduled(cron = "0 0 * * * *")
     public void updateMeetBoardCount() {
         Set<Long> ids = redisViewCountConfig.getId("meetBoard:view:set");
 
