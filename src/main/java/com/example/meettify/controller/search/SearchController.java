@@ -8,9 +8,7 @@ import com.example.meettify.exception.not_found.ResourceNotFoundException;
 import com.example.meettify.exception.timeout.RequestTimeoutException;
 import com.example.meettify.service.search.RedisSearchLogService;
 import com.example.meettify.service.search.SearchService;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +21,6 @@ import java.util.List;
 @RestController
 @Slf4j
 @RequestMapping("/api/v1/search")
-@Tag(name = "search", description = "전체 검색하는 API")
 @RequiredArgsConstructor
 public class SearchController implements  SearchControllerDocs {
     private final SearchService searchService;
