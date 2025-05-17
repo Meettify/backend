@@ -18,10 +18,10 @@ import com.example.meettify.repository.jpa.member.MemberRepository;
 import com.example.meettify.repository.jpa.order.OrderRepository;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +41,7 @@ public class OrderServiceImpl implements OrderService {
     private final CartItemRepository cartItemRepository;
     private final ItemRepository itemRepository;
     private final HttpSession session;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     // 주문 정보를 임시로 보여줄 메서드
     public ResponseOrderDTO createTempOrder(List<RequestOrderServiceDTO> orders, String email) {
@@ -215,16 +216,30 @@ public class OrderServiceImpl implements OrderService {
                 throw new OrderException("주문 정보와 일치하지 않습니다.");
             }
 
+            double weightCount = 1.0;      // 수량에 대한 가중치
+            double weightAmount = 0.001;   // 금액에 대한 가중치 (예: 1000원 = 1점)
+
             // 최종 주문 생성 및 총 금액 반영
             OrderEntity orderEntity = OrderEntity.saveOrder(findMember, findMember.getAddress(), totalPrice, orderUUid);
             for (OrderItemEntity orderItemEntity : orderItemEntities) {
                 orderItemEntity.setOrder(orderEntity); // 주문과 연결
                 orderEntity.getOrderItems().add(orderItemEntity);
+
+                Long itemId = orderItemEntity.getItem().getItemId();
+                int orderCount = orderItemEntity.getOrderCount();
+                int itemPrice = orderItemEntity.getItem().getItemPrice();
+
+                // 혼합 점수 계산
+                double score = (orderCount * weightCount) + (orderCount * itemPrice * weightAmount);
+
+                redisTemplate.opsForZSet()
+                        .incrementScore("item:order:zset", itemId, score);
             }
 
             OrderEntity saveOrder = orderRepository.save(orderEntity); // 주문 저장
             // 주문 상태를 결제 상태로 변경
             saveOrder.changePayStatus(PayStatus.PAY_O);
+
             return ResponseOrderDTO.changeDTO(saveOrder, AddressDTO.changeDTO(findMember.getAddress()), orderUUid);
         } catch (Exception e) {
             log.warn("주문 처리 중 에러 발생: " + e.getMessage(), e);
