@@ -20,6 +20,7 @@
     import org.springframework.data.domain.Page;
     import org.springframework.data.domain.PageImpl;
     import org.springframework.data.domain.Pageable;
+    import org.springframework.data.redis.core.RedisTemplate;
     import org.springframework.stereotype.Service;
     import org.springframework.transaction.annotation.Transactional;
     import org.springframework.web.multipart.MultipartFile;
@@ -40,6 +41,7 @@
         private final S3ImageUploadService s3ImageUploadService;
         private final RedisSearchLogService redisSearchLogService;
         private final CartItemRepository cartItemRepository;
+        private final RedisTemplate<String, Object> redisTemplate;
 
         // 상품 등록 메서드
         @Override
@@ -271,5 +273,35 @@
             } catch (Exception e) {
                 throw new ItemException("상품의 수량을 가져오는데 실패했습니다.");
             }
+        }
+
+        @Override
+        @Transactional(readOnly = true)
+        public List<ResponseItemDTO> getTopItemIds(int topCount) {
+            Set<Object> ids = redisTemplate.opsForZSet()
+                    .reverseRange("item:order:zset", 0, topCount - 1);
+
+            if(ids == null || ids.isEmpty()) return List.of();
+
+            List<Long> itemIds = ids.stream()
+                    .map(id -> Long.valueOf(String.valueOf(id)))
+                    .toList();
+
+            Map<Long, ItemEntity> entityMap = itemRepository.findByTopItemIds(itemIds).stream()
+                    .collect(Collectors.toMap(ItemEntity::getItemId, e -> e));
+            log.debug("조회한 엔티티 Map으로 바꾸기 {}", entityMap);
+
+            List<ItemEntity> entityList = itemIds.stream()
+                    .map(item -> {
+                        ItemEntity itemEntity = entityMap.get(item);
+                        log.debug("item check {}", itemEntity);
+                        return itemEntity;
+                    })
+                    .filter(Objects::nonNull)
+                    .toList();
+
+            return entityList.stream()
+                    .map(ResponseItemDTO::changeDTO)
+                    .toList();
         }
     }
