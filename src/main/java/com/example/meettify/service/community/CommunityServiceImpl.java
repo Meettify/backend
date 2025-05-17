@@ -27,8 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
@@ -287,5 +287,58 @@ public class CommunityServiceImpl implements CommunityService {
         } catch (Exception e) {
             throw new BoardException("커뮤니티 수량을 가져오는데 실패");
         }
+    }
+
+    // 커뮤니티 랭킹 TOP 10을 레디스 & 디비에서 가져옴
+    @Override
+    @Transactional(readOnly = true)
+    public List<ResponseCommunityDTO> getTopBoards() {
+        // 레디스에서 ZSET 랭킹 가져옴
+        List<Long> topRankedCommunityIds = redisViewCountConfig.getTopRankedCommunityIds(10);
+        log.debug("레디스 TOP 10 communities ids{}", topRankedCommunityIds);
+
+        List<CommunityEntity> communityRanked;
+        // SET에 비어져 있으면 SET에 담긴 레디스 조회수를 DB에 보내줌
+        if(topRankedCommunityIds == null || topRankedCommunityIds.isEmpty()) {
+            // 레디스 SET에 담긴 id들 가져오기
+            Set<Long> ids = redisViewCountConfig.getId("community:view:set");
+            log.debug("ZSET에 없으므로 SET에서 꺼내와서 조회, SET ids {}", ids);
+            if (ids != null && !ids.isEmpty()) {
+                for (Long id : ids) {
+                    Integer viewCount = redisViewCountConfig.getAndDeleteViewCount("community:view:" + id);
+                    if(viewCount != null) {
+                        communityRepository.incrementViewCount(id, viewCount);
+                    }
+                }
+            }
+
+            communityRanked = new ArrayList<>(communityRepository.findTop10ByOrderByViewCountDesc());
+        } else {
+            // DB에서 커뮤니티 조회수 TOP 10을 가져옴
+            // CommunityEntity::getCommunityId → 맵의 key로 사용 (communityId)
+            // e -> e → 맵의 value로 사용 (엔티티 객체 그 자체)
+            Map<Long, CommunityEntity> entityMap = communityRepository.findByTopCommunityIds(topRankedCommunityIds).stream()
+                    .collect(Collectors.toMap(CommunityEntity::getCommunityId, e -> e));
+            log.debug("entityMap {}", entityMap);
+            communityRanked = topRankedCommunityIds.stream()
+                    .map(id -> {
+                        // ZSET 순서대로 DB에서 조회한 엔티티 조회
+                        CommunityEntity entity = entityMap.get(id);
+                        if(entity == null) return null;
+                        // 레디스에서 커뮤니티 조회수 조회
+                        Integer redisView = redisViewCountConfig.getViewCount("community:view:" + id);
+                        // 레디스 조회수와 DB에서 가져온 조회수를 더해줌
+                        int totalView = entity.getViewCount() + (redisView != null ? redisView : 0);
+                        // 커뮤니티 엔티티에 조화수 합산을 넣어줌
+                        entity.setViewCount(totalView);
+                        return entity;
+                    })
+                    .filter(Objects::nonNull)   // 혹시 DB에 없는 ID는 제외
+                    .collect(Collectors.toList());
+        }
+        log.debug("디비 조회 커뮤니티 확인 {}", communityRanked);
+        return communityRanked.stream()
+                .map(ResponseCommunityDTO::changeCommunity)
+                .toList();
     }
 }

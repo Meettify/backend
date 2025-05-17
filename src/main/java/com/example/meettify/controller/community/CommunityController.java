@@ -216,4 +216,13 @@ public class CommunityController implements CommunityControllerDocs {
             throw new BoardException(e.getMessage());
         }
     }
+
+    // 조회수 TOP10 가져오기
+    @Override
+    @GetMapping("/top")
+    public ResponseEntity<?> getTopCommunities() {
+        List<ResponseCommunityDTO> result = communityService.getTopBoards();
+        log.debug("반환할 값 {}", result);
+        return ResponseEntity.ok(result);
+    }
 }

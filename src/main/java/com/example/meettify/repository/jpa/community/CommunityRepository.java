@@ -51,4 +51,11 @@ public interface CommunityRepository extends JpaRepository<CommunityEntity, Long
 
     @Query("SELECT COUNT (c) from communities c")
     long countAllItems();
+
+    List<CommunityEntity> findTop10ByOrderByViewCountDesc();
+
+    @Query("select c from communities c " +
+            "join fetch c.member " +
+            "where c.communityId in :communityIds")
+    List<CommunityEntity> findByTopCommunityIds(@Param("communityIds") List<Long> topCommunityIds);
 }

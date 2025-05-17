@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -30,6 +31,16 @@ public class RedisViewCountConfig {
                 .opsForValue()
                 .increment(key);
 
+
+        // ✅ ZSet 조회수 랭킹도 함께 증가시킴
+        // zsetKey: 예를 들면 "community:view:zset"
+        // communityId: 증가할 게시글 ID
+        // 점수(score): Redis 내부적으로 정렬 기준이 됨 → 즉, 조회수
+        Double communityNewScore = redisTemplate.opsForZSet()
+                .incrementScore("community:view:zset", String.valueOf(id), 1);
+
+        log.debug("ZSet 업데이트 - community:view:zset, id={}, newScore={}", id, communityNewScore);
+
         Long saveId = null;
 
         // 스케줄러가 업데이트할 ID만 저장해두기 위해 Set으로 관리
@@ -40,15 +51,23 @@ public class RedisViewCountConfig {
                     .add("community:view:set", String.valueOf(id));
         }
 
+
+        // ✅ ZSet 조회수 랭킹도 함께 증가시킴
+        Double meetBoardNewScore =  redisTemplate.opsForZSet()
+                .incrementScore("meetBoard:view:zset", String.valueOf(id), 1);
+
         if(key.contains("meetBoard")) {
             saveId = redisTemplate
                     .opsForSet()
                     .add("meetBoard:view:set", String.valueOf(id));
         }
 
-
+        log.debug("ZSet 업데이트 - meetBoard:view:zset, id={}, newScore={}", id, meetBoardNewScore);
         log.debug("Increased value for key {}: {}", key, increaseValue);
-        log.debug("Saved id {}", saveId);
+        // saveId == 1: 새로 등록됨 → 스케줄러가 이 ID를 처리할 것
+        // saveId == 0: 이미 등록된 ID → 중복 처리 방지됨
+        log.debug("[스케줄러용 ID Set 등록] key={}, id={}, wasAdded={}", "community:view:set", id, saveId);
+
     }
 
     // 레디스에 id가 있는지 조회
@@ -107,6 +126,22 @@ public class RedisViewCountConfig {
             log.debug("Deleted data for key {}", key);
         }
         log.warn("Failed to delete data for key {} or key does not exist", key);
+    }
+
+    // ZSet에서 랭킹 조회
+    public List<Long> getTopRankedCommunityIds(int topCount) {
+        log.debug("ZSet 랭킹 조회!!!!!");
+        Set<Object> topIds = redisTemplate.opsForZSet()
+                // reverseRange는 ZSet에서 점수(score)가 높은 순으로 정렬된 요소를 가져오는 명령어
+                // 0 : 랭킹 1위 (가장 높은 조회수)
+                // 	N위까지 가져옴 (예: topCount = 10이면 0~9 즉, 총 10개)
+                .reverseRange("community:view:zset", 0, topCount - 1);
+
+        if(topIds == null || topIds.isEmpty()) return List.of();
+
+        return topIds.stream()
+                .map(id -> Long.valueOf(String.valueOf(id)))
+                .toList();
     }
 
 }
