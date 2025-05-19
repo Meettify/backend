@@ -46,37 +46,52 @@ public class SearchServiceImpl implements SearchService {
         List<ItemEntity> itemEntities = (List<ItemEntity>) searchResponse.get("item");
         List<CommunityEntity> communityEntities = (List<CommunityEntity>) searchResponse.get("community");
 
-        // 사용자 정보를 통해 모임 멤버 ID 목록 조회
-        MemberEntity member = memberRepository.findByMemberEmail(email);
+        List<MeetSummaryDTO> responseMeetSummaryDTOList;
+        MemberEntity member = null;
+        // 로그인중일 때 처리
+        if(email != null) {
+            // 사용자 정보를 통해 모임 멤버 ID 목록 조회
+            member = memberRepository.findByMemberEmail(email);
+            // 모임의 회원들인지 알기 위해 id 조회해옴
+            Set<Long> memberMeetIds = (member != null) ?
+                    meetMemberRepository.findMeetMemberIdByEmail(email) : Collections.emptySet();
+            // 모임 정보와 그 모임에 속한 회원들을 DTO로 List에 담아줌
+            responseMeetSummaryDTOList =
+                    meetEntityList.stream()
+                            .map(meet -> MeetSummaryDTO.changeDTO(meet, memberMeetIds))
+                            .toList();
+        } else {
+            // 로그인이 아닐 때
+            responseMeetSummaryDTOList =
+                    meetEntityList.stream()
+                            .map(meet -> MeetSummaryDTO.changeDTO(meet, null))
+                            .toList();
+        }
+        log.debug("모임 정보 조회 {}", responseMeetSummaryDTOList);
 
-        // 모임 정보 DTO 리스트로 변환
-        Set<Long> memberMeetIds = (member != null) ?
-                meetMemberRepository.findMeetMemberIdByEmail(email) : Collections.emptySet();
-        List<MeetSummaryDTO> responseMeetSummaryDTOList =
-                meetEntityList.stream()
-                        .map(meet -> MeetSummaryDTO.changeDTO(meet, memberMeetIds))
-                        .toList();
 
         // 상품 정보 DTO 리스트로 변환
         List<ResponseItemDTO> responseItemDTOList =
                 itemEntities.stream()
                         .map(ResponseItemDTO::changeDTO)
                         .toList();
+        log.debug("상품 정보 조회 {}", responseItemDTOList);
 
         // 커뮤니티 정보 DTO 리스트로 변환
         List<ResponseCommunityDTO> responseBoardDTOS =
                 communityEntities.stream()
                         .map(ResponseCommunityDTO::changeCommunity)
                         .toList();
+        log.debug("커뮤니티 정보 조회 {}", responseMeetSummaryDTOList);
 
         List<Category> category = new ArrayList<>();
-
         for (ResponseItemDTO item : responseItemDTOList) {
             category.add(item.getItemCategory());
         }
 
         // 레디스에 최신 검색 10개 보여주기 위해 저장
         if (member != null) {
+            log.debug("레디스 검색 저장 실행");
             // Log the search term
             RequestSearchLog requestSearchLog = RequestSearchLog.builder()
                     .name(searchCondition.getTotalKeyword())
