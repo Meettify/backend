@@ -103,10 +103,13 @@ public class CommunityServiceImpl implements CommunityService {
                 requireNonNull(findCommunity).getImages().clear();
             } else {
                 // 먼저 S3에서 삭제해야 할 이미지 처리
-                findCommunity.getImages().forEach(img -> {
-                    if (!community.getRemainImgId().contains(img.getItemImgId())) {
-                        s3ImageUploadService.deleteFile(img.getUploadImgPath(), img.getUploadImgName()); // S3에서 삭제
-                    }
+                List<CommunityImgEntity> toDelete = findCommunity.getImages().stream()
+                        .filter(img -> !community.getRemainImgId().contains(img.getItemImgId()))
+                        .toList();
+
+                toDelete.forEach(img -> {
+                    s3ImageUploadService.deleteFile(img.getUploadImgPath(), img.getUploadImgName());
+                    findCommunity.getImages().remove(img); // 이 시점에는 안전
                 });
 
                 // 이미지를 필터링하여 남겨야 할 이미지만 남김
