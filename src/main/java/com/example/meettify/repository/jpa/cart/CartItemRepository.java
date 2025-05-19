@@ -1,6 +1,8 @@
 package com.example.meettify.repository.jpa.cart;
 
 import com.example.meettify.entity.cart.CartItemEntity;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,6 +25,6 @@ public interface CartItemRepository extends JpaRepository<CartItemEntity, Long> 
 
     void deleteByItem_ItemId(Long itemId);
 
-    List<CartItemEntity> findByCart_MemberMemberEmail(String memberEmail);
+    Slice<CartItemEntity> findByCart_MemberMemberEmail(String memberEmail, Pageable page);
 
 }

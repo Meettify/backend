@@ -4,6 +4,7 @@ import com.example.meettify.dto.cart.RequestCartDTO;
 import com.example.meettify.dto.cart.UpdateCartItemDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -24,7 +25,7 @@ public interface CartControllerDocs {
     ResponseEntity<?> getCart(Long cartId, UserDetails userDetails);
 
     @Operation(summary = "장바구니 상품 조회", description = "장바구니 상품에 뭐가 있는지 알기 위한 API")
-    ResponseEntity<?> getCartItems(UserDetails userDetails);
+    ResponseEntity<?> getCartItems(UserDetails userDetails, Pageable page);
 
     @Operation(summary = "장바구니 번호 조회", description = "장바구니 번호 반환 API")
     ResponseEntity<?> getCartId(UserDetails userDetails);
