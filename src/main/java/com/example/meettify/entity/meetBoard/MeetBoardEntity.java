@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /*
- *   worker  : 조영흔
+ *   worker  : 조영흔, 유요한
  *   work    : 모임 게시물 관련 정보를 저장하기 위한 엔티티 클래스
  *   date    : 2024/09/19
  * */
@@ -57,6 +57,9 @@ public class MeetBoardEntity extends BaseEntity {
     @JsonIgnore
     private List<MeetBoardCommentEntity> comments = new ArrayList<>();
 
+    @Column(columnDefinition = "default 0", nullable = false)
+    private int viewCount;
+
     // 게시글 작성 시간 설정
     @PrePersist
     public void prePersist() {
@@ -97,5 +100,9 @@ public class MeetBoardEntity extends BaseEntity {
                 .build();
     }
 
+    // 조회수 세팅
+    public void setViewCount(int totalViewCount) {
+        this.viewCount = totalViewCount;
+    }
 
 }

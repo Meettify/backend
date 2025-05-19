@@ -4,6 +4,7 @@ package com.example.meettify.dto.meetBoard;
 import com.example.meettify.entity.meetBoard.MeetBoardEntity;
 import com.example.meettify.entity.meetBoard.MeetBoardImageEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,6 +23,8 @@ public class ResponseMeetBoardDTO {
     private List<String> images;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime postDate;
+    @Schema(description = "조회수")
+    private int viewCount;
 
 
     public static ResponseMeetBoardDTO changeDTO(MeetBoardEntity meetBoard) {
@@ -36,6 +39,7 @@ public class ResponseMeetBoardDTO {
                         .collect(Collectors.toList())
                 )
                 .postDate(meetBoard.getPostDate())
+                .viewCount(meetBoard.getViewCount())
                 .build();
     }
 }

@@ -5,13 +5,13 @@ import jakarta.persistence.*;
 import lombok.*;
 
 /*
- *   worker  : 조영흔
+ *   worker  : 조영흔, 유요한
  *   work    : 모임 게시물의 이미지 테이블 추가를 위한 엔티티
  *   date    : 2024/09/19
  * */
 @Entity(name = "meetBoardImages")
 @Getter
-@ToString
+@ToString(exclude = "meetBoardEntity")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder

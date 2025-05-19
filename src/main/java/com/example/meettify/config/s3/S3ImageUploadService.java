@@ -29,6 +29,12 @@ public class S3ImageUploadService {
     public <T> List<T> upload(String fileType,
                               List<MultipartFile> multipartFiles,
                               FileDTOFactory<T> factory) throws IOException {
+        // 새로운 이미지를 받지 않음
+        if (multipartFiles == null || multipartFiles.isEmpty()) {
+            log.debug("업로드할 파일이 없습니다. S3 업로드 생략");
+            return Collections.emptyList();
+        }
+
         List<T> uploadFiles = new ArrayList<>();
         // 파일이 업로드될 경로를 생성하는 코드
         // ex) postImages/2024/09/25
@@ -39,6 +45,11 @@ public class S3ImageUploadService {
         for (MultipartFile multipartFile : multipartFiles) {
             // 파일의 원본 이름(파일명)을 가져오는 코드
             String originalName = multipartFile.getOriginalFilename();
+
+            if (originalName == null || !originalName.contains(".")) {
+                throw new FileUploadException("유효하지 않은 파일 이름입니다.");
+            }
+
             // 업로드할 파일의 이름을 고유한 UUID 기반으로 변경
             // ex) profile.jpg가 123e4567-e89b-12d3-a456-426614174000.jpg로 변경
             // 이렇게 하는 이유는 충돌 방지와 서로 덮어쓰지 않도록 하기 위해서
@@ -84,17 +95,22 @@ public class S3ImageUploadService {
 
     // 파일의 원래 이름을 기반으로 고유한 UUID를 사용하여 새로운 파일명을 생성하는 메서드
     private String getUuidFileName(String oriFileName) {
-        String ext = oriFileName.substring(oriFileName.lastIndexOf(".") + 1);
+        if (oriFileName == null || !oriFileName.contains(".")) {
+            throw new FileUploadException("유효하지 않은 파일 이름: 확장자가 없습니다.");
+        }
+        String ext = oriFileName.substring(oriFileName.lastIndexOf(".") + 1).toLowerCase();
+
         return UUID.randomUUID().toString() + "." + ext;
     }
 
     // S3에 업로드된 파일 삭제
     public String deleteFile(String uploadFilePath, String uuidFileName) {
+        log.debug("s3 이미지 삭제 로직 실행");
         String result = "success";
-
         try {
             // ex) 구분/년/월/일/파일.확장자
             String keyName = uploadFilePath + "/" + uuidFileName;
+            log.debug("삭제 keyName {}", keyName);
             boolean isObjectExist = amazonS3.doesObjectExist(bucket, keyName);
 
             if (isObjectExist) {
@@ -111,6 +127,7 @@ public class S3ImageUploadService {
             result = "file deletion failed: " + e.getMessage();
             log.error("File deletion failed", e);
         }
+        log.debug("삭제 로직 결과 {}", result);
         return result;
     }
 

@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 
 /*
- *   worker  : 조영흔
+ *   worker  : 조영흔, 유요한
  *   work    : 서비스에 데이터를 보내주는 용도의 클래스
  *             -> 객체지향적인 개발을 하기 위해서 이렇게 하면 유연성이 증가하여 요청 데이터가 변해도
  *                서비스 로직은 변경되지 않는다.
@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 public class MeetBoardCommentServiceDTO {
     private Long meetId;
     private Long meetBoardId;
-    private Long parentComment;
+    private Long parentCommentId;
     private String content;
     private LocalDateTime postDate;
 
@@ -30,7 +30,7 @@ public class MeetBoardCommentServiceDTO {
         return MeetBoardCommentServiceDTO.builder()
                 .meetId(meetId)
                 .meetBoardId(meetBoardId)
-                .parentComment(request.getParentComment())
+                .parentCommentId(request.getParentCommentId())
                 .content(request.getContent())
                 .postDate(request.getPostDate() != null ? request.getPostDate() : LocalDateTime.now())
                 .build();

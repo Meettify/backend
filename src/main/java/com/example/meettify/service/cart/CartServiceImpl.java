@@ -20,6 +20,8 @@ import com.example.meettify.repository.jpa.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -200,13 +202,12 @@ public class CartServiceImpl implements CartService{
 
     // 장바구니 상품들 조회
     @Override
-    public List<ResponseCartItemDTO> getCartItems(String email) {
+    @Transactional(readOnly = true)
+    public Slice<ResponseCartItemDTO> getCartItems(String email, Pageable page) {
         try {
             // 장바구니 상품들 조회
-            List<CartItemEntity> findCartItems = cartItemRepository.findByCart_MemberMemberEmail(email);
-            return findCartItems.stream()
-                    .map(ResponseCartItemDTO::changeDetailDTO)
-                    .toList();
+            Slice<CartItemEntity> findCartItems = cartItemRepository.findByCart_MemberMemberEmail(email, page);
+            return findCartItems.map(ResponseCartItemDTO::changeDetailDTO);
         } catch (Exception e) {
             throw new CartException("장바구니 상품들을 조회하는 것에 실패했습니다.");
         }

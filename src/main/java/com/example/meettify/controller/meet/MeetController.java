@@ -39,10 +39,10 @@ public class MeetController implements MeetControllerDocs {
                                      MeetSearchCondition condition,
                                      @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "meetId"));
+            Pageable pageable = PageRequest.of((page -1), size, Sort.by(Sort.Direction.DESC, "meetId"));
             log.info("condition : " + condition);
             Page<MeetSummaryDTO> meets = meetService.meetsSearch(condition, pageable, (userDetails != null ? userDetails.getUsername() : ""));
-            log.info("상품 조회 {}", meets);
+            log.info("모임 조회 {}", meets.getContent());
 
 
             String email = (userDetails != null) ? userDetails.getUsername() : null;

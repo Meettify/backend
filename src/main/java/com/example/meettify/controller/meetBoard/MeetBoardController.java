@@ -2,9 +2,15 @@ package com.example.meettify.controller.meetBoard;
 
 import com.example.meettify.dto.meetBoard.*;
 import com.example.meettify.exception.board.BoardException;
+import com.example.meettify.service.meetBoard.MeetBoardCommentService;
 import com.example.meettify.service.meetBoard.MeetBoardService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -29,18 +35,17 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class MeetBoardController implements MeetBoardControllerDocs{
     private final MeetBoardService meetBoardService;
+    private final MeetBoardCommentService meetBoardCommentService;
 
     //모임의 모임 게시판 리스트 조회
     @Override
     @GetMapping("list/{meetId}")
     public ResponseEntity<?> getList(
             @PathVariable Long meetId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @PageableDefault(sort = "postDate", direction = Sort.Direction.DESC)
+            Pageable pageable) {
 
         try {
-            // Pageable 객체 생성
-            Pageable pageable = PageRequest.of(page, size);
             // 서비스에서 페이징된 게시글 리스트를 조회
             Page<MeetBoardSummaryDTO> meetBoardPage = meetBoardService.getPagedList(meetId, pageable);
 
@@ -65,17 +70,34 @@ public class MeetBoardController implements MeetBoardControllerDocs{
     //모임 게시판 상세 조회
     @Override
     @GetMapping("/{meetBoardId}")
-    public ResponseEntity<?> getDetail(@PathVariable Long meetBoardId, @AuthenticationPrincipal UserDetails userDetails) {
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<?> getDetail(@PathVariable Long meetBoardId,
+                                       @AuthenticationPrincipal UserDetails userDetails,
+                                       HttpServletRequest request,
+                                       HttpServletResponse response,
+                                       @RequestParam int page,
+                                       @RequestParam int size) {
         try {
             String email = userDetails.getUsername();
             log.info("email : " + email);
-            MeetBoardDetailsDTO meetBoardDetailsDTO = meetBoardService.getDetails(email,meetBoardId);
+            // 게시글 권한
             MeetBoardPermissionDTO meetBoardPermission = meetBoardService.getPermission(email, meetBoardId);
-            ResponseMeetBoardDetailPermissionDTO response = ResponseMeetBoardDetailPermissionDTO.builder()
+            // 페이지 처리
+            PageRequest pageRequest = PageRequest.of(page, size);
+            // 댓글과 게시글 반환
+            MeetBoardDetailsDTO meetBoardDetailsDTO =
+                    meetBoardService.getDetails(
+                            email,
+                            meetBoardId,
+                            request,
+                            response,
+                            pageRequest);
+            // 반환
+            ResponseMeetBoardDetailPermissionDTO result = ResponseMeetBoardDetailPermissionDTO.builder()
                     .meetBoardDetailsDTO(meetBoardDetailsDTO)
                     .meetBoardPermissionDTO(meetBoardPermission)
                     .build();
-            return ResponseEntity.status(HttpStatus.OK).body(response);
+            return ResponseEntity.status(HttpStatus.OK).body(result);
         } catch (Exception e) {
             log.error("예외 : " + e.getMessage());
             throw new BoardException(e.getMessage());
@@ -86,10 +108,10 @@ public class MeetBoardController implements MeetBoardControllerDocs{
     @Override
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> makeBoard(@Validated @RequestPart("meetBoard") RequestMeetBoardDTO meetBoard,
-                                       @RequestPart(value = "images" , required = false) List<MultipartFile> images,
                                        BindingResult bindingResult,
+                                       @RequestPart(value = "images" , required = false) List<MultipartFile> images,
                                        @AuthenticationPrincipal UserDetails userDetails) {
-        System.out.println("postBoard 컨트럴러 입장");
+        log.debug("postBoard 컨트럴러 입장");
         try {
             if (bindingResult.hasErrors()) {
                 log.error("binding error : {}", bindingResult.getAllErrors());
@@ -121,8 +143,8 @@ public class MeetBoardController implements MeetBoardControllerDocs{
     public ResponseEntity<?> updateBoard(
             @PathVariable Long meetBoardId,
             @Valid  @RequestPart("updateBoard") UpdateRequestMeetBoardDTO requestMeetBoardDTO,
-            @RequestPart(value = "images", required = false) List<MultipartFile> images,
             BindingResult bindingResult,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
             // 입력값 검증 예외가 발생하면 예외 메세지를 출력

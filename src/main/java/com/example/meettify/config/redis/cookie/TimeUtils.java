@@ -1,4 +1,4 @@
-package com.example.meettify.config.cookie;
+package com.example.meettify.config.redis.cookie;
 
 import org.springframework.stereotype.Component;
 

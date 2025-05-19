@@ -10,6 +10,7 @@ import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -21,6 +22,7 @@ import static com.example.meettify.entity.meet.QMeetEntity.meetEntity;
 import static org.springframework.util.StringUtils.hasText;
 
 @RequiredArgsConstructor
+@Slf4j
 public class MeetRepositoryImpl implements CustomMeetRepository {
     private final JPAQueryFactory queryFactory;
 
@@ -75,6 +77,12 @@ public class MeetRepositoryImpl implements CustomMeetRepository {
      * @return BooleanExpression, 이름이 있을 경우 조건을 반환하며 없으면 null을 반환
      */
     private BooleanExpression nameEq(String name) {
+        log.debug("🚨 name param: '" + name + "'");
+        if (name != null) {
+            log.debug("📌 name type: {}", name.getClass().getName()); // 전체 패키지 포함 타입 출력
+        } else {
+            log.debug("📌 name is null");
+        }
         // hasText는 null 또는 빈 문자열이 아닌 경우 true를 반환합니다.
         return hasText(name) ? meetEntity.meetName.likeIgnoreCase("%" + name + "%") : null;
     }
@@ -85,6 +93,12 @@ public class MeetRepositoryImpl implements CustomMeetRepository {
      * @return BooleanExpression, 카테고리가 있을 경우 조건을 반환하며 없으면 null을 반환
      */
     private BooleanExpression categoryEq(Category category) {
+        log.debug("🚨 category param: '" + category + "'");
+        if (category != null) {
+            log.debug("📌 category type: {}", category.getClass().getName()); // 전체 패키지 포함 타입 출력
+        } else {
+            log.debug("📌 category is null");
+        }
         // 카테고리가 null이 아닐 경우 해당 카테고리로 필터링
         return category != null ? meetEntity.meetCategory.eq(category) : null;
     }

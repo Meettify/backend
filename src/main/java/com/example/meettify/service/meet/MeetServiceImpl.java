@@ -249,11 +249,6 @@ public class MeetServiceImpl implements MeetService {
             // MeetEntity 페이지 가져오기
             Page<MeetEntity> meetPage = meetRepository.meetsSearch(condition, pageable);
 
-            // 검색된 모임이 없을 경우 예외 처리
-            if (meetPage.isEmpty()) {
-                throw new EntityNotFoundException("조건에 만족하는 모임이 없습니다.");
-            }
-
             // 사용자 정보를 통해 모임 멤버 ID 목록 조회
             MemberEntity member = memberRepository.findByMemberEmail(email);
             Set<Long> memberMeetIds = (member != null) ? meetMemberRepository.findMeetMemberIdByEmail(email) : Collections.emptySet();

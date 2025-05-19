@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +17,6 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 public class UpdateMeetDTO {
-
-
     @Schema(description = "모임 이름", example = "런닝 크루")
     @NotNull(message = "모임명은 필수입니다.")
     @Pattern(regexp="^[\\S\\s]{1,25}$", message = "모임명은 1자 이상 25자 이하이어야 합니다.")
@@ -43,7 +40,7 @@ public class UpdateMeetDTO {
 
     @Schema(description = "기존 모임 이미지중 유지할 것",example = "s3URL")
     @Builder.Default
-    private List<String> exigistingImages = new ArrayList<String>();
+    private List<String> existingImages = new ArrayList<String>();
 
     @Schema(description = "카테고리 정하기", example = "운동")
     @NotNull(message = "모임 카테고리는 필수입니다.")

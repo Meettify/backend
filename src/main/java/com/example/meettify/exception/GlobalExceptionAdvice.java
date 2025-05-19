@@ -34,6 +34,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -85,6 +86,25 @@ public class GlobalExceptionAdvice {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(errorResponse);
+    }
+
+    // JSON 파싱 실패 (multipart/form-data 내 JSON DTO 오류 등)
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleJsonParseError(HttpMessageNotReadableException ex, HttpServletRequest request) {
+        String message = "요청 본문의 JSON이 잘못되었습니다. (HttpMessageNotReadableException)";
+        log.error("JSON 파싱 오류: {}", ex.getMessage());
+
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setError("요청 파싱 에러 발생");
+        errorResponse.setMessage(message);
+        errorResponse.setTimestamp(LocalDateTime.now());
+        errorResponse.setPath(request.getRequestURI());
+        errorResponse.setMethod(request.getMethod());
+
+        // 슬랙 알림 전송
+        slackUtil.sendAlert(ex, new RequestInfo(request));
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     // SSE 관련 예외 처리

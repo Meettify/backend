@@ -211,4 +211,17 @@ public class ItemController implements ItemControllerDocs{
             throw new ItemException(e.getMessage());
         }
     }
+
+    // 상품 TOP 10
+    @Override
+    @GetMapping("/top")
+    public ResponseEntity<?> getTopItems() {
+        try {
+            List<ResponseItemDTO> result = itemService.getTopItemIds(10);
+            log.debug("반환할 값 {}", result);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            throw new ItemException(e.getMessage());
+        }
+    }
 }

@@ -167,7 +167,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/meetBoards/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/v1/meetBoards/list/{meetId}").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.GET,"/api/v1/meetBoards/{meetBoardId}").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.POST,"/api/v1/meetBoards/").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST,"/api/v1/meetBoards").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE,"/api/v1/meetBoards/{meetId}/{meetBoardId}").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.PUT,"/api/v1/meetBoards/{meetBoardId}").hasAnyRole("USER", "ADMIN")
 

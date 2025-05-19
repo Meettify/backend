@@ -48,4 +48,7 @@ public interface CommunityControllerDocs {
 
     @Operation(summary = "모든 커뮤니티 수량 보기", description = "모든 커뮤니티 작성 수량 보기 API")
     ResponseEntity<?> countAllItems();
+
+    @Operation(summary = "커뮤니티 상위 10개 보기", description = "조회수 TOP 10개를 높은 순으로 보여주는 API")
+    ResponseEntity<?> getTopCommunities();
 }

@@ -8,11 +8,9 @@ import com.example.meettify.entity.member.MemberEntity;
 import com.example.meettify.exception.member.MemberException;
 import com.example.meettify.repository.jpa.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;

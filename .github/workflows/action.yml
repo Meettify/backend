@@ -1,6 +1,16 @@
 name: CI/CD Pipeline
 # main으로 이동하면 동작
 on:
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: '실제 EC2 배포 실행 여부'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
   pull_request:
     types: [closed] # PR이 닫힐 때 실행 즉, 머지될 때
     branches:
@@ -11,6 +21,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Check EC2 availability
+        id: ec2_check
+        run: |
+          timeout 3 bash -c "</dev/tcp/${{ secrets.PUBLIC_IP }}/22" && echo "ok=true" >> $GITHUB_OUTPUT || echo "ok=false" >> $GITHUB_OUTPUT
+
       # 1. 코드 체크아웃
       - name: Checkout code from GitHub
         uses: actions/checkout@v4
@@ -52,13 +67,9 @@ jobs:
           SPRING_PROFILES_ACTIVE: prod  # 활성 Spring 프로파일 설정
           REDIS_HOST: redis  # Redis 서비스 이름으로 설정
           REDIS_PORT: 6379  # Redis 포트
-        run: ./gradlew clean build -x test --parallel # 테스트 제외하고 빌드
+        run: ./gradlew clean build --parallel
 
-      # 6. 테스트 실행
-      - name: Run Tests
-        run: ./gradlew test
-
-      # 7. Docker 설치
+      # 6. Docker 설치
       - name: Install Docker
         run: |
           if ! command -v docker &> /dev/null; then
@@ -73,7 +84,7 @@ jobs:
             echo "Docker is already installed."
           fi
 
-      # Docker Compose 설치
+      # 7. Docker Compose 설치
       - name: Install Docker Compose
         run: |
           if ! command -v docker-compose &> /dev/null; then
@@ -104,6 +115,7 @@ jobs:
 
       # 10. 기존 docker-compose.yml 파일 삭제 (EC2에서)
       - name: SSH to EC2 and remove old docker-compose.yml
+        if: ${{ inputs.deploy == 'true' && steps.ec2_check.outputs.ok == 'true' }}
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.PUBLIC_IP }}
@@ -119,6 +131,7 @@ jobs:
 
       # 11. docker-compose.yml 파일을 EC2로 복사
       - name: Copy docker-compose.yml to EC2
+        if: ${{ inputs.deploy == 'true' && steps.ec2_check.outputs.ok == 'true' }}
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.PUBLIC_IP }}
@@ -130,6 +143,7 @@ jobs:
 
       # 12. Gradle 빌드 후 생성된 JAR 파일을 EC2로 복사
       - name: Copy JAR file to EC2
+        if: ${{ inputs.deploy == 'true' && steps.ec2_check.outputs.ok == 'true' }}
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.PUBLIC_IP }}
@@ -141,6 +155,7 @@ jobs:
 
       # 13. EC2에 SSH 접속해서 배포
       - name: SSH to EC2 and deploy
+        if: ${{ inputs.deploy == 'true' && steps.ec2_check.outputs.ok == 'true' }}
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.PUBLIC_IP }}
@@ -151,14 +166,62 @@ jobs:
             
             # 사용하지 않는 이미지 및 볼륨 정리
             echo "Cleaning up unused Docker images, containers, and volumes..."
-            docker system prune -a --volumes -f
-
-            # 최신 이미지를 가져와 컨테이너 갱신
-            echo "Pulling the latest images..."
-            docker-compose pull
+            docker image prune -a -f
+            docker container prune -f
 
             # 변경 사항 반영 및 컨테이너 재시작
             echo "Starting updated containers..."
             docker-compose up -d --build
 
+      # 14. Spring Boot Actuator를 이용해 컨테이너가 정상 기동됐는지 확인
+      - name: Health Check (Spring Boot Actuator)
+        if: ${{ inputs.deploy == 'true' && steps.ec2_check.outputs.ok == 'true' }}
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PUBLIC_IP }}
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            echo "Waiting for application to start..."
+            for i in {1..10}; do
+              STATUS=$(curl -s -o /dev/null -w "%{http_code}" https:meettify.store/monitor/health)
+              if [ "$STATUS" -eq 200 ]; then
+                echo "✅ App is healthy!"
+                exit 0
+              fi
+              echo "Waiting for health check... ($i/10)"
+              sleep 5
+            done
+            echo "❌ Health check failed!"
+            exit 1
+
+      # 15. 디스코드에 webhook 설정
+      - name: Send Discord Webhook on Success
+        if: ${{ success() && inputs.deploy == 'true' && steps.ec2_check.outputs.ok == 'true' }}
+        run: |
+          curl -H "Content-Type: application/json" \
+               -X POST \
+               -d '{
+                  "content": "✅ *배포 성공!*",
+                  "embeds": [
+                      {
+                        "title": "메인 브랜치에 머지됨",
+                        "description": "Docker 이미지 빌드 및 배포 완료",
+                        "color": 3066993,
+                        "fields": [
+                            { "name": "커밋", "value": "${{ github.sha }}", "inline": true },
+                            { "name": "작성자", "value": "${{ github.actor }}", "inline": true }
+                        ]
+                      }
+                    ]
+                }'
+
+      - name: Send Discord Webhook on Failure
+        if: ${{ failure() && inputs.deploy == 'true' && steps.ec2_check.outputs.ok == 'true' }}
+        run: |
+          curl -H "Content-Type: application/json" \
+               -X POST \
+               -d '{"content": "❌ *배포 실패:* CI/CD 도중 에러 발생!"}' \
+               ${{ secrets.GITHUB_DISCORD_WEBHOOK }}
 

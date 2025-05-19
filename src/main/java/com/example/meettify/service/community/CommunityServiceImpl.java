@@ -1,7 +1,8 @@
 package com.example.meettify.service.community;
 
-import com.example.meettify.config.cookie.CookieUtils;
+import com.example.meettify.config.redis.cookie.CookieUtils;
 import com.example.meettify.config.metric.TimeTrace;
+import com.example.meettify.config.redis.RedisViewCountConfig;
 import com.example.meettify.config.s3.S3ImageUploadService;
 import com.example.meettify.dto.board.CreateServiceDTO;
 import com.example.meettify.dto.board.ResponseCommunityDTO;
@@ -26,7 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
@@ -39,7 +41,7 @@ public class CommunityServiceImpl implements CommunityService {
     private final CommunityRepository communityRepository;
     private final MemberRepository memberRepository;
     private final S3ImageUploadService s3ImageUploadService;
-    private final RedisCommunityService redisCommunityService;
+    private final RedisViewCountConfig redisViewCountConfig;
 
     // 커뮤니티 생성
     @Override
@@ -86,6 +88,7 @@ public class CommunityServiceImpl implements CommunityService {
                                             UpdateServiceDTO community,
                                             List<MultipartFile> files) {
         try {
+
             // 커뮤니티 조회
             CommunityEntity findCommunity = communityRepository.findById(communityId)
                     .orElseThrow(() -> new ItemException("Community not found with id: " + communityId));
@@ -100,10 +103,13 @@ public class CommunityServiceImpl implements CommunityService {
                 requireNonNull(findCommunity).getImages().clear();
             } else {
                 // 먼저 S3에서 삭제해야 할 이미지 처리
-                findCommunity.getImages().forEach(img -> {
-                    if (!community.getRemainImgId().contains(img.getItemImgId())) {
-                        s3ImageUploadService.deleteFile(img.getUploadImgPath(), img.getUploadImgName()); // S3에서 삭제
-                    }
+                List<CommunityImgEntity> toDelete = findCommunity.getImages().stream()
+                        .filter(img -> !community.getRemainImgId().contains(img.getItemImgId()))
+                        .toList();
+
+                toDelete.forEach(img -> {
+                    s3ImageUploadService.deleteFile(img.getUploadImgPath(), img.getUploadImgName());
+                    findCommunity.getImages().remove(img); // 이 시점에는 안전
                 });
 
                 // 이미지를 필터링하여 남겨야 할 이미지만 남김
@@ -133,9 +139,9 @@ public class CommunityServiceImpl implements CommunityService {
         try {
             String viewCountCookieValue = CookieUtils.getViewCountCookieValue(request, response);
 
-            if(!redisCommunityService.isExistInSet(viewCountCookieValue, communityId)) {
-                increaseViewCountAsync("community:view:" + communityId);
-                redisCommunityService.addToSet(viewCountCookieValue, communityId);
+            if(!redisViewCountConfig.isExistInRedis(viewCountCookieValue, communityId)) {
+                increaseViewCountAsync("community:view:" + communityId, communityId);
+                redisViewCountConfig.addToSet(viewCountCookieValue, communityId);
             }
 
             // 조회수 증가 후 다시 엔티티 조회
@@ -147,7 +153,7 @@ public class CommunityServiceImpl implements CommunityService {
             // Redis에서 조회수 가져오기
             Integer redisViewCount = null;
             try {
-                redisViewCount = redisCommunityService.getViewCount("community:view:"  + communityId);
+                redisViewCount = redisViewCountConfig.getViewCount("community:view:"  + communityId);
             } catch (Exception e) {
                 log.error("Error retrieving view count from Redis for communityId {}: {}", communityId, e.getMessage());
                 // Redis 오류 발생 시 기본 조회수를 사용
@@ -167,9 +173,9 @@ public class CommunityServiceImpl implements CommunityService {
     // 이 메서드는 Redis에 비동기적으로 조회수를 증가시킵니다.
     // 이를 통해 사용자 요청 처리 시간에 영향을 주지 않고, 조회수를 빠르게 업데이트할 수 있습니다.
     @Async
-    public void increaseViewCountAsync(String viewCountKey) {
+    public void increaseViewCountAsync(String viewCountKey, Long communityId) {
         try {
-            redisCommunityService.increaseData(viewCountKey);
+            redisViewCountConfig.increaseViewCount(viewCountKey, communityId);
         } catch (Exception e) {
             log.warn("Error increasing view count in Redis for key {}: {}", viewCountKey, e.getMessage());
         }
@@ -187,7 +193,7 @@ public class CommunityServiceImpl implements CommunityService {
                         img -> s3ImageUploadService.deleteFile(img.getUploadImgPath(), img.getUploadImgName())
                 );
                 communityRepository.delete(findCommunity);
-                redisCommunityService.deleteData("viewCount_community" + findCommunity.getCommunityId());
+                redisViewCountConfig.deleteCount("community:view:" + findCommunity.getCommunityId());
                 return "삭제가 완료되었습니다.";
             }
             throw new BoardException("커뮤니티 글이 존재하지 않습니다. 잘못된 id를 보냈습니다.");
@@ -207,6 +213,7 @@ public class CommunityServiceImpl implements CommunityService {
             log.debug("조회된 커뮤니티 수 : {}", findAllCommunity.getTotalElements());
             log.debug("조회된 커뮤니티 : {}", findAllCommunity);
 
+            // 레디스에서 조회수 조회
             countRedisView(findAllCommunity);
 
             return findAllCommunity.map(ResponseCommunityDTO::changeCommunity);
@@ -219,7 +226,7 @@ public class CommunityServiceImpl implements CommunityService {
     private void countRedisView(Page<CommunityEntity> findAllCommunity) {
         // 각 커뮤니티 게시글에 대해 Redis 조회수를 가져와서 합산
         findAllCommunity.forEach(community -> {
-            Integer redisViewCount = redisCommunityService.getViewCount("community:view:" + community.getCommunityId());
+            Integer redisViewCount = redisViewCountConfig.getViewCount("community:view:" + community.getCommunityId());
             int totalViewCount = community.getViewCount() + (redisViewCount != null ? redisViewCount : 0);
             community.setViewCount(totalViewCount);  // or update DTO to reflect this view count
         });
@@ -283,5 +290,58 @@ public class CommunityServiceImpl implements CommunityService {
         } catch (Exception e) {
             throw new BoardException("커뮤니티 수량을 가져오는데 실패");
         }
+    }
+
+    // 커뮤니티 랭킹 TOP 10을 레디스 & 디비에서 가져옴
+    @Override
+    @Transactional(readOnly = true)
+    public List<ResponseCommunityDTO> getTopBoards() {
+        // 레디스에서 ZSET 랭킹 가져옴
+        List<Long> topRankedCommunityIds = redisViewCountConfig.getTopRankedCommunityIds(10);
+        log.debug("레디스 TOP 10 communities ids{}", topRankedCommunityIds);
+
+        List<CommunityEntity> communityRanked;
+        // SET에 비어져 있으면 SET에 담긴 레디스 조회수를 DB에 보내줌
+        if(topRankedCommunityIds == null || topRankedCommunityIds.isEmpty()) {
+            // 레디스 SET에 담긴 id들 가져오기
+            Set<Long> ids = redisViewCountConfig.getId("community:view:set");
+            log.debug("ZSET에 없으므로 SET에서 꺼내와서 조회, SET ids {}", ids);
+            if (ids != null && !ids.isEmpty()) {
+                for (Long id : ids) {
+                    Integer viewCount = redisViewCountConfig.getAndDeleteViewCount("community:view:" + id);
+                    if(viewCount != null) {
+                        communityRepository.incrementViewCount(id, viewCount);
+                    }
+                }
+            }
+
+            communityRanked = new ArrayList<>(communityRepository.findTop10ByOrderByViewCountDesc());
+        } else {
+            // DB에서 커뮤니티 조회수 TOP 10을 가져옴
+            // CommunityEntity::getCommunityId → 맵의 key로 사용 (communityId)
+            // e -> e → 맵의 value로 사용 (엔티티 객체 그 자체)
+            Map<Long, CommunityEntity> entityMap = communityRepository.findByTopCommunityIds(topRankedCommunityIds).stream()
+                    .collect(Collectors.toMap(CommunityEntity::getCommunityId, e -> e));
+            log.debug("entityMap {}", entityMap);
+            communityRanked = topRankedCommunityIds.stream()
+                    .map(id -> {
+                        // ZSET 순서대로 DB에서 조회한 엔티티 조회
+                        CommunityEntity entity = entityMap.get(id);
+                        if(entity == null) return null;
+                        // 레디스에서 커뮤니티 조회수 조회
+                        Integer redisView = redisViewCountConfig.getViewCount("community:view:" + id);
+                        // 레디스 조회수와 DB에서 가져온 조회수를 더해줌
+                        int totalView = entity.getViewCount() + (redisView != null ? redisView : 0);
+                        // 커뮤니티 엔티티에 조화수 합산을 넣어줌
+                        entity.setViewCount(totalView);
+                        return entity;
+                    })
+                    .filter(Objects::nonNull)   // 혹시 DB에 없는 ID는 제외
+                    .collect(Collectors.toList());
+        }
+        log.debug("디비 조회 커뮤니티 확인 {}", communityRanked);
+        return communityRanked.stream()
+                .map(ResponseCommunityDTO::changeCommunity)
+                .toList();
     }
 }

@@ -45,4 +45,7 @@ public interface CommunityService {
     // 모든 커뮤니티 글 수
     long countAllCommunity();
 
+    // 조회수 TOP10개 가져오기
+    List<ResponseCommunityDTO> getTopBoards();
+
 }

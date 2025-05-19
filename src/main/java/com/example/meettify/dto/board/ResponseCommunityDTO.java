@@ -17,7 +17,7 @@ import java.util.List;
 @Builder
 public class ResponseCommunityDTO {
     @Schema(description = "게시글 번호", example = "1")
-    private Long boardId;
+    private Long communityId;
 
     @Schema(description = "게시글 제목")
     @NotNull(message = "게시글 제목은 필 수 입력입니다.")
@@ -47,7 +47,7 @@ public class ResponseCommunityDTO {
                 .toList();
 
         return ResponseCommunityDTO.builder()
-                .boardId(community.getCommunityId())
+                .communityId(community.getCommunityId())
                 .title(community.getTitle())
                 .content(community.getContent())
                 .nickName(nickName)
@@ -63,7 +63,7 @@ public class ResponseCommunityDTO {
                 .toList();
 
         return ResponseCommunityDTO.builder()
-                .boardId(community.getCommunityId())
+                .communityId(community.getCommunityId())
                 .title(community.getTitle())
                 .content(community.getContent())
                 .nickName(community.getMember().getNickName())
@@ -81,7 +81,7 @@ public class ResponseCommunityDTO {
                 .toList();
 
         return ResponseCommunityDTO.builder()
-                .boardId(community.getCommunityId())
+                .communityId(community.getCommunityId())
                 .title(community.getTitle())
                 .content(community.getContent())
                 .nickName(community.getMember().getNickName())

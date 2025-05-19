@@ -7,7 +7,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 /*
- *   worker  : 조영흔
+ *   worker  : 조영흔링, 유요한
  *   work    : 모임 Comment 작성시 프론트가 보내주는 DTO
  *   date    : 2024/10/03
  * */
@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 public class RequestMeetBoardCommentDTO {
 
     @Schema(description = "대댓글의 경우 부모를 보내줘야함", example = "1")
-    private Long parentComment;
+    private Long parentCommentId;
 
     @Schema(description = "댓글 내용", example = "정말 즐거운 댓글")
     @NotNull(message = "댓글 내용은 필수입니다.")

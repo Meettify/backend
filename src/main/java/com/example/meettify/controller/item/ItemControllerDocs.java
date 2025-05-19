@@ -53,4 +53,7 @@ public interface ItemControllerDocs {
 
     @Operation(summary = "전체 상품 수", description = "전체 상품 수 카운트 API")
     ResponseEntity<?> countItems();
+
+    @Operation(summary = "상품 랭킹", description = "상품 TOP10 보여주는 API")
+    ResponseEntity<?> getTopItems();
 }

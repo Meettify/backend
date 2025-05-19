@@ -8,12 +8,11 @@ import com.example.meettify.exception.not_found.ResourceNotFoundException;
 import com.example.meettify.exception.timeout.RequestTimeoutException;
 import com.example.meettify.service.search.RedisSearchLogService;
 import com.example.meettify.service.search.SearchService;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +22,6 @@ import java.util.List;
 @RestController
 @Slf4j
 @RequestMapping("/api/v1/search")
-@Tag(name = "search", description = "전체 검색하는 API")
 @RequiredArgsConstructor
 public class SearchController implements  SearchControllerDocs {
     private final SearchService searchService;
@@ -31,9 +29,11 @@ public class SearchController implements  SearchControllerDocs {
 
     @Override
     @GetMapping
-    public ResponseEntity<?> getSearch(SearchCondition searchCondition, @AuthenticationPrincipal UserDetails userDetails) throws Exception {
+    public ResponseEntity<?> getSearch(SearchCondition searchCondition,
+                                       @Nullable @AuthenticationPrincipal() UserDetails userDetails) throws Exception {
         try {
-            String email = (userDetails != null) ? userDetails.getUsername() : "";  // 비로그인 사용자에 대해 빈 문자열 처리
+            log.debug("검색 컨트롤러 동작");
+            String email = (userDetails != null) ? userDetails.getUsername() : null;  // 비로그인 사용자에 대해 빈 문자열 처리
             SearchResponseDTO searchResponseDTO = searchService.searchResponseDTO(searchCondition, email);
             return ResponseEntity.status(HttpStatus.OK).body(searchResponseDTO);
         } catch (IllegalArgumentException e) {
