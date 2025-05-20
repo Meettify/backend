@@ -36,6 +36,7 @@ public class StompHandler implements ChannelInterceptor {
 
             if (authorization != null && authorization.startsWith("Bearer ")) {
                 String token = authorization.substring(7);
+                log.debug("토큰 체크 {}", token);
                 if (!jwtProvider.validateToken(token)) {
                     throw new AccessDeniedException("유효하지 않은 토큰입니다.");
                 }
