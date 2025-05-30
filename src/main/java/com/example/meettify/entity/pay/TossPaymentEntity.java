@@ -1,5 +1,6 @@
 package com.example.meettify.entity.pay;
 
+import com.example.meettify.config.auditing.entity.BaseEntity;
 import com.example.meettify.dto.order.RequestOrderDTO;
 import com.example.meettify.dto.pay.RequestTossPaymentConfirmDTO;
 import com.example.meettify.dto.pay.ResponseTossPaymentConfirmDTO;
@@ -17,7 +18,7 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Getter
-public class TossPaymentEntity {
+public class TossPaymentEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "toss_payment_id")
@@ -31,9 +32,6 @@ public class TossPaymentEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private MemberEntity member;
-    @Column(nullable = false)
-    private OffsetDateTime requestedAt;
-    private OffsetDateTime approvedAt;
     @Column(nullable = false, length = 100)
     private String orderUid;
 
@@ -46,8 +44,6 @@ public class TossPaymentEntity {
                 .orderUid(pay.getOrderUid())
                 .paymentKey(pay.getPaymentKey())
                 .member(member)
-                .requestedAt(pay.getRequestedAt())
-                .approvedAt(pay.getApprovedAt())
                 .build();
     }
 }
