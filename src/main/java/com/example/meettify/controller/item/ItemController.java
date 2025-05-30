@@ -12,7 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -105,7 +107,9 @@ public class ItemController implements ItemControllerDocs{
     // http://localhost:8080/api/v1/items/search?title=당&page=1&sort=itemId,asc
     @Override
     @GetMapping("/search")
-    public ResponseEntity<?> searchItemsConditions(Pageable page,
+    public ResponseEntity<?> searchItemsConditions(@RequestParam(required = false) Long lastItemId,
+                                                   @RequestParam(defaultValue = "10") int size,
+                                                   @RequestParam(value = "sort", required = false) String sort,
                                                    @RequestParam(value = "title", required = false) String title,
                                                    @RequestParam(value = "minPrice", required = false, defaultValue = "0") int minPrice,
                                                    @RequestParam(value = "maxPrice", required = false, defaultValue = "0") int maxPrice,
@@ -120,7 +124,8 @@ public class ItemController implements ItemControllerDocs{
                     .category(category)
                     .status(status)
                     .build();
-            Page<ResponseItemDTO> items = itemService.searchItems(condition, page);
+
+            Slice<ResponseItemDTO> items = itemService.searchItems(condition, lastItemId, size, sort);
             log.info("condition : " + condition);
             log.info("상품 조회 {}", items);
 
@@ -132,14 +137,12 @@ public class ItemController implements ItemControllerDocs{
         }
     }
 
-    private static @NotNull Map<String, Object> responseItemInfo(Page<ResponseItemDTO> items) {
+    private static @NotNull Map<String, Object> responseItemInfo(Slice<ResponseItemDTO> items) {
         Map<String, Object> response = new HashMap<>();
         // 현재 페이지의 아이템 목록
         response.put("items", items.getContent());
         // 현재 페이지 번호
         response.put("nowPageNumber", items.getNumber() + 1);
-        // 전체 페이지 수
-        response.put("totalPage", items.getTotalPages());
         // 한 페이지에 출력되는 데이터 개수
         response.put("pageSize", items.getSize());
         // 다음 페이지 존재 여부
@@ -159,7 +162,7 @@ public class ItemController implements ItemControllerDocs{
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
     public ResponseEntity<?> recommendItems(@AuthenticationPrincipal UserDetails userDetails) {
         try {
-            String email = userDetails.getUsername();
+            String email = userDetails.getUsername() != null ? userDetails.getUsername() : null;
             List<ResponseItemDTO> response = itemService.recommendItemsBySearchHistory(email);
             log.info("response {}", response);
             return ResponseEntity.ok().body(response);
@@ -172,9 +175,11 @@ public class ItemController implements ItemControllerDocs{
     @Override
     @GetMapping("/item-list")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> getItemList(Pageable page) {
+    public ResponseEntity<?> getItemList(Long lastItemId,
+                                         int size,
+                                         String sort) {
         try {
-            Page<ResponseItemDTO> items = itemService.requestItemList(page);
+            Slice<ResponseItemDTO> items = itemService.requestItemList(lastItemId, size, sort);
             log.info("condition : " + items);
             log.info("상품 조회 {}", items);
 
