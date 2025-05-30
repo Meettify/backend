@@ -36,6 +36,8 @@ public class ResponseCommentDTO {
     private Long parentCommentId;
     @Schema(description = "작성자 유저 번호")
     private Long memberId;
+    @Schema(description = "댓글 삭제 표시")
+    private boolean isDeleted = false;
 
 
     @Builder.Default
@@ -109,6 +111,7 @@ public class ResponseCommentDTO {
                 .parentCommentId(parentCommentId)
                 .children(childrenDTO)
                 .memberId(comment.getMember().getMemberId())
+                .isDeleted(comment.isDeleted())
                 .build();
     }
 
@@ -123,6 +126,7 @@ public class ResponseCommentDTO {
                 .nickName(nickName)
                 .parentCommentId(parentCommentId)
                 .memberId(children.getMember().getMemberId())
+                .isDeleted(children.isDeleted())
                 .build();
     }
 
