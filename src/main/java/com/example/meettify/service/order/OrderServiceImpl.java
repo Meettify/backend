@@ -30,6 +30,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Transactional
 @RequiredArgsConstructor
@@ -108,12 +109,13 @@ public class OrderServiceImpl implements OrderService {
 
 
             }
-            String merchantUid = generateMerchantUid(); //주문번호 생성
+            String orderUUid = generateMerchantUid(); //주문번호 생성
             // 주문 DTO 생성
-            ResponseOrderDTO response = ResponseOrderDTO.createDTO(orderItems, findMember.getAddress(), merchantUid, totalPrice);
+            ResponseOrderDTO response = ResponseOrderDTO.createDTO(orderItems, findMember.getAddress(), orderUUid, totalPrice);
 
             log.info("responseOrderDTO: {}", response);
-            session.setAttribute("order_" + merchantUid, response); // 세션에 저장
+            String key = "order:" + orderUUid;
+            redisTemplate.opsForValue().set(key, response, 10, TimeUnit.MINUTES);
 
             return response;
         } catch (Exception e) {
@@ -210,11 +212,9 @@ public class OrderServiceImpl implements OrderService {
                 }
             }
 
-            ResponseOrderDTO orderInfo = (ResponseOrderDTO) session.getAttribute("order_" + orderUUid);
-
-            if (!orderInfo.getOrderUid().equals(orderUUid)) {
-                throw new OrderException("주문 정보와 일치하지 않습니다.");
-            }
+            // Redis에서 임시 주문 정보 조회
+            ResponseOrderDTO orderInfo = (ResponseOrderDTO) redisTemplate.opsForValue().get("order:" + orderUUid);
+            if (orderInfo == null) throw new OrderException("임시 주문 정보 없음");
 
             double weightCount = 1.0;      // 수량에 대한 가중치
             double weightAmount = 0.001;   // 금액에 대한 가중치 (예: 1000원 = 1점)
@@ -235,10 +235,12 @@ public class OrderServiceImpl implements OrderService {
                 redisTemplate.opsForZSet()
                         .incrementScore("item:order:zset", itemId, score);
             }
-
+            boolean exists = orderRepository.existsByOrderUUIDid(orderUUid);
+            if (exists) throw new OrderException("이미 처리된 주문입니다.");
             OrderEntity saveOrder = orderRepository.save(orderEntity); // 주문 저장
             // 주문 상태를 결제 상태로 변경
             saveOrder.changePayStatus(PayStatus.PAY_O);
+            log.debug("주문 상태 확인 : {}", saveOrder.getPayStatus());
 
             return ResponseOrderDTO.changeDTO(saveOrder, AddressDTO.changeDTO(findMember.getAddress()), orderUUid);
         } catch (Exception e) {
@@ -254,7 +256,7 @@ public class OrderServiceImpl implements OrderService {
     public Page<ResponseOrderDTO> getMyOrders(String email, Pageable pageable) {
         try {
             Page<OrderEntity> findAllOrders = orderRepository.findAllByMemberEmail(email, pageable);
-            log.debug("findAllOrders{} ", findAllOrders);
+            log.debug("findAllOrders{} ", findAllOrders.getContent());
             return findAllOrders
                     .map(ResponseOrderDTO::viewChangeDTO);
         } catch (Exception e) {
