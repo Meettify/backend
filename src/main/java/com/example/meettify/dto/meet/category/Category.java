@@ -1,12 +1,16 @@
 package com.example.meettify.dto.meet.category;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.ToString;
 
 /*
- *   worker  : 조영흔
+ *   worker  : 조영흔, 유요한
  *   work    : 모임 관련 정보의 카테고리는 나타내는 클래스
  *   date    : 2024/09/20
  * */
+@ToString
+@Getter
 public enum Category {
     @Schema(name = "스포츠")
     SPORTS,
