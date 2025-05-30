@@ -43,7 +43,6 @@ public class MeetBoardCommentEntity extends BaseEntity {
     @JoinColumn(name = "parent_comment_id")
     private MeetBoardCommentEntity parentComment;  // 대댓글인 경우 부모 댓글과의 연관관계
 
-    //부모 댁글 삭제시 자식 댓글도 삭제하기.
     @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     @JsonIgnore
@@ -51,6 +50,8 @@ public class MeetBoardCommentEntity extends BaseEntity {
 
     @Embedded
     private MeetBoardCommentPermissionEntity permission;
+
+    private boolean isDeleted = false;
 
     @PrePersist
     public void prePersist() {
@@ -92,5 +93,10 @@ public class MeetBoardCommentEntity extends BaseEntity {
     // 권한 추가
     public void addPermission(MeetBoardCommentPermissionEntity permission) {
         this.permission = permission;
+    }
+
+    // 대댓글이 있을 경우 삭제 표시
+    public void changeDelete() {
+        this.isDeleted = true;
     }
 }

@@ -5,6 +5,7 @@ import com.example.meettify.dto.meet.category.Category;
 import com.example.meettify.entity.item.ItemEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 
 import java.util.List;
 import java.util.Set;
@@ -15,12 +16,14 @@ import java.util.Set;
 *   date    : 2024/10/09
 * */
 public interface CustomItemRepository {
-    Page<ItemEntity> itemsSearch(ItemSearchCondition condition, Pageable pageable);
+    Slice<ItemEntity> itemsSearch(ItemSearchCondition condition, Long lastItemId, int size, String sort);
     long countItems(ItemSearchCondition condition);
 
     List<ItemEntity> findItemsByCategoriesAndKeyword(Set<Category> categories, String keyword);
 
-    Page<ItemEntity> findAllByWait(Pageable page);
+    Slice<ItemEntity> findAllByWait(Long lastItemId,
+                                    int size,
+                                    String sort);
 
     long countAll();
 }

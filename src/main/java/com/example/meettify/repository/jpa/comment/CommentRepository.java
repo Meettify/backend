@@ -31,5 +31,8 @@ public interface CommentRepository extends JpaRepository<CommentEntity, Long> {
             "where c.parent.commentId in :parentIds " +
             "order by c.commentId asc")
     List<CommentEntity> findChildOfChildren(@Param("parentIds") List<Long> parentIds);
+
+    @Query("select count(c) from comments c where c.parent.commentId = :parentId")
+    long countByParentId(@Param("parentId") Long parentId);
 }
 

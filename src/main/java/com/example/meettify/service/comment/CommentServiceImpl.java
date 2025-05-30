@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Transactional
@@ -118,15 +119,56 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public String deleteComment(Long commentId) {
         try {
-            CommentEntity findComment = commentRepository.findById(commentId)
-                    .orElseThrow(() -> new CommentException("댓글을 찾지 못했습니다."));
-
-            commentRepository.deleteById(commentId);
-            return "댓글 삭제 성공";
+            commentRepository.findById(commentId)
+                    // 1. 조회된 댓글이 소프트 삭제일 때
+                    .filter(Predicate.not(CommentEntity::isDeleted))
+                    .ifPresent(comment -> {
+                        if(hasRemainChildren(comment.getCommentId())) {
+                            // 3-1. 자식 댓글이 있으므로 소프트 삭제
+                            comment.changeDelete();
+                        } else {
+                            // 자식이 없으므로 삭제
+                            delete(comment);
+                        }
+                    });
+            return "댓글이 삭제되었습니다.";
         } catch (Exception e) {
             log.warn("댓글 삭제 실패: {}", e.getMessage());
             throw new CommentException("댓글 삭제하는데 실패했습니다.");
         }
+    }
+
+    // 2. 자식 댓글을 부모 댓글로 조회
+    // 0이여야 자식 댓글이 없는 것이다. 0을 초과한다는 것은 자식 댓글이 있다는 것
+    private boolean hasRemainChildren(Long parentId) {
+        return commentRepository.countByParentId(parentId) > 0;
+    }
+
+    // 3-2. 자식 댓글 삭제 및 부모 댓글 삭제
+    private void delete(CommentEntity comment) {
+        // 자식 댓글이 없을 때 들어오니 여기서 바로 삭제
+        commentRepository.delete(comment);
+        // 자식의 부모를 빼옴
+        CommentEntity parentComment = comment.getParent();
+
+        // 부모 엔티티가 있다면 상위 부모를 반복적으로 타고 올라가면서 삭제
+        while (parentComment != null) {
+            // 부모 댓글의 id를 변수로 관리
+            Long commentId = parentComment.getCommentId();
+            // 부모 댓글의 id로 DB 기준으로 자식이 남아 있는지 확인
+            boolean hasChildren = hasRemainChildren(commentId);
+
+            // 부모 댓글이 소프트 삭제이면서 자식이 없을 경우 동작
+            if(parentComment.isDeleted() && !hasChildren) {
+                // 부모 댓글을 삭제
+                commentRepository.delete(parentComment);
+                // 부모 댓글의 부모 댓글을 넣어줘서 돌림
+                parentComment = parentComment.getParent();  // 더 상위 부모로 이동
+            } else {
+                break;   // 조건 만족하지 않으면 종료
+            }
+        }
+
     }
 
     // 댓글 상세페이지

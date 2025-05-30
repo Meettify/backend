@@ -1,10 +1,7 @@
 package com.example.meettify.dto.search;
 
 import com.example.meettify.dto.meet.category.Category;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 import java.util.Objects;
@@ -13,6 +10,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @Getter
 @Builder
+@ToString
 public class SearchLog {
     private String name;
     private String createdAt;

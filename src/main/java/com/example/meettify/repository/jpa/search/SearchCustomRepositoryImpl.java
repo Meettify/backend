@@ -1,6 +1,7 @@
 package com.example.meettify.repository.jpa.search;
 
 import com.example.meettify.dto.search.SearchCondition;
+import com.example.meettify.dto.search.SearchResultDTO;
 import com.example.meettify.entity.community.CommunityEntity;
 import com.example.meettify.entity.community.QCommunityEntity;
 import com.example.meettify.entity.item.ItemEntity;
@@ -26,7 +27,7 @@ public class SearchCustomRepositoryImpl {
     private final JPAQueryFactory queryFactory;
 
     // 통합 검색 메서드
-    public HashMap<String,List> searchAll(SearchCondition searchCondition) {
+    public SearchResultDTO searchAll(SearchCondition searchCondition) {
 
         QMeetImageEntity meetImages = QMeetImageEntity.meetImageEntity;
         QItemImgEntity itemImages =  QItemImgEntity.itemImgEntity;
@@ -37,7 +38,7 @@ public class SearchCustomRepositoryImpl {
                 .leftJoin(QMeetEntity.meetEntity.meetImages, meetImages).fetchJoin()
                 .where(keywordLikeMeet(keyword))
                 .orderBy(QMeetEntity.meetEntity.meetId.desc())
-                .limit(10)
+                .limit(8)
                 .fetch();
 
         List<ItemEntity> itemResults = queryFactory
@@ -45,7 +46,7 @@ public class SearchCustomRepositoryImpl {
                 .leftJoin(QItemEntity.itemEntity.images, itemImages).fetchJoin()
                 .where(keywordLikeItem(keyword))
                 .orderBy(QItemEntity.itemEntity.itemId.desc())
-                .limit(10)
+                .limit(8)
                 .fetch();
 
         List<CommunityEntity> communityResults = queryFactory
@@ -55,14 +56,8 @@ public class SearchCustomRepositoryImpl {
                 .limit(10)
                 .fetch();
 
-         HashMap<String,List> response = new HashMap<String, List>();
-
-         response.put("meet",meetResults);
-        response.put("item",itemResults);
-        response.put("community",communityResults);
-
         // 결과를 SearchResponseDTO에 매핑하여 반환
-        return response;
+        return SearchResultDTO.setResult(meetResults, itemResults, communityResults) ;
     }
 
     // MeetEntity 필터링 조건
@@ -85,6 +80,4 @@ public class SearchCustomRepositoryImpl {
                 QItemEntity.itemEntity.itemName.likeIgnoreCase("%" + keyword + "%")
                         .or(QItemEntity.itemEntity.itemDetails.likeIgnoreCase("%" + keyword + "%")) : null;
     }
-
-
 }

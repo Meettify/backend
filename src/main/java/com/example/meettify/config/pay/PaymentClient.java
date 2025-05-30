@@ -10,6 +10,7 @@ import com.example.meettify.repository.jpa.pay.TossPaymentRepository;
 import com.example.meettify.service.order.OrderService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.ClientHttpRequestFactories;
@@ -72,12 +73,21 @@ public class PaymentClient {
             MemberEntity findMember = memberRepository.findByMemberEmail(email);
             log.debug("Payment Secret Key: " + secretKey);
 
+            // 내부 클래스 객체 생성
+            TossConfirmRequest request = TossConfirmRequest.builder()
+                    .paymentKey(tossPay.getPaymentKey())
+                    .orderId(tossPay.getOrderUid())
+                    .amount(tossPay.getAmount())
+                    .build();
+
+            log.debug("토스 요청 데이터 확인 {}", request);
+
             // HTTP 요청 후 응답을 ResponseEntity로 수동 처리
             ResponseEntity<String> responseEntity = restClient.method(HttpMethod.POST)
                     .uri(paymentProperties.getConfirmUrl())
                     .contentType(MediaType.APPLICATION_JSON)
                     .header(HttpHeaders.AUTHORIZATION, createPaymentAuthHeader())  // 수정된 헤더 설정
-                    .body(tossPay)
+                    .body(request)
                     .retrieve()
                     .toEntity(String.class);
 
@@ -98,6 +108,19 @@ public class PaymentClient {
             throw new PaymentConfirmException(e.getMessage());
         }
     }
+
+    // Toss 서버에 보낼 최소 정보만 포함한 내부 static class
+    @Getter
+    @ToString
+    @AllArgsConstructor
+    @Builder
+    private static class TossConfirmRequest {
+        private final String paymentKey;
+        private final String orderId;
+        private final Long amount;
+    }
+
+
     private String createPaymentAuthHeader() {
         String authValue = paymentProperties.getSecretKey() + ":";
         byte[] encodedBytes = Base64.getEncoder().encode(authValue.getBytes(StandardCharsets.UTF_8));

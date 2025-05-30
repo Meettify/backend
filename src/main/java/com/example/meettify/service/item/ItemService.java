@@ -6,6 +6,7 @@ import com.example.meettify.dto.item.ResponseItemDTO;
 import com.example.meettify.dto.item.UpdateItemServiceDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -27,13 +28,18 @@ public interface ItemService {
     String deleteItem(Long itemId);
 
     // 동적 검색
-    Page<ResponseItemDTO> searchItems(ItemSearchCondition condition, Pageable pageable);
+    Slice<ResponseItemDTO> searchItems(ItemSearchCondition condition,
+                                       Long lastItemId,
+                                       int size,
+                                       String sort);
 
     // 상품 추천
     List<ResponseItemDTO> recommendItemsBySearchHistory(String email);
 
     // 신청 상품 확인
-    Page<ResponseItemDTO> requestItemList(Pageable page);
+    Slice<ResponseItemDTO> requestItemList(Long lastItemId,
+                                          int size,
+                                          String sort);
 
     // 상품 컨펌
     String changeStatusItem(Long itemId);

@@ -9,6 +9,7 @@ import com.example.meettify.dto.meet.category.Category;
 import com.example.meettify.dto.search.RequestSearchLog;
 import com.example.meettify.dto.search.SearchCondition;
 import com.example.meettify.dto.search.SearchResponseDTO;
+import com.example.meettify.dto.search.SearchResultDTO;
 import com.example.meettify.entity.community.CommunityEntity;
 import com.example.meettify.entity.item.ItemEntity;
 import com.example.meettify.entity.meet.MeetEntity;
@@ -39,12 +40,12 @@ public class SearchServiceImpl implements SearchService {
     @TimeTrace
     public SearchResponseDTO searchResponseDTO(SearchCondition searchCondition, String email) {
         // 1. 검색 결과 조회
-        HashMap<String, List> searchResponse = searchCustomRepository.searchAll(searchCondition);
+        SearchResultDTO searchResponse = searchCustomRepository.searchAll(searchCondition);
 
-        // 2. 결과를 DTO로 변환
-        List<MeetEntity> meetEntityList = (List<MeetEntity>) searchResponse.get("meet");
-        List<ItemEntity> itemEntities = (List<ItemEntity>) searchResponse.get("item");
-        List<CommunityEntity> communityEntities = (List<CommunityEntity>) searchResponse.get("community");
+        // 2. DB에서 가져온 클래스에서 엔티티 추출
+        List<MeetEntity> meetEntityList = searchResponse.getMeetResults();
+        List<ItemEntity> itemEntities = searchResponse.getItemResults();
+        List<CommunityEntity> communityEntities = searchResponse.getCommunityResults();
 
         List<MeetSummaryDTO> responseMeetSummaryDTOList;
         MemberEntity member = null;

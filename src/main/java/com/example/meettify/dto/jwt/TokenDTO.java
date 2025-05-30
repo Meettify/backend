@@ -1,6 +1,7 @@
 package com.example.meettify.dto.jwt;
 
 import com.example.meettify.dto.member.role.UserRole;
+import com.example.meettify.entity.cart.CartEntity;
 import com.example.meettify.entity.jwt.TokenEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -29,6 +30,8 @@ public class TokenDTO {
     private UserRole memberRole;
     @Schema(description = "유저 닉네임")
     private String nickName;
+    @Schema(description = "유저 장바구니")
+    private Long cartId;
 
 
     public static TokenDTO changeDTO(TokenEntity token,
@@ -44,5 +47,9 @@ public class TokenDTO {
                 .memberRole(memberRole)
                 .nickName(nickName)
                 .build();
+    }
+
+    public void addCartId(CartEntity cart) {
+        this.cartId = cart.getCartId();
     }
 }

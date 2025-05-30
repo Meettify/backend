@@ -31,6 +31,8 @@ public class ResponseMeetBoardCommentDTO {
     @Builder.Default
     private List<ResponseMeetBoardCommentDTO> children = new ArrayList<>();
 
+    private boolean isDeleted = false;
+
     public static ResponseMeetBoardCommentDTO changeDTO(MeetBoardCommentEntity meetBoardCommentEntity,
                                                         MeetBoardCommentPermissionDTO permissionDTO) {
         return ResponseMeetBoardCommentDTO.builder()
@@ -40,6 +42,7 @@ public class ResponseMeetBoardCommentDTO {
                 .content(meetBoardCommentEntity.getContent())
                 .postDate(meetBoardCommentEntity.getPostDate())
                 .permissionDTO(permissionDTO)
+                .isDeleted(meetBoardCommentEntity.isDeleted())
                 .build();
     }
 }

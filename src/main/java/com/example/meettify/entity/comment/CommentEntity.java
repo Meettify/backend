@@ -48,6 +48,9 @@ public class CommentEntity extends BaseEntity {
     @OrderBy("commentId asc ")
     private List<CommentEntity> children = new ArrayList<>();
 
+    @Column(name = "is_deleted")
+    private boolean isDeleted = false;
+
     // 생성
     public static CommentEntity saveComment(CreateCommentDTO comment,
                                             MemberEntity member,
@@ -69,5 +72,10 @@ public class CommentEntity extends BaseEntity {
     // 대댓글 처리
     public void addChildren(CommentEntity comment) {
         this.children.add(comment);
+    }
+
+    // 대댓글이 있을 경우 삭제 표시
+    public void changeDelete() {
+        this.isDeleted = true;
     }
 }

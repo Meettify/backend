@@ -35,7 +35,9 @@ public interface ItemControllerDocs {
     ResponseEntity<?> deleteItem(Long itemId, UserDetails userDetails);
 
     @Operation(summary = "상품 페이징", description = "여러 조건으로 상품을 페이징 처리해서 가져오는 API")
-    ResponseEntity<?> searchItemsConditions(Pageable pageable,
+    ResponseEntity<?> searchItemsConditions(Long lastItemId,
+                                            int size,
+                                            String sort,
                                             String title,
                                             int minPrice,
                                             int maxPrice,
@@ -46,7 +48,9 @@ public interface ItemControllerDocs {
     ResponseEntity<?> recommendItems(UserDetails userDetails);
 
     @Operation(summary = "대기 중인 상품 보기", description = "상품 상태가 WAIT인 상품 리시트 보기 API")
-    ResponseEntity<?> getItemList(Pageable page);
+    ResponseEntity<?> getItemList(Long lastItemId,
+                                  int size,
+                                  String sort);
 
     @Operation(summary = "상품 상태 변경하기", description = "상품을 컨펌하는 기능 API")
     ResponseEntity<?> changeItemStatus(Long itemId);

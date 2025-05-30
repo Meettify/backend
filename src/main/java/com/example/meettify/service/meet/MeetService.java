@@ -14,7 +14,7 @@ import java.util.List;
 
 
 /*
- *   worker : 조영흔
+ *   worker : 조영흔, 유요한
  *   work   : 모임 서비스 인터페이스 구현
  *   date   : 2024/09/24
  * */
@@ -43,5 +43,5 @@ public interface MeetService {
 
     MeetPermissionDTO getPermission(String email, Long meetId);
 
-    Slice<MyMeetResponseDTO> getMyMeet(String email);
+    Page<MyMeetResponseDTO> getMyMeet(String email, Pageable page);
 }

@@ -20,6 +20,7 @@
     import org.springframework.data.domain.Page;
     import org.springframework.data.domain.PageImpl;
     import org.springframework.data.domain.Pageable;
+    import org.springframework.data.domain.Slice;
     import org.springframework.data.redis.core.RedisTemplate;
     import org.springframework.stereotype.Service;
     import org.springframework.transaction.annotation.Transactional;
@@ -83,9 +84,12 @@
                 ItemEntity findItem = itemRepository.findById(itemId)
                         .orElseThrow(() -> new ItemException("Item not found with id: " + itemId));
 
+                log.debug("남길 이미지 확인 : {}", updateItemDTO.getRemainImgId());
+
                 // 만약 남겨야 할 이미지 ID가 비어있다면, 모든 이미지를 삭제
                 if (updateItemDTO.getRemainImgId().isEmpty()) {
                     // s3에서 해당 상품의 이미지 모두 삭제
+
                     findItem.getImages().forEach(
                             img -> s3ImageUploadService.deleteFile(img.getUploadImgPath(), img.getUploadImgName())
                     );
@@ -93,10 +97,12 @@
                     requireNonNull(findItem).getImages().clear();
                 } else {
                     // 먼저 S3에서 삭제해야 할 이미지 처리
-                    findItem.getImages().forEach(img -> {
-                        if (!updateItemDTO.getRemainImgId().contains(img.getItemImgId())) {
+                    List<ItemImgEntity> imgList = findItem.getImages().stream()
+                            .filter(img -> !updateItemDTO.getRemainImgId().contains(img.getItemImgId()))
+                            .toList();
+
+                    imgList.forEach(img -> {
                             s3ImageUploadService.deleteFile(img.getUploadImgPath(), img.getUploadImgName()); // S3에서 삭제
-                        }
                     });
 
                     // 이미지를 필터링하여 남겨야 할 이미지만 남김
@@ -159,18 +165,16 @@
         @Override
         @Transactional(readOnly = true)
         @TimeTrace
-        public Page<ResponseItemDTO> searchItems(ItemSearchCondition condition, Pageable page) {
+        public Slice<ResponseItemDTO> searchItems(ItemSearchCondition condition,
+                                                 Long lastItemId,
+                                                 int size,
+                                                 String sort) {
             try {
-
-                Page<ItemEntity> itemsPage = itemRepository.itemsSearch(condition, page);
+                Slice<ItemEntity> itemsPage = itemRepository.itemsSearch(condition, lastItemId, size, sort);
                 log.debug("itemsPage: {}", itemsPage.getContent());
                 log.debug("itemsPage.size: {}", itemsPage.getContent().size());
                 log.debug("itemsPage.number: {}", itemsPage.getNumber());
 
-                if (itemsPage.isEmpty()) {
-                    // 데이터가 없는 경우 빈 페이지를 반환
-                    return new PageImpl<>(Collections.emptyList(), page, 0);
-                }
 
                 return itemsPage.map(ResponseItemDTO::changeDTO);
             } catch (Exception e) {
@@ -199,7 +203,9 @@
             // 최근 검색 기록에서 키워드를 추출합니다.
             List<String> keywords = userSearchLogs.stream()
                     .map(SearchLog::getName) // SearchLog에서 name을 가져옵니다.
+                    .filter(name -> name != null && !name.trim().isEmpty())
                     .toList();
+            log.debug("keywords : {}", keywords);
 
             List<ItemEntity> items = new ArrayList<>();
             // 키워드가 존재하는 경우, 각각의 키워드에 대해 상품을 조회합니다.
@@ -208,9 +214,7 @@
                 List<ItemEntity> findItems = itemRepository.findItemsByCategoriesAndKeyword(categories, keyword);
                 items.addAll(sampleItems(findItems, 10));
             }
-
-            return  items
-                    .stream()
+            return items.stream()
                     .map(ResponseItemDTO::changeDTO)
                     .collect(Collectors.toList());
         }
@@ -224,6 +228,7 @@
                     categories.addAll(log.getCategory()); // log에서 category를 가져와서 enum으로 변환
                 }
             }
+            log.debug("카테고리 확인 : {}", categories );
             return categories;
         }
 
@@ -238,9 +243,11 @@
         @Override
         @Transactional(readOnly = true)
         @TimeTrace
-        public Page<ResponseItemDTO> requestItemList(Pageable page) {
+        public Slice<ResponseItemDTO> requestItemList(Long lastItemId,
+                                                     int size,
+                                                     String sort) {
             try {
-                Page<ItemEntity> findAllByWait = itemRepository.findAllByWait(page);
+                Slice<ItemEntity> findAllByWait = itemRepository.findAllByWait(lastItemId, size, sort);
                 return findAllByWait.map(ResponseItemDTO::changeDTO);
             } catch (Exception e) {
                 log.warn("exception : " + e.getMessage());

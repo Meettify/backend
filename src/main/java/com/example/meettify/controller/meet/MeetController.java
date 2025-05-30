@@ -145,7 +145,7 @@ public class MeetController implements MeetControllerDocs {
             if (email == null || email.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 정보의 모임 가입 리스트 조회입니다.");
             }
-            Slice<MyMeetResponseDTO> meetResponseDTOS = meetService.getMyMeet(email);
+            Page<MyMeetResponseDTO> meetResponseDTOS = meetService.getMyMeet(email, pageable);
             Map<String, Object> response = new HashMap<>();
             response.put("content", meetResponseDTOS.getContent());
             response.put("hasNext", meetResponseDTOS.hasNext());
