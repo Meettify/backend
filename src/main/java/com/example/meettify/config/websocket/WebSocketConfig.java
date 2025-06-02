@@ -27,7 +27,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry
                 // 소켓 연결 URI다. 소켓을 연결할 때 다음과 같은 통신이 이루어짐
                 .addEndpoint("/ws/chat")
-                .setAllowedOriginPatterns("http://localhost:5173");
+                .setAllowedOriginPatterns("*");
                 // SocketJS를 통해 연결 지원
 //                .withSockJS();
     }

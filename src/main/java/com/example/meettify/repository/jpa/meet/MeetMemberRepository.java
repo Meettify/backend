@@ -3,6 +3,8 @@ package com.example.meettify.repository.jpa.meet;
 import com.example.meettify.entity.meet.MeetMemberEntity;
 import com.example.meettify.entity.meet.MeetEntity;
 import com.example.meettify.entity.member.MemberEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -40,7 +42,7 @@ public interface MeetMemberRepository extends JpaRepository<MeetMemberEntity, Lo
             "JOIN FETCH mm.meetEntity me " +
             "JOIN FETCH me.meetImages mI " +
             "WHERE mm.memberEntity.memberEmail = :memberEmail")
-    Slice<MeetMemberEntity> findMeetsByMemberName(@Param("memberEmail") String memberEmail);
+    Page<MeetMemberEntity> findMeetsByMemberName(@Param("memberEmail") String memberEmail, Pageable page);
 
     @Query("select mm from meetMembers mm " +
             "join fetch mm.meetEntity me " +

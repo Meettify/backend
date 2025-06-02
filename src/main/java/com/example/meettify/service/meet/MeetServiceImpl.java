@@ -345,9 +345,9 @@ public class MeetServiceImpl implements MeetService {
 
     //내가 가입한 모임 리스트 구현
     @Override
-    public Slice<MyMeetResponseDTO> getMyMeet(String email) {
+    public Page<MyMeetResponseDTO> getMyMeet(String email, Pageable page) {
         try {
-            Slice<MeetMemberEntity> findMeetList = meetMemberRepository.findMeetsByMemberName(email);
+            Page<MeetMemberEntity> findMeetList = meetMemberRepository.findMeetsByMemberName(email, page);
 
             return findMeetList.map(MyMeetResponseDTO::changeDTO);
 
@@ -355,7 +355,6 @@ public class MeetServiceImpl implements MeetService {
             throw new MeetException("가입한 모임 리스트 조회 중 에러 발생: " + e.getMessage());
         }
     }
-
 
     private List<MeetImageEntity> uploadMeetImages(List<MultipartFile> files, MeetEntity savedMeet) throws  java.io.IOException {
         return s3ImageUploadService.upload("meetImages", files, (oriFileName, uploadFileName, uploadFilePath, uploadFileUrl) ->

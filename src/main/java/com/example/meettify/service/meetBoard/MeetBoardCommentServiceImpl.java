@@ -98,7 +98,13 @@ public class MeetBoardCommentServiceImpl implements MeetBoardCommentService {
     public String deleteComment(Long meetBoardCommentId) {
         try {
             MeetBoardCommentEntity findComment = meetBoardCommentRepository.findById(meetBoardCommentId).orElseThrow(() -> new EntityNotFoundException("잘못된 삭제 요청입니다."));
-            meetBoardCommentRepository.delete(findComment);
+
+            if(findComment.getReplies().isEmpty()) {
+                meetBoardCommentRepository.delete(findComment);
+            } else {
+                findComment.changeDelete();
+            }
+
             return "모임 게시판 댓글을 삭제했습니다.";
         } catch (Exception e) {
             throw new MeetBoardCommentException(e.getMessage());

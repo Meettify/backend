@@ -139,6 +139,8 @@ public class MemberServiceImpl implements MemberService {
 
                     tokenEntity = TokenEntity.changeEntity(token);
 
+                    CartEntity findCart = cartRepository.findByMemberMemberEmail(findMember.getMemberEmail());
+
                     TokenEntity saveToken = tokenRepository.save(tokenEntity);
                     // 로그인 성공 시 캐시 초기화
                     loginAttemptConfig.loginSuccess(email);
@@ -147,6 +149,7 @@ public class MemberServiceImpl implements MemberService {
                             token.getAccessToken(),
                             findMember.getMemberRole(),
                             findMember.getNickName());
+                    response.addCartId(findCart);
                     log.info("response : {}", response);
                     return response;
                 }

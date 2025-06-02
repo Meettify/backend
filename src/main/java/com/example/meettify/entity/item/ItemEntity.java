@@ -123,7 +123,13 @@ public class ItemEntity extends BaseEntity {
 
     // 재고 감소
     public void minusItemStock(int count) {
-        this.itemCount = this.itemCount - count;
+        if((this.itemCount - count) >= 0) {
+            this.itemCount = this.itemCount - count;
+        }
+
+        if(this.itemCount == 0) {
+            changeSoldOut();
+        }
     }
 
     // 예시: 감소된 재고 복구 메소드
@@ -135,6 +141,11 @@ public class ItemEntity extends BaseEntity {
     // 상태 변경
     public void changeStatus() {
         this.itemStatus = ItemStatus.SELL;
+    }
+
+    // 품절 처리하기
+    public void changeSoldOut() {
+        this.itemStatus = ItemStatus.SOLD_OUT;
     }
 
 }

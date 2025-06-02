@@ -24,12 +24,6 @@ public class RequestTossPaymentConfirmDTO {
     private Long amount;          // 결제 금액
     @Schema(description = "토스 결제 키")
     private String paymentKey;    // 결제 키
-    @Schema(description = "승인 시간")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")  // ISO 8601 형식
-    private OffsetDateTime requestedAt;
-    @Schema(description = "결제 승인 시간")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")  // ISO 8601 형식
-    private OffsetDateTime approvedAt;
     @Schema(description = "주문 uid")
     private String orderUid;
     @Schema(description = "주문 정보")

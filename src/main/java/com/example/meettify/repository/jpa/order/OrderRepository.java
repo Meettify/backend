@@ -28,4 +28,5 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long>, Custo
     @Query("SELECT COUNT(o) FROM orders o")
     long countAllOrders();
 
+    boolean existsByOrderUUIDid(String orderUUid);
 }

@@ -27,6 +27,8 @@ public class RedisSearchLogService {
     public void saveRecentSearchLog(String email,
                                     RequestSearchLog searchLog,
                                     List<Category> category) {
+
+
         // 1. 회원 조회
         MemberEntity findMember = memberRepository.findByMemberEmail(email);
         if (findMember == null) {
@@ -44,6 +46,11 @@ public class RedisSearchLogService {
                 .build();
 
         log.debug("Search Log {}", value);
+
+        if (searchLog.getName() == null || searchLog.getName().trim().isEmpty()) {
+            log.debug("빈 검색어는 저장하지 않습니다.");
+            return;
+        }
 
         // 3. 현재 검색어 목록의 크기 확인
         Long size = Objects.requireNonNullElse(redisTemplate.opsForList().size(key), 0L);

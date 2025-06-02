@@ -101,8 +101,8 @@ public class PaymentController implements PaymentControllerDocs {
             log.info("------------------");
             log.info("토스 결제 시도");
             String email = userDetails != null ? userDetails.getUsername() : null;
-//            ResponseTossPaymentConfirmDTO response = paymentClient.confirmPayment(tossPay, email);
-            ResponseTossPaymentConfirmDTO responseToss = paymentService.savePayment(tossPay, email);
+            ResponseTossPaymentConfirmDTO responseToss = paymentClient.confirmPayment(tossPay, email);
+//            ResponseTossPaymentConfirmDTO responseToss = paymentService.savePayment(tossPay, email);
             ResponseOrderDTO responseOrder = orderService.saveOrder(tossPay.getOrders(), email, tossPay.getOrderUid());
             log.info("order {}", responseOrder);
 

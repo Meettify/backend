@@ -7,6 +7,11 @@ import lombok.*;
 
 import java.util.List;
 
+/*
+ *   writer  : 조영훈
+ *   work    : 전체 검색시 프론트에게 반환할 DTO
+ *   date    : 2024/10/14
+ * */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
@@ -24,5 +29,4 @@ public class SearchResponseDTO {
                 .responseBoardList(responseCommunityDTOS)
                 .build();
     }
-
 }

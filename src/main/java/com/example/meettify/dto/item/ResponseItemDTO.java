@@ -37,7 +37,6 @@ public class ResponseItemDTO {
     @Schema(description = "상품 상태")
     private ItemStatus itemStatus;
     @Builder.Default
-    @JsonIgnore
     private List<ResponseItemImgDTO> images = new ArrayList<>();
     @Schema(description = "상품 수량")
     // 재고 수량

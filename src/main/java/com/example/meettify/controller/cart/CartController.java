@@ -45,13 +45,13 @@ public class CartController implements CartControllerDocs{
 
     // 장바구니 상품 삭제
     @Override
-    @DeleteMapping("/{cartItemId}")
+    @DeleteMapping("/{itemId}")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> removeCart(@PathVariable Long cartItemId,
+    public ResponseEntity<?> removeCart(@PathVariable Long itemId,
                                         @AuthenticationPrincipal UserDetails userDetails) {
         try {
             String email = userDetails.getUsername();
-            String response = cartService.deleteCartItem(cartItemId, email);
+            String response = cartService.deleteCartItem(itemId, email);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             throw new CartException(e.getMessage());
