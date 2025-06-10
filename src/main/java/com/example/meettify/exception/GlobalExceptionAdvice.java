@@ -142,13 +142,13 @@ public class GlobalExceptionAdvice {
     }
 
     /**
-     * 게시글작성시 모든값이 제대로 입력되지 않았을때 발생하는 예외
+     * 게시글 작성시 모든값이 제대로 입력되지 않았을때 발생하는 예외
      */
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<String> dataIntegrityViolationError(DataIntegrityViolationException e, HttpServletRequest request){
         String message = "값이 제대로 입력되지 않았습니다.(DataIntegrityViolationException)";
         ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setError("회원 에러 발생");
+        errorResponse.setError("게시글 에러 발생");
         errorResponse.setMessage(message);
         errorResponse.setTimestamp(now); // 오류 발생 시간
         errorResponse.setPath(request.getRequestURI()); // 요청된 경로
@@ -165,7 +165,7 @@ public class GlobalExceptionAdvice {
     @ExceptionHandler(IamportResponseException.class)
     public ResponseEntity<String> verifyIamportException(IamportResponseException e, HttpServletRequest request){
         ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setError("회원 에러 발생");
+        errorResponse.setError("결제 금액 에러 발생");
         errorResponse.setMessage(e.getMessage());
         errorResponse.setTimestamp(now); // 오류 발생 시간
         errorResponse.setPath(request.getRequestURI()); // 요청된 경로

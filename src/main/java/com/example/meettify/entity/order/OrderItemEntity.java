@@ -19,8 +19,13 @@ public class OrderItemEntity {
     private Long orderItemId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item_id")
+    @JoinColumn(name = "item_id",
+            nullable = true // ⭐ 필수: DB에서 NULL 가능하게
+    )
     private ItemEntity item;
+
+    @Embedded
+    private OrderItemSnapshot itemSnapshot;
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
@@ -43,6 +48,15 @@ public class OrderItemEntity {
                 .order(order)
                 .orderCount(count)
                 .orderPrice(price)
+                .itemSnapshot(OrderItemSnapshot.builder()
+                        .itemName(item.getItemName())
+                        .itemPrice(item.getItemPrice())
+                        .itemDetails(item.getItemDetails())
+                        .itemStatus(item.getItemStatus())
+                        .itemCategory(item.getItemCategory())
+                        .itemCount(item.getItemCount())
+                        .build()
+                )
                 .build();
     }
 

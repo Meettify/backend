@@ -222,7 +222,7 @@ public class ItemController implements ItemControllerDocs{
     @GetMapping("/top")
     public ResponseEntity<?> getTopItems() {
         try {
-            List<ResponseItemDTO> result = itemService.getTopItemIds(10);
+            List<ResponseItemDTO> result = itemService.getTopItemIds(8);
             log.debug("반환할 값 {}", result);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
