@@ -1,5 +1,5 @@
 name: CI/CD Pipeline
-정
+
 # 트리거 조건: main 브랜치에 PR이 머지되거나 수동 실행 시 워크플로우 동작
 on:
   workflow_dispatch:
