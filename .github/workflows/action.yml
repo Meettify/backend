@@ -43,7 +43,7 @@ jobs:
 
       # 3. SARIF 포맷의 보안 리포트를 GitHub에 업로드
       - name: Upload vulnerability report
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         if: success() || failure()
         with:
           sarif_file: ${{ steps.scan.outputs.sarif }}
